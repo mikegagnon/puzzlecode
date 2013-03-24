@@ -59,7 +59,5 @@ function restartSimulation() {
   cleanUpVisualization()
   var programText = codeMirrorBox.getValue()
   var program = compileRobocom(programText)
-  lineComments = program.lineComments
-  codeMirrorBox.refresh()
-  console.log(lineComments)
+  addLineComments(program.lineComments)
 }

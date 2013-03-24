@@ -56,11 +56,11 @@ window.onload = function(){
 
   codeMirrorBox = CodeMirror(document.getElementById("container"), {
     value: initialProgram,
+    gutters: ["note-gutter", "CodeMirror-linenumbers"],
     mode:  "text/x-robocom",
     theme: "solarized dark",
     smartIndent: false,
     lineNumbers: true,
-    lineNumberFormatter: formatLineNumber
   });
 
 }

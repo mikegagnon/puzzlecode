@@ -89,6 +89,20 @@ function AnimationTurn(oldFacing, newFacing) {
  *  - make the text box read-only while the simulation is playing
  *  - add break points
  *  - have the text box highlight the line that is currently being executed
+ *
+ * TODO: see if there is more sophisticated gutter mechanisms to
+ * present comments and errors to the user
+ * http://codemirror.net/doc/upgrade_v3.html#gutters
+ *
+ * TODO: listen for changes in the document and automatically update gutter
+ * with comments and errors
+ *
+ * TODO: how to keep width of gutter constant?
+ *
+ * IDEA: breakpoints, see http://codemirror.net/demo/marker.html
+ *
+ * TODO: error text usually needs to be more verbose. Perhaps add a link to
+ * a popup that explains the error and gives references.
  */
 
 // Defines a syntax highlighter for the robocom language
@@ -115,26 +129,19 @@ CodeMirror.defineMIME("text/x-robocom", {
   }
 });
 
-/**
- * TODO: see if there is more sophisticated gutter mechanisms to
- * present comments and errors to the user
- * http://codemirror.net/doc/upgrade_v3.html#gutters
- *
- * TODO: listen for changes in the document and automatically update gutter
- * with comments and errors
- *
- * TODO: how to keep width of gutter constant?
- *
- * IDEA: breakpoints, see http://codemirror.net/demo/marker.html
- */
-function formatLineNumber(lineNumber) {
-  if (lineNumber in lineComments) {
-    return lineComments[lineNumber]
-  } else {
-    return ""
+// lineComments is a map where line index points to comment for that line
+function addLineComments(lineComments) {
+  for (i in lineComments) {
+      var comment = lineComments[i]
+      console.dir(i)
+      console.log(comment)
+      codeMirrorBox
+        .setGutterMarker(
+          parseInt(i),
+          "note-gutter",
+          document.createTextNode(comment))
   }
-}
-/**
+}/**
  * Copyright 2013 Michael N. Gagnon
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -259,7 +266,7 @@ function compileLine(line) {
   } else if (opcode == "turn") {
     return compileTurn(tokens)
   } else {
-    comment = "'" + opcode + "' is not an instruction" 
+    comment = "<b>'" + opcode + "' is not an instruction</b>" 
     return [null, comment]
   }
 }
@@ -271,12 +278,11 @@ function compileRobocom(programText) {
   var lineComments = {}
   var error = false
   for (var i = 0; i < lines.length; i++) {
-    var lineNumber = i + 1
     var line = lines[i]
     var compiledLine = compileLine(line)
     if (compiledLine.length > 0) {
       // assert compiledLine.length == 2
-      lineComments[lineNumber] = compiledLine[1]
+      lineComments[i] = compiledLine[1]
       var instruction = compiledLine[0]
       if (instruction == null) {
         error = true
@@ -382,9 +388,7 @@ function restartSimulation() {
   cleanUpVisualization()
   var programText = codeMirrorBox.getValue()
   var program = compileRobocom(programText)
-  lineComments = program.lineComments
-  codeMirrorBox.refresh()
-  console.log(lineComments)
+  addLineComments(program.lineComments)
 }
 /**
  * Copyright 2013 Michael N. Gagnon
@@ -796,11 +800,11 @@ window.onload = function(){
 
   codeMirrorBox = CodeMirror(document.getElementById("container"), {
     value: initialProgram,
+    gutters: ["note-gutter", "CodeMirror-linenumbers"],
     mode:  "text/x-robocom",
     theme: "solarized dark",
     smartIndent: false,
     lineNumbers: true,
-    lineNumberFormatter: formatLineNumber
   });
 
 }

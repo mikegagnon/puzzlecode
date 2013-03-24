@@ -123,7 +123,7 @@ function compileLine(line) {
   } else if (opcode == "turn") {
     return compileTurn(tokens)
   } else {
-    comment = "'" + opcode + "' is not an instruction" 
+    comment = "<b>'" + opcode + "' is not an instruction</b>" 
     return [null, comment]
   }
 }
@@ -135,12 +135,11 @@ function compileRobocom(programText) {
   var lineComments = {}
   var error = false
   for (var i = 0; i < lines.length; i++) {
-    var lineNumber = i + 1
     var line = lines[i]
     var compiledLine = compileLine(line)
     if (compiledLine.length > 0) {
       // assert compiledLine.length == 2
-      lineComments[lineNumber] = compiledLine[1]
+      lineComments[i] = compiledLine[1]
       var instruction = compiledLine[0]
       if (instruction == null) {
         error = true

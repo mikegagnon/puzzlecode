@@ -19,6 +19,20 @@
  *  - make the text box read-only while the simulation is playing
  *  - add break points
  *  - have the text box highlight the line that is currently being executed
+ *
+ * TODO: see if there is more sophisticated gutter mechanisms to
+ * present comments and errors to the user
+ * http://codemirror.net/doc/upgrade_v3.html#gutters
+ *
+ * TODO: listen for changes in the document and automatically update gutter
+ * with comments and errors
+ *
+ * TODO: how to keep width of gutter constant?
+ *
+ * IDEA: breakpoints, see http://codemirror.net/demo/marker.html
+ *
+ * TODO: error text usually needs to be more verbose. Perhaps add a link to
+ * a popup that explains the error and gives references.
  */
 
 // Defines a syntax highlighter for the robocom language
@@ -45,25 +59,16 @@ CodeMirror.defineMIME("text/x-robocom", {
   }
 });
 
-/**
- * TODO: see if there is more sophisticated gutter mechanisms to
- * present comments and errors to the user
- * http://codemirror.net/doc/upgrade_v3.html#gutters
- *
- * TODO: listen for changes in the document and automatically update gutter
- * with comments and errors
- *
- * TODO: how to keep width of gutter constant?
- *
- * IDEA: breakpoints, see http://codemirror.net/demo/marker.html
- *
- * TODO: error text usually needs to be more verbose. Perhaps add a link to
- * a popup that explains the error and gives references.
- */
-function formatLineNumber(lineNumber) {
-  if (lineNumber in lineComments) {
-    return lineComments[lineNumber]
-  } else {
-    return ""
+// lineComments is a map where line index points to comment for that line
+function addLineComments(lineComments) {
+  for (i in lineComments) {
+      var comment = lineComments[i]
+      console.dir(i)
+      console.log(comment)
+      codeMirrorBox
+        .setGutterMarker(
+          parseInt(i),
+          "note-gutter",
+          document.createTextNode(comment))
   }
 }
