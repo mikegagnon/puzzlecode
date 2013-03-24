@@ -69,6 +69,6 @@ function addLineComments(lineComments) {
         .setGutterMarker(
           parseInt(i),
           "note-gutter",
-          document.createTextNode(comment))
+          comment)
   }
 }

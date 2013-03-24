@@ -139,7 +139,7 @@ function addLineComments(lineComments) {
         .setGutterMarker(
           parseInt(i),
           "note-gutter",
-          document.createTextNode(comment))
+          comment)
   }
 }/**
  * Copyright 2013 Michael N. Gagnon
@@ -183,6 +183,18 @@ function RobocomProgram(
   this.lineComments = lineComments
 }
 
+function newErrorComment(text, uri) {
+  var newlink = document.createElement('a')
+  newlink.setAttribute('href', uri)
+  newlink.setAttribute('class', "errorLink")
+  newlink.appendChild(newComment(text))
+  return newlink
+}
+
+function newComment(text) {
+  return document.createTextNode(text)
+}
+
 function removeComment(tokens) {
   var commentToken = -1
   for (var i = 0; i < tokens.length; i++) {
@@ -207,10 +219,10 @@ function compileMove(tokens) {
   // assert tokens[0] == "move"
   if (tokens.length == 1) {
     instruction = new RobocomInstruction(Opcode.MOVE, null)
-    comment = "Move forward one square"
+    comment = newComment("Move forward one square")
   } else {
     instruction = null
-    comment = "The 'move' instruction does not take any parameters"
+    comment = newErrorComment("Incorrect 'move' instruction", "#")
   }
 
   return [instruction, comment]
@@ -225,17 +237,17 @@ function compileTurn(tokens) {
     var direction = tokens[1]
     if (direction == "left") {
       instruction = new RobocomInstruction(Opcode.TURN, Direction.LEFT)
-      comment = "Rotate counter-clockwise 90 degrees"
+      comment = newComment("Rotate counter-clockwise 90 degrees")
     } else if (direction == "right") {
       instruction = new RobocomInstruction(Opcode.TURN, Direction.RIGHT)
-      comment = "Rotate clockwise 90 degrees"
+      comment = newComment("Rotate clockwise 90 degrees")
     } else {
       instruction = null
-      comment = "'" + direction + "' is not a valid direction to turn"
+      comment = newErrorComment("'" + direction + "' is not a valid direction", "#")
     }
   } else {
     instruction = null
-    comment = "The 'turn' instruction requires one parameter: left or right"
+    comment = newErrorComment("The 'turn' instruction is missing a direction", "#")
   }
 
   return [instruction, comment]
@@ -266,7 +278,7 @@ function compileLine(line) {
   } else if (opcode == "turn") {
     return compileTurn(tokens)
   } else {
-    comment = "<b>'" + opcode + "' is not an instruction</b>" 
+    comment = newErrorComment("'" + opcode + "' is not an instruction", "#")
     return [null, comment]
   }
 }
