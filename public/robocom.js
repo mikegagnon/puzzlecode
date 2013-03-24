@@ -84,6 +84,44 @@ function AnimationTurn(oldFacing, newFacing) {
  * limitations under the License.
  */
 
+// Defines a syntax highlighter for the robocom language
+CodeMirror.defineMIME("text/x-robocom", {
+  name: "clike",
+  //keywords: words("move turn goto"),
+  keywords: {
+    "move" : true,
+    "turn" : true,
+    "goto" : true
+  },
+  blockKeywords: {},
+  atoms: {
+    "true" : true,
+    "false" : true,
+    "left" : true,
+    "right" : true
+  },
+  hooks: {
+    "@": function(stream) {
+      stream.eatWhile(/[\w\$_]/);
+      return "meta";
+    }
+  }
+});/**
+ * Copyright 2013 Michael N. Gagnon
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 // some functions useful for debugging
 
 // add size functions to selections and transitions
@@ -477,6 +515,7 @@ var CYCLE_DUR = PlaySpeed.NORMAL[1]
 // TODO: replace 6 with a computed value
 var BOT_PHASE_SHIFT = 0
 
+var initialProgram = "move\nmove\nmove\nturn left\n"
 
 // TODO: put onload and event handlers in separate file
 
@@ -505,6 +544,13 @@ window.onload = function(){
         pausePlay.innerHTML = 'Play!'
       }
     });
+
+  var myCodeMirror = CodeMirror(document.getElementById("container"), {
+    value: initialProgram,
+    mode:  "text/x-robocom",
+    theme: "solarized dark",
+    smartIndent: false
+  });
 }
 
 

@@ -36,6 +36,7 @@ var CYCLE_DUR = PlaySpeed.NORMAL[1]
 // TODO: replace 6 with a computed value
 var BOT_PHASE_SHIFT = 0
 
+var initialProgram = "move\nmove\nmove\nturn left\n"
 
 // TODO: put onload and event handlers in separate file
 
@@ -64,6 +65,13 @@ window.onload = function(){
         pausePlay.innerHTML = 'Play!'
       }
     });
+
+  var myCodeMirror = CodeMirror(document.getElementById("container"), {
+    value: initialProgram,
+    mode:  "text/x-robocom",
+    theme: "solarized dark",
+    smartIndent: false
+  });
 }
 
 
