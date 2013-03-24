@@ -154,3 +154,7 @@ function step(bots) {
     }
   }
 }
+
+function cleanUpSimulation() {
+  bots = []
+}

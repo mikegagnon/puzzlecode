@@ -185,4 +185,9 @@ function animate() {
     })
   
 }
+
+function cleanUpVisualization() {
+  d3.selectAll(".bot").remove()
+  d3.selectAll(".botClone").remove()
+}
  

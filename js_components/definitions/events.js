@@ -26,16 +26,18 @@ function setSpeed(speed) {
   animateInterval = setInterval("animate()", CYCLE_DUR)
 }
 
+// TODO: consider graying out the play button when it's not possible to play it
 function doPause() {
   playStatus = PlayStatus.PAUSED
   pausePlay.innerHTML = 'Play!'
 }
 
 function doPlay() {
-  playStatus = PlayStatus.PLAYING
-  pausePlay.innerHTML = 'Pause'
+  if (bots.length > 0) {
+    playStatus = PlayStatus.PLAYING
+    pausePlay.innerHTML = 'Pause'
+  }
 }
-
 
 function togglePausePlay() {
   // TODO: determine is this is threadsafe in JS
@@ -53,4 +55,11 @@ function togglePausePlay() {
  */
 function restartSimulation() {
   doPause()
+  cleanUpSimulation()
+  cleanUpVisualization()
+  var programText = codeMirrorBox.getValue()
+  var program = compileRobocom(programText)
+  lineComments = program.lineComments
+  codeMirrorBox.refresh()
+  console.log(lineComments)
 }

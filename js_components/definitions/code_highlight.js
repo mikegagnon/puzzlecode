@@ -56,11 +56,14 @@ CodeMirror.defineMIME("text/x-robocom", {
  * TODO: how to keep width of gutter constant?
  *
  * IDEA: breakpoints, see http://codemirror.net/demo/marker.html
+ *
+ * TODO: error text usually needs to be more verbose. Perhaps add a link to
+ * a popup that explains the error and gives references.
  */
 function formatLineNumber(lineNumber) {
   if (lineNumber in lineComments) {
-    return lineComments[lineNumber] + " " + lineNumber
+    return lineComments[lineNumber]
   } else {
-    return lineNumber
+    return ""
   }
 }
