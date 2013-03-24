@@ -457,7 +457,7 @@ function animate() {
 
 // [animationDuration, delayDuration]
 PlaySpeed = {
-  SUPER_SLOW: [1500, 3000, "Super slow"],
+  SUPER_SLOW: [2000, 4000, "Super slow"],
   SLOW: [750, 1500, "Slow"],
   NORMAL: [400, 400, "Normal"],
   FAST: [150, 150, "Fast"],
