@@ -1,37 +1,93 @@
 <!DOCTYPE html>
-<meta charset="utf-8">
-<body>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Robocom Web</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A Javascript implementaiton of Robocom">
+    <meta name="author" content="Michael N. Gagnon">
 
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<div style="background-color: pink">
-<p>Robocom</p>
-</div>
-<div>
-<svg id="board" xmlns="http://www.w3.org/2000/svg" >
-  <defs>
-    <!-- the bot is facing up -->
-    <!-- TODO: put this SVG image in a separate file-->
-    <g id="botTemplate" height="32" width="32" >
-      <!--<rect x=0 y=0 width=32 height=32></rect>-->
-      <circle
-        stroke="black"
-        fill="steelblue"
-        r="9"
-        cx="16"
-        cy="16" ></circle>
-      <rect
-        class="head"
-        stroke="black"
-        fill="steelblue"
-        x="7"
-        y="7"
-        width="9"
-        height="9"
-        transform="rotate(45 16 16)"></rect>
-    </g>
-  </defs>
-</svg>
-</div>
-<script src="lib/d3.min.js"> </script>
-<script src="robocom.js"></script>
-</body>
+    <!-- Le styles -->
+    <link href="lib/bootstrap.css" rel="stylesheet">
+    <style>
+      body {
+        padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
+      }
+    </style>
+    <link href="lib/bootstrap-responsive.css" rel="stylesheet">
+
+    <!-- TODO: get and test the shiv -->
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="../assets/js/html5shiv.js"></script>
+    <![endif]-->
+
+  </head>
+  <body>
+
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="brand">Robocom Web</a>
+          <div class="nav-collapse collapse">
+            <ul class="nav">
+              <li><a href="http://mikegagnon.com">By Mike Gagnon</a></li>
+              <li><a href="https://github.com/mikegagnon/robocom_web/">On Github</a></li>
+            </ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+
+      <h1>A Javascript implementation of
+        <a href="http://atlantis.cyty.com/robocom/">Robocom</a></h1>
+      
+      <p>
+        This project is under construction.
+        It's my first Javascript project, so please send me feedback!
+        Just file an issue or pull request on
+        <a href="https://github.com/mikegagnon/robocom_web/">Github</a> or
+        send me an email at
+        <a href="mailto:mikegagnon@gmail.com">mikegagnon@gmail.com</a>.
+      </p>
+
+      <div>
+      <svg id="board" xmlns="http://www.w3.org/2000/svg" >
+        <defs>
+          <!-- the bot is facing up -->
+          <!-- TODO: put this SVG image in a separate file-->
+          <g id="botTemplate" height="32" width="32" >
+            <!--<rect x=0 y=0 width=32 height=32></rect>-->
+            <circle
+              stroke="black"
+              fill="steelblue"
+              r="9"
+              cx="16"
+              cy="16" ></circle>
+            <rect
+              class="head"
+              stroke="black"
+              fill="steelblue"
+              x="7"
+              y="7"
+              width="9"
+              height="9"
+              transform="rotate(45 16 16)"></rect>
+          </g>
+        </defs>
+      </svg>
+      </div>
+      <script src="lib/d3.min.js"> </script>
+      <script src="robocom.js"></script>
+
+    </div> <!-- /container -->
+
+  </body>
+</html>
