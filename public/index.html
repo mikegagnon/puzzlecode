@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<body>
+
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<div style="background-color: pink">
+<p>Robocom</p>
+</div>
+<div>
+<svg id="board" xmlns="http://www.w3.org/2000/svg" >
+  <defs>
+    <!-- the bot is facing up -->
+    <!-- TODO: put this SVG image in a separate file-->
+    <g id="botTemplate" height="32" width="32" >
+      <!--<rect x=0 y=0 width=32 height=32></rect>-->
+      <circle
+        stroke="black"
+        fill="steelblue"
+        r="9"
+        cx="16"
+        cy="16" ></circle>
+      <rect
+        class="head"
+        stroke="black"
+        fill="steelblue"
+        x="7"
+        y="7"
+        width="9"
+        height="9"
+        transform="rotate(45 16 16)"></rect>
+    </g>
+  </defs>
+</svg>
+</div>
+<script src="lib/d3.min.js"> </script>
+<script src="robocom.js"></script>
+</body>
