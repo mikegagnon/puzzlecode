@@ -84,6 +84,13 @@ function AnimationTurn(oldFacing, newFacing) {
  * limitations under the License.
  */
 
+/**
+ * IDEAS:
+ *  - make the text box read-only while the simulation is playing
+ *  - add break points
+ *  - have the text box highlight the line that is currently being executed
+ */
+
 // Defines a syntax highlighter for the robocom language
 CodeMirror.defineMIME("text/x-robocom", {
   name: "clike",
@@ -106,7 +113,28 @@ CodeMirror.defineMIME("text/x-robocom", {
       return "meta";
     }
   }
-});/**
+});
+
+/**
+ * TODO: see if there is more sophisticated gutter mechanisms to
+ * present comments and errors to the user
+ * http://codemirror.net/doc/upgrade_v3.html#gutters
+ *
+ * TODO: listen for changes in the document and automatically update gutter
+ * with comments and errors
+ *
+ * TODO: how to keep width of gutter constant?
+ *
+ * IDEA: breakpoints, see http://codemirror.net/demo/marker.html
+ */
+function formatLineNumber(lineNumber) {
+  if (lineNumber in lineComments) {
+    return lineComments[lineNumber] + " " + lineNumber
+  } else {
+    return lineNumber
+  }
+}
+/**
  * Copyright 2013 Michael N. Gagnon
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -136,6 +164,62 @@ d3.selection.prototype.size = function() {
   this.each(function() { ++n; });
   return n;
 };/**
+ * Copyright 2013 Michael N. Gagnon
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// These event handlers are registered in main.js and in index.html
+
+function setSpeed(speed) {
+  var speedText = document.getElementById("speedText")
+
+  ANIMATION_DUR = speed[0]
+  CYCLE_DUR = speed[1]
+  speedText.innerHTML = speed[2]
+  clearInterval(animateInterval)
+  animateInterval = setInterval("animate()", CYCLE_DUR)
+}
+
+function doPause() {
+  playStatus = PlayStatus.PAUSED
+  pausePlay.innerHTML = 'Play!'
+}
+
+function doPlay() {
+  playStatus = PlayStatus.PLAYING
+  pausePlay.innerHTML = 'Pause'
+}
+
+
+function togglePausePlay() {
+  // TODO: determine is this is threadsafe in JS
+  if (playStatus == PlayStatus.PAUSED) {
+    doPlay()
+  } else {
+    doPause()
+  }
+}
+
+/**
+ * - Pauses the simulation
+ * - resets the board state
+ * - compiles the program
+ */
+function restartSimulation() {
+  doPause()
+}
+/**
  * Copyright 2013 Michael N. Gagnon
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -516,41 +600,32 @@ var CYCLE_DUR = PlaySpeed.NORMAL[1]
 var BOT_PHASE_SHIFT = 0
 
 var initialProgram = "move\nmove\nmove\nturn left\n"
+var codeMirrorBox = null
+
+var pausePlay = null
+
+// maps linenumbers to comments for that line
+var lineComments = {}
 
 // TODO: put onload and event handlers in separate file
-
-function setSpeed(speed) {
-  var speedText = document.getElementById("speedText")
-
-  ANIMATION_DUR = speed[0]
-  CYCLE_DUR = speed[1]
-  speedText.innerHTML = speed[2]
-  clearInterval(animateInterval)
-  animateInterval = setInterval("animate()", CYCLE_DUR)
-}
-
 window.onload = function(){
 
-  var pausePlay = document.getElementById("pauseplay")
+  pausePlay = document.getElementById("pauseplay")
+  pausePlay.addEventListener("click", togglePausePlay);
 
-  pausePlay
-    .addEventListener("click", function() {
-      // TODO: determine is this is threadsafe in JS
-      if (playStatus == PlayStatus.PAUSED) {
-        playStatus = PlayStatus.PLAYING
-        pausePlay.innerHTML = 'Pause'
-      } else {
-        playStatus = PlayStatus.PAUSED
-        pausePlay.innerHTML = 'Play!'
-      }
-    });
+  document
+    .getElementById("restart")
+    .addEventListener("click", restartSimulation);
 
-  var myCodeMirror = CodeMirror(document.getElementById("container"), {
+  codeMirrorBox = CodeMirror(document.getElementById("container"), {
     value: initialProgram,
     mode:  "text/x-robocom",
     theme: "solarized dark",
-    smartIndent: false
+    smartIndent: false,
+    lineNumbers: true,
+    lineNumberFormatter: formatLineNumber
   });
+
 }
 
 

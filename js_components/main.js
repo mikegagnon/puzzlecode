@@ -37,41 +37,32 @@ var CYCLE_DUR = PlaySpeed.NORMAL[1]
 var BOT_PHASE_SHIFT = 0
 
 var initialProgram = "move\nmove\nmove\nturn left\n"
+var codeMirrorBox = null
+
+var pausePlay = null
+
+// maps linenumbers to comments for that line
+var lineComments = {}
 
 // TODO: put onload and event handlers in separate file
-
-function setSpeed(speed) {
-  var speedText = document.getElementById("speedText")
-
-  ANIMATION_DUR = speed[0]
-  CYCLE_DUR = speed[1]
-  speedText.innerHTML = speed[2]
-  clearInterval(animateInterval)
-  animateInterval = setInterval("animate()", CYCLE_DUR)
-}
-
 window.onload = function(){
 
-  var pausePlay = document.getElementById("pauseplay")
+  pausePlay = document.getElementById("pauseplay")
+  pausePlay.addEventListener("click", togglePausePlay);
 
-  pausePlay
-    .addEventListener("click", function() {
-      // TODO: determine is this is threadsafe in JS
-      if (playStatus == PlayStatus.PAUSED) {
-        playStatus = PlayStatus.PLAYING
-        pausePlay.innerHTML = 'Pause'
-      } else {
-        playStatus = PlayStatus.PAUSED
-        pausePlay.innerHTML = 'Play!'
-      }
-    });
+  document
+    .getElementById("restart")
+    .addEventListener("click", restartSimulation);
 
-  var myCodeMirror = CodeMirror(document.getElementById("container"), {
+  codeMirrorBox = CodeMirror(document.getElementById("container"), {
     value: initialProgram,
     mode:  "text/x-robocom",
     theme: "solarized dark",
-    smartIndent: false
+    smartIndent: false,
+    lineNumbers: true,
+    lineNumberFormatter: formatLineNumber
   });
+
 }
 
 

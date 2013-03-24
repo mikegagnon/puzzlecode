@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * IDEAS:
+ *  - make the text box read-only while the simulation is playing
+ *  - add break points
+ *  - have the text box highlight the line that is currently being executed
+ */
+
 // Defines a syntax highlighter for the robocom language
 CodeMirror.defineMIME("text/x-robocom", {
   name: "clike",
@@ -37,3 +44,23 @@ CodeMirror.defineMIME("text/x-robocom", {
     }
   }
 });
+
+/**
+ * TODO: see if there is more sophisticated gutter mechanisms to
+ * present comments and errors to the user
+ * http://codemirror.net/doc/upgrade_v3.html#gutters
+ *
+ * TODO: listen for changes in the document and automatically update gutter
+ * with comments and errors
+ *
+ * TODO: how to keep width of gutter constant?
+ *
+ * IDEA: breakpoints, see http://codemirror.net/demo/marker.html
+ */
+function formatLineNumber(lineNumber) {
+  if (lineNumber in lineComments) {
+    return lineComments[lineNumber] + " " + lineNumber
+  } else {
+    return lineNumber
+  }
+}

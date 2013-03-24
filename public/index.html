@@ -15,6 +15,7 @@
       body {
         padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
       }
+      .CodeMirror-linenumbers { width: 20em; }
     </style>
     <link href="lib/bootstrap-responsive.css" rel="stylesheet">
 
@@ -102,21 +103,18 @@
       <p>
         <div class="btn-group">
           <button class="btn" id="pauseplay">Pause</button>
+          <button class="btn" id="restart">Restart</button>
+          <a class="btn" id="speedText">Normal</a>
+            <a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li><a href="javascript: setSpeed(PlaySpeed.SUPER_SLOW)">Super slow</a></li>
+              <li><a href="javascript: setSpeed(PlaySpeed.SLOW)">Slow</a></li>
+              <li><a href="javascript: setSpeed(PlaySpeed.NORMAL)">Normal</a></li>
+              <li><a href="javascript: setSpeed(PlaySpeed.FAST)">Fast</a></li>
+              <li><a href="javascript: setSpeed(PlaySpeed.SUPER_FAST)">Super fast</a></li>
+            </ul>
         </div>
       </p>
-      <div class="bs-docs-example">
-        <div class="btn-group">
-          <a class="btn btn-primary" id="speedText">Normal</a>
-          <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
-          <ul class="dropdown-menu">
-            <li><a href="javascript: setSpeed(PlaySpeed.SUPER_SLOW)">Super slow</a></li>
-            <li><a href="javascript: setSpeed(PlaySpeed.SLOW)">Slow</a></li>
-            <li><a href="javascript: setSpeed(PlaySpeed.NORMAL)">Normal</a></li>
-            <li><a href="javascript: setSpeed(PlaySpeed.FAST)">Fast</a></li>
-            <li><a href="javascript: setSpeed(PlaySpeed.SUPER_FAST)">Super fast</a></li>
-          </ul>
-        </div>
-      </div>
       <br>
     </div> <!-- /container -->
     <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
