@@ -64,22 +64,29 @@
           <!-- the bot is facing up -->
           <!-- TODO: put this SVG image in a separate file-->
           <g id="botTemplate" height="32" width="32" >
-            <!--<rect x=0 y=0 width=32 height=32></rect>-->
+
             <circle
               stroke="black"
               fill="steelblue"
               r="9"
               cx="16"
               cy="16" ></circle>
-            <rect
-              class="head"
-              stroke="black"
-              fill="steelblue"
-              x="7"
-              y="7"
-              width="9"
-              height="9"
-              transform="rotate(45 16 16)"></rect>
+
+            <!-- the head -->
+            <g transform="rotate(45 16 16)">
+              <!-- fill in the head -->
+              <path
+                d="M7 7 L17 7 L7 17 Z"
+                stroke="none"
+                fill="steelblue" />
+
+              <!-- outline the head -->
+              <path
+                d="M7 7 L17 7 M7 7 L7 17"
+                stroke="black"
+                stroke-width="1"
+                fill="none" />
+              </g>
           </g>
         </defs>
       </svg>
