@@ -14,6 +14,35 @@
  * limitations under the License.
  */
 
+PlayStatus = {
+  PAUSED: 0,
+  PLAYING: 1
+}
+
+var playStatus = PlayStatus.PLAYING
+
+window.onload = function(){
+
+  var pauseText = document.getElementById("pauseText")
+  var playText = document.getElementById("playText")
+
+  document
+    .getElementById("pauseplay")
+    .addEventListener("click", function() {
+      // TODO: determine is this is threadsafe in JS
+      if (playStatus == PlayStatus.PAUSED) {
+        playStatus = PlayStatus.PLAYING
+        pauseText.style.display = "inline"
+        playText.style.display = "none"
+      } else {
+        playStatus = PlayStatus.PAUSED
+        pauseText.style.display = "none"
+        playText.style.display = "inline"
+      }
+    });
+}
+
+
 // Holds all top-level variables, funciton invocations etc.
 //
 

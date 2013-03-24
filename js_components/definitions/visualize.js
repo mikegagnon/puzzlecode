@@ -35,9 +35,13 @@ node.nextSibling));
 }
 
 function animate() {
+    if (playStatus == PlayStatus.PAUSED) {
+      return;
+    }
+
     step(bots)
     var transition = d3.selectAll(".bot").data(bots).transition()
-    
+
     /**
      * TODO:
      * two groups of moves: the torus and non-torus moves
@@ -67,10 +71,6 @@ function animate() {
     var moveNonTorus = transition.filter( function(bot) {
         var notTorus = bot.animation.type == AnimationType.MOVE &&
           !bot.animation.data.torus
-        if (notTorus) {
-          console.log("notTorus")
-          console.log(bot)
-        }
         return notTorus
       })
 
@@ -98,10 +98,6 @@ function animate() {
     torusBots = bots.filter(function(bot) {
       var torus = bot.animation.type == AnimationType.MOVE &&
         bot.animation.data.torus
-      if (torus) {
-        console.log("torus")
-        console.log(bot)
-      }
       return torus
     })
 

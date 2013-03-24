@@ -110,7 +110,6 @@ function moveBot(bot) {
 // returns [value, moveType]
 // where moveType == "moveTorus" or "moveNonTorus"
 function wrapAdd(value, increment, outOfBounds) {
-  console.log("wrapAdd(%d,%d,%d)", value, increment, outOfBounds)
   value += increment
   if (value >= outOfBounds) {
     return [value % outOfBounds, "torus"]
@@ -146,7 +145,6 @@ function step(bots) {
     var instruction = bot.program[bot.ip]
     bot.ip = (bot.ip + 1) % bot.program.length
     bot.animation = new Animation(AnimationType.NONE, null)
-    console.log(bot)
     if (instruction == "move") {
       moveBot(bot)
     } else if (instruction == "left") {
