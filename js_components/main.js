@@ -14,30 +14,54 @@
  * limitations under the License.
  */
 
+// [animationDuration, delayDuration]
+PlaySpeed = {
+  SUPER_SLOW: [1500, 3000, "Super slow"],
+  SLOW: [750, 1500, "Slow"],
+  NORMAL: [400, 400, "Normal"],
+  FAST: [150, 150, "Fast"],
+  SUPER_FAST: [0, 0, "Super fast"]
+}
+
 PlayStatus = {
   PAUSED: 0,
   PLAYING: 1
 }
 
 var playStatus = PlayStatus.PLAYING
+//var EASING = "cubic-in-out"
+var EASING = "linear"
+var ANIMATION_DUR = PlaySpeed.NORMAL[0]
+var CYCLE_DUR = PlaySpeed.NORMAL[1]
+// TODO: replace 6 with a computed value
+var BOT_PHASE_SHIFT = 0
+
+
+// TODO: put onload and event handlers in separate file
+
+function setSpeed(speed) {
+  var speedText = document.getElementById("speedText")
+
+  ANIMATION_DUR = speed[0]
+  CYCLE_DUR = speed[1]
+  speedText.innerHTML = speed[2]
+  clearInterval(animateInterval)
+  animateInterval = setInterval("animate()", CYCLE_DUR)
+}
 
 window.onload = function(){
 
-  var pauseText = document.getElementById("pauseText")
-  var playText = document.getElementById("playText")
+  var pausePlay = document.getElementById("pauseplay")
 
-  document
-    .getElementById("pauseplay")
+  pausePlay
     .addEventListener("click", function() {
       // TODO: determine is this is threadsafe in JS
       if (playStatus == PlayStatus.PAUSED) {
         playStatus = PlayStatus.PLAYING
-        pauseText.style.display = "inline"
-        playText.style.display = "none"
+        pausePlay.innerHTML = 'Pause'
       } else {
         playStatus = PlayStatus.PAUSED
-        pauseText.style.display = "none"
-        playText.style.display = "inline"
+        pausePlay.innerHTML = 'Play!'
       }
     });
 }
@@ -46,12 +70,7 @@ window.onload = function(){
 // Holds all top-level variables, funciton invocations etc.
 //
 
-//var EASING = "cubic-in-out"
-var EASING = "linear"
-var ANIMATION_DUR = 500
-var CYCLE_DUR = ANIMATION_DUR
-// TODO: replace 6 with a computed value
-var BOT_PHASE_SHIFT = 0
+
 
 var ccx = 6, // cell count x
     ccy = 7, // cell count y
@@ -121,5 +140,5 @@ vis.selectAll(".bot")
       }
     })
 
-setInterval("animate()", CYCLE_DUR)
+var animateInterval = setInterval("animate()", CYCLE_DUR)
 

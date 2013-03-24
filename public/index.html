@@ -84,16 +84,32 @@
         </defs>
       </svg>
       </div>
+      <script src="lib/jquery.js"></script>
+      <script src="lib/bootstrap.min.js"></script>
       <script src="lib/d3.min.js"> </script>
       <script src="robocom.js"></script>
-      <div class="btn-group">
-        <button class="btn" id="pauseplay">
-          <span id="pauseText">Pause</span>
-          <span id="playText" style="display:none">Play</span>
-        </button>
+      <p>
+        <div class="btn-group">
+          <button class="btn" id="pauseplay">Pause</button>
+        </div>
+      </p>
+      <div class="bs-docs-example">
+        <div class="btn-group">
+          <a class="btn btn-primary" id="speedText">Normal</a>
+          <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="javascript: setSpeed(PlaySpeed.SUPER_SLOW)">Super slow</a></li>
+            <li><a href="javascript: setSpeed(PlaySpeed.SLOW)">Slow</a></li>
+            <li><a href="javascript: setSpeed(PlaySpeed.NORMAL)">Normal</a></li>
+            <li><a href="javascript: setSpeed(PlaySpeed.FAST)">Fast</a></li>
+            <li><a href="javascript: setSpeed(PlaySpeed.SUPER_FAST)">Super fast</a></li>
+          </ul>
+        </div>
       </div>
 
     </div> <!-- /container -->
+    <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+
 
   </body>
 </html>
