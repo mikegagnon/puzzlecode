@@ -16,6 +16,31 @@
 
 // These event handlers are registered in main.js and in index.html
 
+function windowOnLoad() {
+
+  pausePlay = document.getElementById("pauseplay")
+  pausePlay.addEventListener("click", togglePausePlay);
+
+  document
+    .getElementById("restart")
+    .addEventListener("click", restartSimulation);
+
+  codeMirrorBox = CodeMirror(document.getElementById("container"), {
+    value: initialProgram,
+    gutters: ["note-gutter", "CodeMirror-linenumbers"],
+    mode:  "text/x-robocom",
+    theme: "solarized dark",
+    smartIndent: false,
+    lineNumbers: true,
+  });
+
+  restartSimulation()
+  doPlay()
+
+  // TODO: where should i put this?
+  animateInterval = setInterval("animate()", CYCLE_DUR)
+}
+
 function setSpeed(speed) {
   var speedText = document.getElementById("speedText")
 

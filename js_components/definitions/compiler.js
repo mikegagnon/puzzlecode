@@ -186,7 +186,6 @@ function compileLine(line, labels) {
   label = tokensLabel[1]
 
   if (label != null) {
-    console.log(label)
     if (label.length == 0 || label.length > 100) {
       comment = newErrorComment("malformed label", "#")
       return [null, comment, true, null]
@@ -233,7 +232,6 @@ function compileRobocom(programText) {
   for (var i = 0; i < lines.length; i++) {
     var line = lines[i]
     var compiledLine = compileLine(line, labels)
-    console.dir(compiledLine)
     var instruction = compiledLine[0]
     var comment = compiledLine[1]
     var lineError = compiledLine[2]
@@ -243,8 +241,6 @@ function compileRobocom(programText) {
       // TODO: make sure that GOTO pointing past last instruction works well
       labels[label] = instructions.length
       labelLineNumbers[label] = i + 1
-      console.log("labels:")
-      console.dir(labels)
     }
 
     if (instruction != null) {
@@ -269,8 +265,6 @@ function compileRobocom(programText) {
       if (label in labels) {
         // replace string label with numeric label
         instruction.data = labels[label]
-        console.dir(labels)
-        console.log("label --> '" + instruction.data + "'")
         // TODO: better comment
         lineComments[instruction.lineIndex] =
           newComment("resume execution at line " + labelLineNumbers[label])

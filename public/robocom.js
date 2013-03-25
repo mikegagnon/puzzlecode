@@ -103,6 +103,9 @@ function AnimationTurn(oldFacing, newFacing) {
  *
  * TODO: error text usually needs to be more verbose. Perhaps add a link to
  * a popup that explains the error and gives references.
+ *
+ * IDEA: put drop-down boxes in comment section so you can fit more text there
+ *
  */
 
 // Defines a syntax highlighter for the robocom language
@@ -112,15 +115,14 @@ CodeMirror.defineMIME("text/x-robocom", {
   keywords: {
     "move" : true,
     "turn" : true,
-    "goto" : true
-  },
-  blockKeywords: {},
-  atoms: {
+    "goto" : true,
     "true" : true,
     "false" : true,
     "left" : true,
     "right" : true
   },
+  blockKeywords: {},
+  atoms: {},
   hooks: {
     "@": function(stream) {
       stream.eatWhile(/[\w\$_]/);
@@ -328,7 +330,6 @@ function compileLine(line, labels) {
   label = tokensLabel[1]
 
   if (label != null) {
-    console.log(label)
     if (label.length == 0 || label.length > 100) {
       comment = newErrorComment("malformed label", "#")
       return [null, comment, true, null]
@@ -375,7 +376,6 @@ function compileRobocom(programText) {
   for (var i = 0; i < lines.length; i++) {
     var line = lines[i]
     var compiledLine = compileLine(line, labels)
-    console.dir(compiledLine)
     var instruction = compiledLine[0]
     var comment = compiledLine[1]
     var lineError = compiledLine[2]
@@ -385,8 +385,6 @@ function compileRobocom(programText) {
       // TODO: make sure that GOTO pointing past last instruction works well
       labels[label] = instructions.length
       labelLineNumbers[label] = i + 1
-      console.log("labels:")
-      console.dir(labels)
     }
 
     if (instruction != null) {
@@ -411,8 +409,6 @@ function compileRobocom(programText) {
       if (label in labels) {
         // replace string label with numeric label
         instruction.data = labels[label]
-        console.dir(labels)
-        console.log("label --> '" + instruction.data + "'")
         // TODO: better comment
         lineComments[instruction.lineIndex] =
           newComment("resume execution at line " + labelLineNumbers[label])
@@ -475,7 +471,91 @@ d3.selection.prototype.size = function() {
  * limitations under the License.
  */
 
+Direction = {
+  UP: 0,
+  DOWN: 1,
+  LEFT: 2,
+  RIGHT: 3
+}
+
+function rotateLeft(direction) {
+  if (direction == Direction.LEFT) {
+    return Direction.DOWN
+  } else if (direction == Direction.DOWN) {
+    return Direction.RIGHT
+  } else if (direction == Direction.RIGHT) {
+    return Direction.UP
+  } else if (direction == Direction.UP) {
+    return Direction.LEFT
+  } else {
+    // assert false
+  }
+}
+
+function rotateRight(direction) {
+  if (direction == Direction.LEFT) {
+    return Direction.UP
+  } else if (direction == Direction.UP) {
+    return Direction.RIGHT
+  } else if (direction == Direction.RIGHT) {
+    return Direction.DOWN
+  } else if (direction == Direction.DOWN) {
+    return Direction.LEFT
+  } else {
+    // assert false
+  }
+}
+
+function rotateDirection(oldFacing, rotateDirection) {
+  if (rotateDirection == Direction.LEFT) {
+    return rotateLeft(oldFacing)
+  } else if (rotateDirection == Direction.RIGHT) {
+    return rotateRight(oldFacing)
+  } else {
+    // assert false
+  }
+}/**
+ * Copyright 2013 Michael N. Gagnon
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 // These event handlers are registered in main.js and in index.html
+
+function windowOnLoad() {
+
+  pausePlay = document.getElementById("pauseplay")
+  pausePlay.addEventListener("click", togglePausePlay);
+
+  document
+    .getElementById("restart")
+    .addEventListener("click", restartSimulation);
+
+  codeMirrorBox = CodeMirror(document.getElementById("container"), {
+    value: initialProgram,
+    gutters: ["note-gutter", "CodeMirror-linenumbers"],
+    mode:  "text/x-robocom",
+    theme: "solarized dark",
+    smartIndent: false,
+    lineNumbers: true,
+  });
+
+  restartSimulation()
+  doPlay()
+
+  // TODO: where should i put this?
+  animateInterval = setInterval("animate()", CYCLE_DUR)
+}
 
 function setSpeed(speed) {
   var speedText = document.getElementById("speedText")
@@ -543,51 +623,18 @@ function restartSimulation() {
  * limitations under the License.
  */
 
-// TODO: Put in Direction.js
+function Bot(x, y, facing, program) {
 
-Direction = {
-  UP: 0,
-  DOWN: 1,
-  LEFT: 2,
-  RIGHT: 3
-}
+    this.cellX = x;
+    this.cellY = y
+    this.facing = facing;
+    // an array of strings, each string is an "instruction"
+    this.program = program;
+    // instruction pointer points to the next instruction to be executed
+    this.ip = 0;
 
-function rotateLeft(direction) {
-  if (direction == Direction.LEFT) {
-    return Direction.DOWN
-  } else if (direction == Direction.DOWN) {
-    return Direction.RIGHT
-  } else if (direction == Direction.RIGHT) {
-    return Direction.UP
-  } else if (direction == Direction.UP) {
-    return Direction.LEFT
-  } else {
-    // assert false
-  }
-}
-
-function rotateRight(direction) {
-  if (direction == Direction.LEFT) {
-    return Direction.UP
-  } else if (direction == Direction.UP) {
-    return Direction.RIGHT
-  } else if (direction == Direction.RIGHT) {
-    return Direction.DOWN
-  } else if (direction == Direction.DOWN) {
-    return Direction.LEFT
-  } else {
-    // assert false
-  }
-}
-
-function rotateDirection(oldDirection, rotateDirection) {
-  if (rotateDirection == Direction.LEFT) {
-    return rotateLeft(oldDirection)
-  } else if (rotateDirection == Direction.RIGHT) {
-    return rotateRight(oldDirection)
-  } else {
-    // assert false
-  }
+    // the next animation to perform for this bot
+    this.animation = "";
 }
 
 function turnBot(bot, direction) {
@@ -654,21 +701,6 @@ function wrapAdd(value, increment, outOfBounds) {
   }
 }
 
-
-function Bot(x, y, facing, program) {
-
-    this.cellX = x;
-    this.cellY = y
-    this.facing = facing;
-    // an array of strings, each string is an "instruction"
-    this.program = program;
-    // instruction pointer points to the next instruction to be executed
-    this.ip = 0;
-
-    // the next animation to perform for this bot
-    this.animation = "";
-}
-
 // TODO: do a better job separating model from view.
 function step(bots) {
   // TODO: determine for each for javascript
@@ -701,7 +733,8 @@ function initBots(prog) {
     prog)
 
   return [initBot]  
-}/**
+}
+/**
  * Copyright 2013 Michael N. Gagnon
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -902,18 +935,25 @@ function createBoard() {
 }
 
 function drawCells() {
+
+  var cells = new Array()
+  for (var x = 0; x < ccx; x++) {
+    for (var y = 0 ; y < ccy; y++) {
+      cells.push({'x': x, 'y': y })
+    }
+  }
+
   vis.selectAll(".cell")
-    .data(function() { return toGrid(states) })
+    .data(cells)
   .enter().append("svg:rect")
     .attr("class", "cell")
     .attr("stroke", "lightgray")
     .attr("fill", "white")
-    .attr("x", function(d) { return xs(d.x) })
-    .attr("y", function(d) { return ys(d.y) })
+    .attr("x", function(d) { return d.x * cw })
+    .attr("y", function(d) { return d.y * ch })
     .attr("width", cw)
     .attr("height", ch)
  }
-
 
 function drawBots() {
   vis.selectAll(".bot")
@@ -950,10 +990,11 @@ function drawBots() {
  * limitations under the License.
  */
 
-// Holds all top-level variables, function invocations etc.
+/**
+ * Holds all top-level variables, function invocations etc.
+ */
 
-
-// [animationDuration, delayDuration]
+// [animationDuration, delayDuration, description, easing]
 PlaySpeed = {
   SUPER_SLOW: [2000, 4000, "Super slow", "cubic-in-out"],
   SLOW: [750, 1500, "Slow", "cubic-in-out"],
@@ -967,81 +1008,23 @@ PlayStatus = {
   PLAYING: 1
 }
 
-var playStatus = PlayStatus.PLAYING
-//var EASING = "cubic-in-out"
-var initPlaySpeed = PlaySpeed.NORMAL
-var ANIMATION_DUR = initPlaySpeed[0]
-var CYCLE_DUR = initPlaySpeed[1]
-var EASING = initPlaySpeed[3]
-// TODO: replace 6 with a computed value
-var BOT_PHASE_SHIFT = 0
-
-var initialProgram = "\nstart:\nmove\nmove\nturn left\ngoto start\n"
-var codeMirrorBox = null
-
-var pausePlay = null
-
-// maps linenumbers to comments for that line
-var lineComments = {}
-
-// TODO: put onload and event handlers in separate file
-window.onload = function(){
-
-  pausePlay = document.getElementById("pauseplay")
-  pausePlay.addEventListener("click", togglePausePlay);
-
-  document
-    .getElementById("restart")
-    .addEventListener("click", restartSimulation);
-
-  codeMirrorBox = CodeMirror(document.getElementById("container"), {
-    value: initialProgram,
-    gutters: ["note-gutter", "CodeMirror-linenumbers"],
-    mode:  "text/x-robocom",
-    theme: "solarized dark",
-    smartIndent: false,
-    lineNumbers: true,
-  });
-
-  restartSimulation()
-  doPlay()
-
-  // TODO: where should i put this?
-  animateInterval = setInterval("animate()", CYCLE_DUR)
-}
-
-var animateInterval = null
 var ccx = 9, // cell count x
     ccy = 7, // cell count y
     cw = 32, // cellWidth
     ch = 32,  // cellHeight
-    del = CYCLE_DUR, // delay
-    xs = d3.scale.linear().domain([0,ccx]).range([0,ccx * cw]),
-    ys = d3.scale.linear().domain([0,ccy]).range([0,ccy * ch]),
-    states = new Array()
+    vis = null,
+    bots = null,
+    animateInterval = null,
+    playStatus = PlayStatus.PLAYING,
+    initPlaySpeed = PlaySpeed.NORMAL,
+    ANIMATION_DUR = initPlaySpeed[0]
+    CYCLE_DUR = initPlaySpeed[1],
+    EASING = initPlaySpeed[3],
+    BOT_PHASE_SHIFT = 0,
+    initialProgram = "\nstart:\nmove\nmove\nturn left\ngoto start\n",
+    codeMirrorBox = null,
+    pausePlay = null
 
-// TODO: fix this jank
-d3.range(ccx).forEach(function(x) {
-    states[x] = new Array()
-    d3.range(ccy).forEach(function(y) {
-        states[x][y] = Math.random() > .8 ? true : false
-    })
-})
-
-function toGrid(states) {
-    var g = []
-    for (x = 0; x < ccx; x++) {
-        for (y = 0; y < ccy; y++) {
-            g.push({"x": x, "y": y, "state": states[x][y]})
-        }
-    }
-    return g
-}
-
-var vis = null
-
-//var prog = compileRobocom(initialProgram)
-var bots = null// initBots(prog)
-
+window.onload = windowOnLoad
 createBoard()
 drawCells()

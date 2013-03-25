@@ -199,18 +199,25 @@ function createBoard() {
 }
 
 function drawCells() {
+
+  var cells = new Array()
+  for (var x = 0; x < ccx; x++) {
+    for (var y = 0 ; y < ccy; y++) {
+      cells.push({'x': x, 'y': y })
+    }
+  }
+
   vis.selectAll(".cell")
-    .data(function() { return toGrid(states) })
+    .data(cells)
   .enter().append("svg:rect")
     .attr("class", "cell")
     .attr("stroke", "lightgray")
     .attr("fill", "white")
-    .attr("x", function(d) { return xs(d.x) })
-    .attr("y", function(d) { return ys(d.y) })
+    .attr("x", function(d) { return d.x * cw })
+    .attr("y", function(d) { return d.y * ch })
     .attr("width", cw)
     .attr("height", ch)
  }
-
 
 function drawBots() {
   vis.selectAll(".bot")

@@ -33,6 +33,9 @@
  *
  * TODO: error text usually needs to be more verbose. Perhaps add a link to
  * a popup that explains the error and gives references.
+ *
+ * IDEA: put drop-down boxes in comment section so you can fit more text there
+ *
  */
 
 // Defines a syntax highlighter for the robocom language
@@ -42,15 +45,14 @@ CodeMirror.defineMIME("text/x-robocom", {
   keywords: {
     "move" : true,
     "turn" : true,
-    "goto" : true
-  },
-  blockKeywords: {},
-  atoms: {
+    "goto" : true,
     "true" : true,
     "false" : true,
     "left" : true,
     "right" : true
   },
+  blockKeywords: {},
+  atoms: {},
   hooks: {
     "@": function(stream) {
       stream.eatWhile(/[\w\$_]/);

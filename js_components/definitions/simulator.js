@@ -14,51 +14,18 @@
  * limitations under the License.
  */
 
-// TODO: Put in Direction.js
+function Bot(x, y, facing, program) {
 
-Direction = {
-  UP: 0,
-  DOWN: 1,
-  LEFT: 2,
-  RIGHT: 3
-}
+    this.cellX = x;
+    this.cellY = y
+    this.facing = facing;
+    // an array of strings, each string is an "instruction"
+    this.program = program;
+    // instruction pointer points to the next instruction to be executed
+    this.ip = 0;
 
-function rotateLeft(direction) {
-  if (direction == Direction.LEFT) {
-    return Direction.DOWN
-  } else if (direction == Direction.DOWN) {
-    return Direction.RIGHT
-  } else if (direction == Direction.RIGHT) {
-    return Direction.UP
-  } else if (direction == Direction.UP) {
-    return Direction.LEFT
-  } else {
-    // assert false
-  }
-}
-
-function rotateRight(direction) {
-  if (direction == Direction.LEFT) {
-    return Direction.UP
-  } else if (direction == Direction.UP) {
-    return Direction.RIGHT
-  } else if (direction == Direction.RIGHT) {
-    return Direction.DOWN
-  } else if (direction == Direction.DOWN) {
-    return Direction.LEFT
-  } else {
-    // assert false
-  }
-}
-
-function rotateDirection(oldDirection, rotateDirection) {
-  if (rotateDirection == Direction.LEFT) {
-    return rotateLeft(oldDirection)
-  } else if (rotateDirection == Direction.RIGHT) {
-    return rotateRight(oldDirection)
-  } else {
-    // assert false
-  }
+    // the next animation to perform for this bot
+    this.animation = "";
 }
 
 function turnBot(bot, direction) {
@@ -123,21 +90,6 @@ function wrapAdd(value, increment, outOfBounds) {
   } else {
     return [value, "nonTorus"]
   }
-}
-
-
-function Bot(x, y, facing, program) {
-
-    this.cellX = x;
-    this.cellY = y
-    this.facing = facing;
-    // an array of strings, each string is an "instruction"
-    this.program = program;
-    // instruction pointer points to the next instruction to be executed
-    this.ip = 0;
-
-    // the next animation to perform for this bot
-    this.animation = "";
 }
 
 // TODO: do a better job separating model from view.

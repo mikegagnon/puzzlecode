@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-// Holds all top-level variables, function invocations etc.
+/**
+ * Holds all top-level variables, function invocations etc.
+ */
 
-
-// [animationDuration, delayDuration]
+// [animationDuration, delayDuration, description, easing]
 PlaySpeed = {
   SUPER_SLOW: [2000, 4000, "Super slow", "cubic-in-out"],
   SLOW: [750, 1500, "Slow", "cubic-in-out"],
@@ -31,81 +32,23 @@ PlayStatus = {
   PLAYING: 1
 }
 
-var playStatus = PlayStatus.PLAYING
-//var EASING = "cubic-in-out"
-var initPlaySpeed = PlaySpeed.NORMAL
-var ANIMATION_DUR = initPlaySpeed[0]
-var CYCLE_DUR = initPlaySpeed[1]
-var EASING = initPlaySpeed[3]
-// TODO: replace 6 with a computed value
-var BOT_PHASE_SHIFT = 0
-
-var initialProgram = "\nstart:\nmove\nmove\nturn left\ngoto start\n"
-var codeMirrorBox = null
-
-var pausePlay = null
-
-// maps linenumbers to comments for that line
-var lineComments = {}
-
-// TODO: put onload and event handlers in separate file
-window.onload = function(){
-
-  pausePlay = document.getElementById("pauseplay")
-  pausePlay.addEventListener("click", togglePausePlay);
-
-  document
-    .getElementById("restart")
-    .addEventListener("click", restartSimulation);
-
-  codeMirrorBox = CodeMirror(document.getElementById("container"), {
-    value: initialProgram,
-    gutters: ["note-gutter", "CodeMirror-linenumbers"],
-    mode:  "text/x-robocom",
-    theme: "solarized dark",
-    smartIndent: false,
-    lineNumbers: true,
-  });
-
-  restartSimulation()
-  doPlay()
-
-  // TODO: where should i put this?
-  animateInterval = setInterval("animate()", CYCLE_DUR)
-}
-
-var animateInterval = null
 var ccx = 9, // cell count x
     ccy = 7, // cell count y
     cw = 32, // cellWidth
     ch = 32,  // cellHeight
-    del = CYCLE_DUR, // delay
-    xs = d3.scale.linear().domain([0,ccx]).range([0,ccx * cw]),
-    ys = d3.scale.linear().domain([0,ccy]).range([0,ccy * ch]),
-    states = new Array()
+    vis = null,
+    bots = null,
+    animateInterval = null,
+    playStatus = PlayStatus.PLAYING,
+    initPlaySpeed = PlaySpeed.NORMAL,
+    ANIMATION_DUR = initPlaySpeed[0]
+    CYCLE_DUR = initPlaySpeed[1],
+    EASING = initPlaySpeed[3],
+    BOT_PHASE_SHIFT = 0,
+    initialProgram = "\nstart:\nmove\nmove\nturn left\ngoto start\n",
+    codeMirrorBox = null,
+    pausePlay = null
 
-// TODO: fix this jank
-d3.range(ccx).forEach(function(x) {
-    states[x] = new Array()
-    d3.range(ccy).forEach(function(y) {
-        states[x][y] = Math.random() > .8 ? true : false
-    })
-})
-
-function toGrid(states) {
-    var g = []
-    for (x = 0; x < ccx; x++) {
-        for (y = 0; y < ccy; y++) {
-            g.push({"x": x, "y": y, "state": states[x][y]})
-        }
-    }
-    return g
-}
-
-var vis = null
-
-//var prog = compileRobocom(initialProgram)
-var bots = null// initBots(prog)
-
+window.onload = windowOnLoad
 createBoard()
 drawCells()
