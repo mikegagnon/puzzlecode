@@ -224,6 +224,9 @@ function compileRobocom(programText) {
   // map from label-string to instruction pointer for that label
   var labels = {}
 
+  // map from label-string to line number for that label
+  var labelLineNumbers = {}
+
   var error = false
 
   // first pass: do everything except finalize GOTO statements
@@ -239,6 +242,7 @@ function compileRobocom(programText) {
     if (label != null) {
       // TODO: make sure that GOTO pointing past last instruction works well
       labels[label] = instructions.length
+      labelLineNumbers[label] = i + 1
       console.log("labels:")
       console.dir(labels)
     }
@@ -268,7 +272,8 @@ function compileRobocom(programText) {
         console.dir(labels)
         console.log("label --> '" + instruction.data + "'")
         // TODO: better comment
-        lineComments[instruction.lineIndex] = newComment("goto " + label)
+        lineComments[instruction.lineIndex] =
+          newComment("resume execution at line " + labelLineNumbers[label])
       } else {
         error = true
         lineComments[instruction.lineIndex] =

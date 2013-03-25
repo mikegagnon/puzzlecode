@@ -33,14 +33,14 @@ PlayStatus = {
 
 var playStatus = PlayStatus.PLAYING
 //var EASING = "cubic-in-out"
-var initPlaySpeed = PlaySpeed.SLOW
+var initPlaySpeed = PlaySpeed.NORMAL
 var ANIMATION_DUR = initPlaySpeed[0]
 var CYCLE_DUR = initPlaySpeed[1]
 var EASING = initPlaySpeed[3]
 // TODO: replace 6 with a computed value
 var BOT_PHASE_SHIFT = 0
 
-var initialProgram = "move\nmove\nturn left\n"
+var initialProgram = "\nstart:\nmove\nmove\nturn left\ngoto start\n"
 var codeMirrorBox = null
 
 var pausePlay = null

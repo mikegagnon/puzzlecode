@@ -366,6 +366,9 @@ function compileRobocom(programText) {
   // map from label-string to instruction pointer for that label
   var labels = {}
 
+  // map from label-string to line number for that label
+  var labelLineNumbers = {}
+
   var error = false
 
   // first pass: do everything except finalize GOTO statements
@@ -381,6 +384,7 @@ function compileRobocom(programText) {
     if (label != null) {
       // TODO: make sure that GOTO pointing past last instruction works well
       labels[label] = instructions.length
+      labelLineNumbers[label] = i + 1
       console.log("labels:")
       console.dir(labels)
     }
@@ -410,7 +414,8 @@ function compileRobocom(programText) {
         console.dir(labels)
         console.log("label --> '" + instruction.data + "'")
         // TODO: better comment
-        lineComments[instruction.lineIndex] = newComment("goto " + label)
+        lineComments[instruction.lineIndex] =
+          newComment("resume execution at line " + labelLineNumbers[label])
       } else {
         error = true
         lineComments[instruction.lineIndex] =
@@ -964,14 +969,14 @@ PlayStatus = {
 
 var playStatus = PlayStatus.PLAYING
 //var EASING = "cubic-in-out"
-var initPlaySpeed = PlaySpeed.SLOW
+var initPlaySpeed = PlaySpeed.NORMAL
 var ANIMATION_DUR = initPlaySpeed[0]
 var CYCLE_DUR = initPlaySpeed[1]
 var EASING = initPlaySpeed[3]
 // TODO: replace 6 with a computed value
 var BOT_PHASE_SHIFT = 0
 
-var initialProgram = "move\nmove\nturn left\n"
+var initialProgram = "\nstart:\nmove\nmove\nturn left\ngoto start\n"
 var codeMirrorBox = null
 
 var pausePlay = null
