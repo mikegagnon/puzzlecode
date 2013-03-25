@@ -592,6 +592,11 @@ function turnBot(bot, direction) {
   bot.animation = new Animation(AnimationType.ROTATE, animationData)
 }
 
+function executeGoto(bot, nextIp) {
+  bot.ip = nextIp
+  // animation?
+}
+
 // executes the 'move' instruciton on the bot
 // updates the bot state
 function moveBot(bot) {
@@ -673,6 +678,8 @@ function step(bots) {
       moveBot(bot)
     } else if (instruction.opcode == Opcode.TURN) {
       turnBot(bot, instruction.data)
+    } else if (instruction.opcode == Opcode.GOTO) {
+      executeGoto(bot, instruction.data)
     }
   }
 }
