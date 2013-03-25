@@ -40,7 +40,7 @@ var EASING = initPlaySpeed[3]
 // TODO: replace 6 with a computed value
 var BOT_PHASE_SHIFT = 0
 
-var initialProgram = "move\nmove\nmove\nturn left\n"
+var initialProgram = "move\nmove\nturn left\n"
 var codeMirrorBox = null
 
 var pausePlay = null
@@ -68,6 +68,7 @@ window.onload = function(){
   });
 
   restartSimulation()
+  doPlay()
 
   // TODO: where should i put this?
   animateInterval = setInterval("animate()", CYCLE_DUR)
@@ -108,9 +109,3 @@ var bots = null// initBots(prog)
 
 createBoard()
 drawCells()
-
-//drawBots()
-
-// kick it off
-//
-

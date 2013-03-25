@@ -64,8 +64,6 @@ function addLineComments(lineComments) {
   codeMirrorBox.clearGutter("note-gutter")
   for (i in lineComments) {
       var comment = lineComments[i]
-      console.dir(i)
-      console.log(comment)
       codeMirrorBox
         .setGutterMarker(
           parseInt(i),

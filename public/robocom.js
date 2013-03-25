@@ -134,8 +134,6 @@ function addLineComments(lineComments) {
   codeMirrorBox.clearGutter("note-gutter")
   for (i in lineComments) {
       var comment = lineComments[i]
-      console.dir(i)
-      console.log(comment)
       codeMirrorBox
         .setGutterMarker(
           parseInt(i),
@@ -158,9 +156,12 @@ function addLineComments(lineComments) {
  * limitations under the License.
  */
 
+// TODO: careful unit testing
+
 Opcode = {
   MOVE: 0,
   TURN: 1,
+  GOTO: 2
 }
 
 function RobocomInstruction(
@@ -192,6 +193,8 @@ function newErrorComment(text, uri) {
   return newlink
 }
 
+// TODO: make all comments hyperlinks, though the non-errors should be styled
+// as if they're not hyperlinks (until you hover)
 function newComment(text) {
   return document.createTextNode(text)
 }
@@ -213,9 +216,35 @@ function removeComment(tokens) {
   return tokens
 }
 
+// returns [tokens, label]
+// if a label is removed from tokens, then label is a string
+// otherwise it is null
+function removeLabel(tokens) {
+  if (tokens.length == 0) {
+    return [tokens, null]
+  } else {
+    var head = tokens[0]
+    var colonIndex = head.indexOf(":")
+    if (colonIndex <= 0) {
+      return [tokens, null]
+    } else if (colonIndex == head.length - 1) {
+      var label = head.substr(0, head.length - 1)
+      var newTokens = tokens.slice(1, tokens.length)
+      return [newTokens, label]
+    } else {
+      var label = head.substr(0, colonIndex)
+      var newHead = head.substr(colonIndex + 1, head.length)
+      // asert newHead.length > 0
+      tokens[0] = newHead
+      return [tokens, label]
+    }
+  }
+}
+
 function compileMove(tokens) {
   var instruction = null
   var comment = null
+  var error = false
 
   // assert tokens[0] == "move"
   if (tokens.length == 1) {
@@ -224,17 +253,23 @@ function compileMove(tokens) {
   } else {
     instruction = null
     comment = newErrorComment("Incorrect 'move' instruction", "#")
+    error = true
   }
 
-  return [instruction, comment]
+  return [instruction, comment, error]
 }
 
 function compileTurn(tokens) {
   var instruction = null
   var comment = null
+  var error = false
 
   // assert tokens[0] == "move"
-  if (tokens.length == 2) {
+  if (tokens.length != 2) {
+    instruction = null
+    comment = newErrorComment("The 'turn' instruction is missing a direction", "#")
+    error = true
+  } else {
     var direction = tokens[1]
     if (direction == "left") {
       instruction = new RobocomInstruction(Opcode.TURN, Direction.LEFT)
@@ -245,42 +280,80 @@ function compileTurn(tokens) {
     } else {
       instruction = null
       comment = newErrorComment("'" + direction + "' is not a valid direction", "#")
+      error = true
     }
-  } else {
-    instruction = null
-    comment = newErrorComment("The 'turn' instruction is missing a direction", "#")
   }
 
-  return [instruction, comment]
+  return [instruction, comment, error]
 }
 
-// Returns [instruction, comment]
-//  where instruction is a RobocomInstruction and comment is a string
-//  instruction is set to null if there was an error compiling the instruciton
-// Returns [] if the line is a no-op
-function compileLine(line) {
+function compileGoto(tokens) {
+  var instruction = null
+  var comment = null
+  var error = false
+
+  // TODO: this error message doesn't make sense if length > 2
+  if (tokens.length != 2) {
+    instruction = null
+    comment = newErrorComment("The 'goto' instruction is missing a label", "#")
+    error = true
+  } else {
+    var label = tokens[1]
+    instruction = new RobocomInstruction(Opcode.GOTO, label)
+    // fill in this comment after second pass
+    comment = null
+    error = false  
+  }
+  return [instruction, comment, error]
+}
+
+/**
+ * Returns [instruction, comment, error, label], where:
+ *  instruction is a RobocomInstruction and comment is a string
+ *    instruction is set to null if there was an error compiling the
+ *    instruction, or if the line is a no-op
+ *  label is a string or null
+ *  comment is a DOM node, or null
+ *  error is true iff there was an error compiling this line
+ */
+function compileLine(line, labels) {
   var tokens = line
     .replace(/\s+/g, " ")
     .replace(/(^\s+)|(\s+$)/g, "")
     .split(" ")
 
   tokens = removeComment(tokens)
+  tokensLabel = removeLabel(tokens)
+  tokens = tokensLabel[0]
+  label = tokensLabel[1]
+
+  if (label != null) {
+    console.log(label)
+    if (label.length == 0 || label.length > 100) {
+      comment = newErrorComment("malformed label", "#")
+      return [null, comment, true, null]
+    } else if (label in labels) {
+      // TODO: get labels
+      comment = newErrorComment("label '" + label + "' is already defined", "#")
+      return [null, comment, true, null]
+    }
+  }
 
   if (tokens.length == 0 ||
       (tokens.length == 1 && tokens[0] == "")) {
-    return []
+    return [null, null, false, label]
   }
-
-  console.dir(tokens)
 
   var opcode = tokens[0]
   if (opcode == "move") {
-    return compileMove(tokens)
+    return compileMove(tokens).concat([label])
   } else if (opcode == "turn") {
-    return compileTurn(tokens)
+    return compileTurn(tokens).concat([label])
+  } else if (opcode == "goto") {
+    return compileGoto(tokens).concat([label])
   } else {
     comment = newErrorComment("'" + opcode + "' is not an instruction", "#")
-    return [null, comment]
+    return [null, comment, true, null]
   }
 }
 
@@ -289,18 +362,59 @@ function compileRobocom(programText) {
   var lines = programText.split("\n")
   var instructions = []
   var lineComments = {}
+
+  // map from label-string to instruction pointer for that label
+  var labels = {}
+
   var error = false
+
+  // first pass: do everything except finalize GOTO statements
   for (var i = 0; i < lines.length; i++) {
     var line = lines[i]
-    var compiledLine = compileLine(line)
-    if (compiledLine.length > 0) {
-      // assert compiledLine.length == 2
-      lineComments[i] = compiledLine[1]
-      var instruction = compiledLine[0]
-      if (instruction == null) {
-        error = true
+    var compiledLine = compileLine(line, labels)
+    console.dir(compiledLine)
+    var instruction = compiledLine[0]
+    var comment = compiledLine[1]
+    var lineError = compiledLine[2]
+    var label = compiledLine[3]
+
+    if (label != null) {
+      // TODO: make sure that GOTO pointing past last instruction works well
+      labels[label] = instructions.length
+      console.log("labels:")
+      console.dir(labels)
+    }
+
+    if (instruction != null) {
+      instruction.lineIndex = i
+      instructions.push(instruction)
+    }
+
+    if (comment != null) {
+      lineComments[i] = comment
+    }
+
+    error = error || lineError
+
+
+  }
+
+  // second pass: finalize GOTO statements
+  for (var i = 0; i < instructions.length; i++) {
+    var instruction = instructions[i]
+    if (instruction.opcode == Opcode.GOTO) {
+      var label = instruction.data
+      if (label in labels) {
+        // replace string label with numeric label
+        instruction.data = labels[label]
+        console.dir(labels)
+        console.log("label --> '" + instruction.data + "'")
+        // TODO: better comment
+        lineComments[instruction.lineIndex] = newComment("goto " + label)
       } else {
-        instructions.push(instruction)
+        error = true
+        lineComments[instruction.lineIndex] =
+          newErrorComment("the label '" + label + "' does not exist", "#")
       }
     }
   }
@@ -850,7 +964,7 @@ var EASING = initPlaySpeed[3]
 // TODO: replace 6 with a computed value
 var BOT_PHASE_SHIFT = 0
 
-var initialProgram = "move\nmove\nmove\nturn left\n"
+var initialProgram = "move\nmove\nturn left\n"
 var codeMirrorBox = null
 
 var pausePlay = null
@@ -878,6 +992,7 @@ window.onload = function(){
   });
 
   restartSimulation()
+  doPlay()
 
   // TODO: where should i put this?
   animateInterval = setInterval("animate()", CYCLE_DUR)
@@ -918,9 +1033,3 @@ var bots = null// initBots(prog)
 
 createBoard()
 drawCells()
-
-//drawBots()
-
-// kick it off
-//
-
