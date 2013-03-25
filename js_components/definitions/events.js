@@ -21,6 +21,7 @@ function setSpeed(speed) {
 
   ANIMATION_DUR = speed[0]
   CYCLE_DUR = speed[1]
+  EASING = speed[3]
   speedText.innerHTML = speed[2]
   clearInterval(animateInterval)
   animateInterval = setInterval("animate()", CYCLE_DUR)

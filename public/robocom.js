@@ -363,6 +363,7 @@ function setSpeed(speed) {
 
   ANIMATION_DUR = speed[0]
   CYCLE_DUR = speed[1]
+  EASING = speed[3]
   speedText.innerHTML = speed[2]
   clearInterval(animateInterval)
   animateInterval = setInterval("animate()", CYCLE_DUR)
@@ -828,11 +829,11 @@ function drawBots() {
 
 // [animationDuration, delayDuration]
 PlaySpeed = {
-  SUPER_SLOW: [2000, 4000, "Super slow"],
-  SLOW: [750, 1500, "Slow"],
-  NORMAL: [400, 800, "Normal"],
-  FAST: [150, 150, "Fast"],
-  SUPER_FAST: [0, 0, "Super fast"]
+  SUPER_SLOW: [2000, 4000, "Super slow", "cubic-in-out"],
+  SLOW: [750, 1500, "Slow", "cubic-in-out"],
+  NORMAL: [400, 800, "Normal", "cubic-in-out"],
+  FAST: [150, 150, "Fast", "linear"],
+  SUPER_FAST: [0, 0, "Super fast", "linear"]
 }
 
 PlayStatus = {
@@ -842,9 +843,10 @@ PlayStatus = {
 
 var playStatus = PlayStatus.PLAYING
 //var EASING = "cubic-in-out"
-var EASING = "linear"
-var ANIMATION_DUR = PlaySpeed.SLOW[0]
-var CYCLE_DUR = PlaySpeed.SLOW[1]
+var initPlaySpeed = PlaySpeed.SLOW
+var ANIMATION_DUR = initPlaySpeed[0]
+var CYCLE_DUR = initPlaySpeed[1]
+var EASING = initPlaySpeed[3]
 // TODO: replace 6 with a computed value
 var BOT_PHASE_SHIFT = 0
 
