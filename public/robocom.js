@@ -830,7 +830,7 @@ function drawBots() {
 PlaySpeed = {
   SUPER_SLOW: [2000, 4000, "Super slow"],
   SLOW: [750, 1500, "Slow"],
-  NORMAL: [400, 400, "Normal"],
+  NORMAL: [400, 800, "Normal"],
   FAST: [150, 150, "Fast"],
   SUPER_FAST: [0, 0, "Super fast"]
 }
@@ -843,8 +843,8 @@ PlayStatus = {
 var playStatus = PlayStatus.PLAYING
 //var EASING = "cubic-in-out"
 var EASING = "linear"
-var ANIMATION_DUR = PlaySpeed.NORMAL[0]
-var CYCLE_DUR = PlaySpeed.NORMAL[1]
+var ANIMATION_DUR = PlaySpeed.SLOW[0]
+var CYCLE_DUR = PlaySpeed.SLOW[1]
 // TODO: replace 6 with a computed value
 var BOT_PHASE_SHIFT = 0
 
