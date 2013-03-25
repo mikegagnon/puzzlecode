@@ -131,6 +131,7 @@ CodeMirror.defineMIME("text/x-robocom", {
 
 // lineComments is a map where line index points to comment for that line
 function addLineComments(lineComments) {
+  codeMirrorBox.clearGutter("note-gutter")
   for (i in lineComments) {
       var comment = lineComments[i]
       console.dir(i)
@@ -401,6 +402,10 @@ function restartSimulation() {
   var programText = codeMirrorBox.getValue()
   var program = compileRobocom(programText)
   addLineComments(program.lineComments)
+  if (program.instructions != null) {
+    bots = initBots(program)
+    drawBots()
+  }
 }
 /**
  * Copyright 2013 Michael N. Gagnon
@@ -546,15 +551,13 @@ function step(bots) {
   for (var i = 0; i < numBots; i++) {
     var bot = bots[i]
 
-    var instruction = bot.program[bot.ip]
-    bot.ip = (bot.ip + 1) % bot.program.length
+    var instruction = bot.program.instructions[bot.ip]
+    bot.ip = (bot.ip + 1) % bot.program.instructions.length
     bot.animation = new Animation(AnimationType.NONE, null)
-    if (instruction == "move") {
+    if (instruction.opcode == Opcode.MOVE) {
       moveBot(bot)
-    } else if (instruction == "left") {
-      turnBot(bot, Direction.LEFT)
-    } else if (instruction == "right") {
-      turnBot(bot, Direction.RIGHT)
+    } else if (instruction.opcode == Opcode.TURN) {
+      turnBot(bot, instruction.data)
     }
   }
 }
@@ -562,7 +565,16 @@ function step(bots) {
 function cleanUpSimulation() {
   bots = []
 }
-/**
+
+function initBots(prog) {
+  var initBot = new Bot(
+    Math.floor((ccx - 1) / 2),
+    Math.floor((ccy - 1)/ 2),
+    Direction.UP,
+    prog)
+
+  return [initBot]  
+}/**
  * Copyright 2013 Michael N. Gagnon
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -754,7 +766,48 @@ function cleanUpVisualization() {
   d3.selectAll(".bot").remove()
   d3.selectAll(".botClone").remove()
 }
- /**
+ 
+function createBoard() {
+  vis = d3.select("#board")
+    .attr("class", "vis")
+    .attr("width", ccx * cw)
+    .attr("height", ccy * ch)
+}
+
+function drawCells() {
+  vis.selectAll(".cell")
+    .data(function() { return toGrid(states) })
+  .enter().append("svg:rect")
+    .attr("class", "cell")
+    .attr("stroke", "lightgray")
+    .attr("fill", "white")
+    .attr("x", function(d) { return xs(d.x) })
+    .attr("y", function(d) { return ys(d.y) })
+    .attr("width", cw)
+    .attr("height", ch)
+ }
+
+
+function drawBots() {
+  vis.selectAll(".bot")
+    .data(bots)
+  .enter().append("svg:use")
+    .attr("class", "bot")
+    .attr("xlink:href", "#botTemplate")
+    .attr("transform", function(bot) {
+      var x = bot.cellX * cw + BOT_PHASE_SHIFT
+      var y = bot.cellY * ch + BOT_PHASE_SHIFT
+      if (bot.facing == Direction.RIGHT) {
+        return "translate(" + x + "," + y + ") rotate(90 16 16)"
+      } else if (bot.facing == Direction.DOWN) {
+        return "translate(" + x + "," + y + ") rotate(180 16 16)"
+      } else if (bot.facing == Direction.LEFT) {
+        return "translate(" + x + "," + y + ") rotate(-90 16 16)"
+      } else {
+        return "translate(" + x + "," + y + ")"
+      }
+    })
+}/**
  * Copyright 2013 Michael N. Gagnon
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -769,6 +822,9 @@ function cleanUpVisualization() {
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+// Holds all top-level variables, function invocations etc.
+
 
 // [animationDuration, delayDuration]
 PlaySpeed = {
@@ -819,15 +875,14 @@ window.onload = function(){
     lineNumbers: true,
   });
 
+  restartSimulation()
+
+  // TODO: where should i put this?
+  animateInterval = setInterval("animate()", CYCLE_DUR)
 }
 
-
-// Holds all top-level variables, funciton invocations etc.
-//
-
-
-
-var ccx = 6, // cell count x
+var animateInterval = null
+var ccx = 9, // cell count x
     ccy = 7, // cell count y
     cw = 32, // cellWidth
     ch = 32,  // cellHeight
@@ -836,6 +891,7 @@ var ccx = 6, // cell count x
     ys = d3.scale.linear().domain([0,ccy]).range([0,ccy * ch]),
     states = new Array()
 
+// TODO: fix this jank
 d3.range(ccx).forEach(function(x) {
     states[x] = new Array()
     d3.range(ccy).forEach(function(y) {
@@ -853,47 +909,16 @@ function toGrid(states) {
     return g
 }
 
-var vis = d3.select("#board")
-    .attr("class", "vis")
-    .attr("width", ccx * cw)
-    .attr("height", ccy * ch)
+var vis = null
 
-vis.selectAll(".cell")
-    .data(function() { return toGrid(states) })
-  .enter().append("svg:rect")
-    .attr("class", "cell")
-    .attr("stroke", "lightgray")
-    .attr("fill", "white")
-    .attr("x", function(d) { return xs(d.x) })
-    .attr("y", function(d) { return ys(d.y) })
-    .attr("width", cw)
-    .attr("height", ch)
+//var prog = compileRobocom(initialProgram)
+var bots = null// initBots(prog)
 
-var bots = [
-  new Bot(4,4, Direction.UP, ["move", "left", "move", "move"]),
-  new Bot(1,1, Direction.RIGHT, ["move"]),
-  new Bot(1,5, Direction.LEFT, ["move", "left", "move", "right"]),
-  new Bot(3,7, Direction.DOWN, ["move"])
-  ];
+createBoard()
+drawCells()
 
-vis.selectAll(".bot")
-    .data(bots)
-  .enter().append("svg:use")
-    .attr("class", "bot")
-    .attr("xlink:href", "#botTemplate")
-    .attr("transform", function(bot) {
-      var x = bot.cellX * cw + BOT_PHASE_SHIFT
-      var y = bot.cellY * ch + BOT_PHASE_SHIFT
-      if (bot.facing == Direction.RIGHT) {
-        return "translate(" + x + "," + y + ") rotate(90 16 16)"
-      } else if (bot.facing == Direction.DOWN) {
-        return "translate(" + x + "," + y + ") rotate(180 16 16)"
-      } else if (bot.facing == Direction.LEFT) {
-        return "translate(" + x + "," + y + ") rotate(-90 16 16)"
-      } else {
-        return "translate(" + x + "," + y + ")"
-      }
-    })
+//drawBots()
 
-var animateInterval = setInterval("animate()", CYCLE_DUR)
+// kick it off
+//
 

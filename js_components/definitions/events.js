@@ -60,4 +60,8 @@ function restartSimulation() {
   var programText = codeMirrorBox.getValue()
   var program = compileRobocom(programText)
   addLineComments(program.lineComments)
+  if (program.instructions != null) {
+    bots = initBots(program)
+    drawBots()
+  }
 }

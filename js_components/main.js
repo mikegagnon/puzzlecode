@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+// Holds all top-level variables, function invocations etc.
+
+
 // [animationDuration, delayDuration]
 PlaySpeed = {
   SUPER_SLOW: [2000, 4000, "Super slow"],
@@ -63,15 +66,14 @@ window.onload = function(){
     lineNumbers: true,
   });
 
+  restartSimulation()
+
+  // TODO: where should i put this?
+  animateInterval = setInterval("animate()", CYCLE_DUR)
 }
 
-
-// Holds all top-level variables, funciton invocations etc.
-//
-
-
-
-var ccx = 6, // cell count x
+var animateInterval = null
+var ccx = 9, // cell count x
     ccy = 7, // cell count y
     cw = 32, // cellWidth
     ch = 32,  // cellHeight
@@ -80,6 +82,7 @@ var ccx = 6, // cell count x
     ys = d3.scale.linear().domain([0,ccy]).range([0,ccy * ch]),
     states = new Array()
 
+// TODO: fix this jank
 d3.range(ccx).forEach(function(x) {
     states[x] = new Array()
     d3.range(ccy).forEach(function(y) {
@@ -97,47 +100,16 @@ function toGrid(states) {
     return g
 }
 
-var vis = d3.select("#board")
-    .attr("class", "vis")
-    .attr("width", ccx * cw)
-    .attr("height", ccy * ch)
+var vis = null
 
-vis.selectAll(".cell")
-    .data(function() { return toGrid(states) })
-  .enter().append("svg:rect")
-    .attr("class", "cell")
-    .attr("stroke", "lightgray")
-    .attr("fill", "white")
-    .attr("x", function(d) { return xs(d.x) })
-    .attr("y", function(d) { return ys(d.y) })
-    .attr("width", cw)
-    .attr("height", ch)
+//var prog = compileRobocom(initialProgram)
+var bots = null// initBots(prog)
 
-var bots = [
-  new Bot(4,4, Direction.UP, ["move", "left", "move", "move"]),
-  new Bot(1,1, Direction.RIGHT, ["move"]),
-  new Bot(1,5, Direction.LEFT, ["move", "left", "move", "right"]),
-  new Bot(3,7, Direction.DOWN, ["move"])
-  ];
+createBoard()
+drawCells()
 
-vis.selectAll(".bot")
-    .data(bots)
-  .enter().append("svg:use")
-    .attr("class", "bot")
-    .attr("xlink:href", "#botTemplate")
-    .attr("transform", function(bot) {
-      var x = bot.cellX * cw + BOT_PHASE_SHIFT
-      var y = bot.cellY * ch + BOT_PHASE_SHIFT
-      if (bot.facing == Direction.RIGHT) {
-        return "translate(" + x + "," + y + ") rotate(90 16 16)"
-      } else if (bot.facing == Direction.DOWN) {
-        return "translate(" + x + "," + y + ") rotate(180 16 16)"
-      } else if (bot.facing == Direction.LEFT) {
-        return "translate(" + x + "," + y + ") rotate(-90 16 16)"
-      } else {
-        return "translate(" + x + "," + y + ")"
-      }
-    })
+//drawBots()
 
-var animateInterval = setInterval("animate()", CYCLE_DUR)
+// kick it off
+//
 

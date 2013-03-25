@@ -61,6 +61,7 @@ CodeMirror.defineMIME("text/x-robocom", {
 
 // lineComments is a map where line index points to comment for that line
 function addLineComments(lineComments) {
+  codeMirrorBox.clearGutter("note-gutter")
   for (i in lineComments) {
       var comment = lineComments[i]
       console.dir(i)

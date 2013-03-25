@@ -142,19 +142,27 @@ function step(bots) {
   for (var i = 0; i < numBots; i++) {
     var bot = bots[i]
 
-    var instruction = bot.program[bot.ip]
-    bot.ip = (bot.ip + 1) % bot.program.length
+    var instruction = bot.program.instructions[bot.ip]
+    bot.ip = (bot.ip + 1) % bot.program.instructions.length
     bot.animation = new Animation(AnimationType.NONE, null)
-    if (instruction == "move") {
+    if (instruction.opcode == Opcode.MOVE) {
       moveBot(bot)
-    } else if (instruction == "left") {
-      turnBot(bot, Direction.LEFT)
-    } else if (instruction == "right") {
-      turnBot(bot, Direction.RIGHT)
+    } else if (instruction.opcode == Opcode.TURN) {
+      turnBot(bot, instruction.data)
     }
   }
 }
 
 function cleanUpSimulation() {
   bots = []
+}
+
+function initBots(prog) {
+  var initBot = new Bot(
+    Math.floor((ccx - 1) / 2),
+    Math.floor((ccy - 1)/ 2),
+    Direction.UP,
+    prog)
+
+  return [initBot]  
 }

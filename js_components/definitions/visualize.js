@@ -191,3 +191,44 @@ function cleanUpVisualization() {
   d3.selectAll(".botClone").remove()
 }
  
+function createBoard() {
+  vis = d3.select("#board")
+    .attr("class", "vis")
+    .attr("width", ccx * cw)
+    .attr("height", ccy * ch)
+}
+
+function drawCells() {
+  vis.selectAll(".cell")
+    .data(function() { return toGrid(states) })
+  .enter().append("svg:rect")
+    .attr("class", "cell")
+    .attr("stroke", "lightgray")
+    .attr("fill", "white")
+    .attr("x", function(d) { return xs(d.x) })
+    .attr("y", function(d) { return ys(d.y) })
+    .attr("width", cw)
+    .attr("height", ch)
+ }
+
+
+function drawBots() {
+  vis.selectAll(".bot")
+    .data(bots)
+  .enter().append("svg:use")
+    .attr("class", "bot")
+    .attr("xlink:href", "#botTemplate")
+    .attr("transform", function(bot) {
+      var x = bot.cellX * cw + BOT_PHASE_SHIFT
+      var y = bot.cellY * ch + BOT_PHASE_SHIFT
+      if (bot.facing == Direction.RIGHT) {
+        return "translate(" + x + "," + y + ") rotate(90 16 16)"
+      } else if (bot.facing == Direction.DOWN) {
+        return "translate(" + x + "," + y + ") rotate(180 16 16)"
+      } else if (bot.facing == Direction.LEFT) {
+        return "translate(" + x + "," + y + ") rotate(-90 16 16)"
+      } else {
+        return "translate(" + x + "," + y + ")"
+      }
+    })
+}
