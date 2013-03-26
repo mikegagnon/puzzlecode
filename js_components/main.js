@@ -45,12 +45,16 @@ var ccx = 9, // cell count x
     ANIMATION_DUR = initPlaySpeed[0]
     CYCLE_DUR = initPlaySpeed[1],
     EASING = initPlaySpeed[3],
+    NON_BOT_ANIMATION_DUR = PlaySpeed.SLOW[0],
+    NON_BOT_CYCLE_DUR = NON_BOT_ANIMATION_DUR,
     BOT_PHASE_SHIFT = 0,
     initialProgram = "\nstart:\nmove\nmove\nturn left\ngoto start\n",
     codeMirrorBox = null,
     pausePlay = null,
     DEBUG = true,
     IDENT_REGEX = /^[A-Za-z][A-Za-z0-9_]*$/
+
+var COINS = [[1,1],[2,1],[3,1],[4,1]]
 
 // map of reserved words (built using fancy lodash style)
 var reservedWords = "move turn left right goto"

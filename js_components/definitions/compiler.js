@@ -74,8 +74,6 @@ function removeComment(tokens) {
   return tokens
 }
 
-
-
 // returns [tokens, label]
 // if a label is removed from tokens, then label is a string
 // otherwise it is null
@@ -112,7 +110,7 @@ function compileMove(tokens) {
     comment = newComment("Move forward one square")
   } else {
     instruction = null
-    comment = newErrorComment("Incorrect 'move' instruction", "#")
+    comment = newErrorComment("Malformed 'move' instruction", "#")
     error = true
   }
 

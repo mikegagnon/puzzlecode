@@ -53,6 +53,7 @@ function windowOnLoad() {
 
   // TODO: where should i put this?
   animateInterval = setInterval("animate()", CYCLE_DUR)
+  nonBotAnimateInterval = setInterval("nonBotAnimate()", NON_BOT_CYCLE_DUR)
 }
 
 function setSpeed(speed) {

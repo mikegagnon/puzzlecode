@@ -195,8 +195,6 @@ function removeComment(tokens) {
   return tokens
 }
 
-
-
 // returns [tokens, label]
 // if a label is removed from tokens, then label is a string
 // otherwise it is null
@@ -233,7 +231,7 @@ function compileMove(tokens) {
     comment = newComment("Move forward one square")
   } else {
     instruction = null
-    comment = newErrorComment("Incorrect 'move' instruction", "#")
+    comment = newErrorComment("Malformed 'move' instruction", "#")
     error = true
   }
 
@@ -583,6 +581,7 @@ function windowOnLoad() {
 
   // TODO: where should i put this?
   animateInterval = setInterval("animate()", CYCLE_DUR)
+  nonBotAnimateInterval = setInterval("nonBotAnimate()", NON_BOT_CYCLE_DUR)
 }
 
 function setSpeed(speed) {
@@ -798,6 +797,22 @@ function clone(selector) {
 node.nextSibling));
 }
 
+function nonBotAnimate() {
+
+  d3.selectAll(".coin")
+    .data(COINS)
+    .transition()
+    .attr("r", "7")
+    .ease("cubic-in-out")
+    .duration(NON_BOT_ANIMATION_DUR / 2)
+    .each("end", function() {
+      d3.select(this).transition()
+        .attr("r", "6")
+        .ease("cubic-in-out")
+        .duration(NON_BOT_ANIMATION_DUR / 2)
+    })
+}
+
 function animate() {
     if (playStatus == PlayStatus.PAUSED) {
       return;
@@ -981,6 +996,17 @@ function drawCells() {
     .attr("y", function(d) { return d.y * ch })
     .attr("width", cw)
     .attr("height", ch)
+
+  vis.selectAll(".coin")
+    .data(COINS)
+  .enter().append("svg:circle")
+    .attr("class", "coin")
+    .attr("stroke", "goldenrod")
+    .attr("fill", "gold")
+    .attr("r", "6")
+    .attr("cx", function(d){ return d[0] * cw + cw/2 } )
+    .attr("cy", function(d){ return d[1] * ch + ch/2} )
+
  }
 
 function drawBots() {
@@ -1049,12 +1075,16 @@ var ccx = 9, // cell count x
     ANIMATION_DUR = initPlaySpeed[0]
     CYCLE_DUR = initPlaySpeed[1],
     EASING = initPlaySpeed[3],
+    NON_BOT_ANIMATION_DUR = PlaySpeed.SLOW[0],
+    NON_BOT_CYCLE_DUR = NON_BOT_ANIMATION_DUR,
     BOT_PHASE_SHIFT = 0,
     initialProgram = "\nstart:\nmove\nmove\nturn left\ngoto start\n",
     codeMirrorBox = null,
     pausePlay = null,
     DEBUG = true,
     IDENT_REGEX = /^[A-Za-z][A-Za-z0-9_]*$/
+
+var COINS = [[1,1],[2,1],[3,1],[4,1]]
 
 // map of reserved words (built using fancy lodash style)
 var reservedWords = "move turn left right goto"
