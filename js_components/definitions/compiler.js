@@ -74,6 +74,8 @@ function removeComment(tokens) {
   return tokens
 }
 
+
+
 // returns [tokens, label]
 // if a label is removed from tokens, then label is a string
 // otherwise it is null
@@ -145,6 +147,10 @@ function compileTurn(tokens) {
   return [instruction, comment, error]
 }
 
+
+
+// TODO: make sure the label is sane: i.e. not a reserved word and conforms
+// to identifier regex
 function compileGoto(tokens) {
   var instruction = null
   var comment = null
@@ -157,12 +163,32 @@ function compileGoto(tokens) {
     error = true
   } else {
     var label = tokens[1]
-    instruction = new RobocomInstruction(Opcode.GOTO, label)
-    // fill in this comment after second pass
-    comment = null
-    error = false  
+    if (!isValidLabel(label)) {
+      instruction = null
+      comment = newErrorComment("'" + label + "' is not a valid label", "#")
+      error = true
+    } else {
+      instruction = new RobocomInstruction(Opcode.GOTO, label)
+      // this comment is filled in on the second pass
+      comment = null
+      error = false
+    }
   }
   return [instruction, comment, error]
+}
+
+function tokenize(line) {
+  return line
+    .replace(/\s+/g, " ")
+    .replace(/(^\s+)|(\s+$)/g, "")
+    .split(" ")
+}
+
+function isValidLabel(label) {
+  return label.length > 0 &&
+    label.length < 20 &&
+    !(label in RESERVED_WORDS) &&
+    IDENT_REGEX.test(label)
 }
 
 /**
@@ -175,19 +201,17 @@ function compileGoto(tokens) {
  *  error is true iff there was an error compiling this line
  */
 function compileLine(line, labels) {
-  var tokens = line
-    .replace(/\s+/g, " ")
-    .replace(/(^\s+)|(\s+$)/g, "")
-    .split(" ")
-
+  
+  tokens = tokenize(line)
   tokens = removeComment(tokens)
   tokensLabel = removeLabel(tokens)
   tokens = tokensLabel[0]
   label = tokensLabel[1]
 
   if (label != null) {
-    if (label.length == 0 || label.length > 100) {
-      comment = newErrorComment("malformed label", "#")
+    if (!isValidLabel(label)) {
+      var abbrevLabel = label.substr(0, 20)
+      comment = newErrorComment("'" + label + "' is not a valid label", "#")
       return [null, comment, true, null]
     } else if (label in labels) {
       // TODO: get labels

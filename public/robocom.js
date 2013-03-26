@@ -108,29 +108,6 @@ function AnimationTurn(oldFacing, newFacing) {
  *
  */
 
-// Defines a syntax highlighter for the robocom language
-CodeMirror.defineMIME("text/x-robocom", {
-  name: "clike",
-  //keywords: words("move turn goto"),
-  keywords: {
-    "move" : true,
-    "turn" : true,
-    "goto" : true,
-    "true" : true,
-    "false" : true,
-    "left" : true,
-    "right" : true
-  },
-  blockKeywords: {},
-  atoms: {},
-  hooks: {
-    "@": function(stream) {
-      stream.eatWhile(/[\w\$_]/);
-      return "meta";
-    }
-  }
-});
-
 // lineComments is a map where line index points to comment for that line
 function addLineComments(lineComments) {
   codeMirrorBox.clearGutter("note-gutter")
@@ -218,6 +195,8 @@ function removeComment(tokens) {
   return tokens
 }
 
+
+
 // returns [tokens, label]
 // if a label is removed from tokens, then label is a string
 // otherwise it is null
@@ -289,6 +268,10 @@ function compileTurn(tokens) {
   return [instruction, comment, error]
 }
 
+
+
+// TODO: make sure the label is sane: i.e. not a reserved word and conforms
+// to identifier regex
 function compileGoto(tokens) {
   var instruction = null
   var comment = null
@@ -301,12 +284,32 @@ function compileGoto(tokens) {
     error = true
   } else {
     var label = tokens[1]
-    instruction = new RobocomInstruction(Opcode.GOTO, label)
-    // fill in this comment after second pass
-    comment = null
-    error = false  
+    if (!isValidLabel(label)) {
+      instruction = null
+      comment = newErrorComment("'" + label + "' is not a valid label", "#")
+      error = true
+    } else {
+      instruction = new RobocomInstruction(Opcode.GOTO, label)
+      // this comment is filled in on the second pass
+      comment = null
+      error = false
+    }
   }
   return [instruction, comment, error]
+}
+
+function tokenize(line) {
+  return line
+    .replace(/\s+/g, " ")
+    .replace(/(^\s+)|(\s+$)/g, "")
+    .split(" ")
+}
+
+function isValidLabel(label) {
+  return label.length > 0 &&
+    label.length < 20 &&
+    !(label in RESERVED_WORDS) &&
+    IDENT_REGEX.test(label)
 }
 
 /**
@@ -319,19 +322,17 @@ function compileGoto(tokens) {
  *  error is true iff there was an error compiling this line
  */
 function compileLine(line, labels) {
-  var tokens = line
-    .replace(/\s+/g, " ")
-    .replace(/(^\s+)|(\s+$)/g, "")
-    .split(" ")
-
+  
+  tokens = tokenize(line)
   tokens = removeComment(tokens)
   tokensLabel = removeLabel(tokens)
   tokens = tokensLabel[0]
   label = tokensLabel[1]
 
   if (label != null) {
-    if (label.length == 0 || label.length > 100) {
-      comment = newErrorComment("malformed label", "#")
+    if (!isValidLabel(label)) {
+      var abbrevLabel = label.substr(0, 20)
+      comment = newErrorComment("'" + label + "' is not a valid label", "#")
       return [null, comment, true, null]
     } else if (label in labels) {
       // TODO: get labels
@@ -455,7 +456,20 @@ d3.selection.prototype.size = function() {
   var n = 0;
   this.each(function() { ++n; });
   return n;
-};/**
+};
+
+function assert(bool, message) {
+  if (!bool) {
+    alert(message)
+  }
+}
+
+
+function assertLazy(func, message) {
+  if (DEBUG) {
+    assert(func(), message)
+  }
+}/**
  * Copyright 2013 Michael N. Gagnon
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -533,6 +547,20 @@ function rotateDirection(oldFacing, rotateDirection) {
 // These event handlers are registered in main.js and in index.html
 
 function windowOnLoad() {
+
+  // Defines a syntax highlighter for the robocom language
+  CodeMirror.defineMIME("text/x-robocom", {
+    name: "clike",
+    keywords: RESERVED_WORDS,
+    blockKeywords: {},
+    atoms: {},
+    hooks: {
+      "@": function(stream) {
+        stream.eatWhile(/[\w\$_]/);
+        return "meta";
+      }
+    }
+  });
 
   pausePlay = document.getElementById("pauseplay")
   pausePlay.addEventListener("click", togglePausePlay);
@@ -1008,6 +1036,7 @@ PlayStatus = {
   PLAYING: 1
 }
 
+// TODO: better var names and all caps
 var ccx = 9, // cell count x
     ccy = 7, // cell count y
     cw = 32, // cellWidth
@@ -1023,8 +1052,75 @@ var ccx = 9, // cell count x
     BOT_PHASE_SHIFT = 0,
     initialProgram = "\nstart:\nmove\nmove\nturn left\ngoto start\n",
     codeMirrorBox = null,
-    pausePlay = null
+    pausePlay = null,
+    DEBUG = true,
+    IDENT_REGEX = /^[A-Za-z][A-Za-z0-9_]*$/
 
+// map of reserved words (built using fancy lodash style)
+var reservedWords = "move turn left right goto"
+var RESERVED_WORDS = _(reservedWords.split(" "))
+  .map(function(word) { return [word, true] })
+  .object()
+  .value()
 window.onload = windowOnLoad
 createBoard()
 drawCells()
+/**
+ * Copyright 2013 Michael N. Gagnon
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * array of [programLine, instructionObject] pairs
+ * tests ability to correctly compile instructions and detect errors
+ * specific to instructions.
+ * 
+ * Things that are __not__ tested here:
+ *    - tokenization
+ *    - comments
+ *    - labels
+ *    - second phase of goto parsing
+ */
+var testInstructions = [
+
+    ["move", new RobocomInstruction(Opcode.MOVE, null)],
+    ["move foo", null],
+    ["move foo bar", null],
+
+    ["turn left", new RobocomInstruction(Opcode.TURN, Direction.LEFT)],
+    ["turn right", new RobocomInstruction(Opcode.TURN, Direction.RIGHT)],
+    ["turn up", null],
+    ["turn down", null],
+    ["turn", null],
+    ["turn 0", null],
+    ["turn 1", null],
+    ["turn left right", null],
+    ["turn left foo", null],
+
+    ["goto foo_1", new RobocomInstruction(Opcode.GOTO, "foo_1")],
+    ["goto foo bar", null],
+    ["goto 1foo", null],
+    ["goto _foo", null],
+    ["goto move", null],
+    ["goto goto", null]
+
+  ]
+
+for (var i = 0; i < testInstructions.length; i++) {
+  var line     = testInstructions[i][0]
+  var expected = testInstructions[i][1]
+  var result = compileLine(line)[0]
+  assert(_.isEqual(result, expected),
+    "compile('" + line + "') != expected")
+}

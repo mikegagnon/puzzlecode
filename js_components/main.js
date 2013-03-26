@@ -32,6 +32,7 @@ PlayStatus = {
   PLAYING: 1
 }
 
+// TODO: better var names and all caps
 var ccx = 9, // cell count x
     ccy = 7, // cell count y
     cw = 32, // cellWidth
@@ -47,8 +48,16 @@ var ccx = 9, // cell count x
     BOT_PHASE_SHIFT = 0,
     initialProgram = "\nstart:\nmove\nmove\nturn left\ngoto start\n",
     codeMirrorBox = null,
-    pausePlay = null
+    pausePlay = null,
+    DEBUG = true,
+    IDENT_REGEX = /^[A-Za-z][A-Za-z0-9_]*$/
 
+// map of reserved words (built using fancy lodash style)
+var reservedWords = "move turn left right goto"
+var RESERVED_WORDS = _(reservedWords.split(" "))
+  .map(function(word) { return [word, true] })
+  .object()
+  .value()
 window.onload = windowOnLoad
 createBoard()
 drawCells()

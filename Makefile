@@ -21,12 +21,22 @@ all: robocom.js
 
 js=js_components
 dest=public
-
+robocom_js=$(dest)/robocom.js
+js_test=js_test/*.js
 definitions = $(js)/definitions/*.js
+tmp_file=/tmp/robocom_tmp
+
+# compiles a special version of robocom.js that also runs a bunch of js tests
+# to run the tests, just open public/index.html. If there are no alerts,
+# everything passed
+test: robocom.js
+	@cat $(robocom_js) $(js_test) > $(tmp_file)
+	@mv $(tmp_file) $(robocom_js)
+	@echo created test version of $(robocom_js)
 
 robocom.js: \
 	$(definitions) \
 	$(js)/main.js
-	@cat $(definitions) $(js)/main.js > $(dest)/robocom.js
-	@echo created $(dest)/robocom.js
+	@cat $(definitions) $(js)/main.js > $(robocom_js)
+	@echo created $(robocom_js)
 	

@@ -38,29 +38,6 @@
  *
  */
 
-// Defines a syntax highlighter for the robocom language
-CodeMirror.defineMIME("text/x-robocom", {
-  name: "clike",
-  //keywords: words("move turn goto"),
-  keywords: {
-    "move" : true,
-    "turn" : true,
-    "goto" : true,
-    "true" : true,
-    "false" : true,
-    "left" : true,
-    "right" : true
-  },
-  blockKeywords: {},
-  atoms: {},
-  hooks: {
-    "@": function(stream) {
-      stream.eatWhile(/[\w\$_]/);
-      return "meta";
-    }
-  }
-});
-
 // lineComments is a map where line index points to comment for that line
 function addLineComments(lineComments) {
   codeMirrorBox.clearGutter("note-gutter")

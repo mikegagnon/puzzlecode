@@ -28,3 +28,16 @@ d3.selection.prototype.size = function() {
   this.each(function() { ++n; });
   return n;
 };
+
+function assert(bool, message) {
+  if (!bool) {
+    alert(message)
+  }
+}
+
+
+function assertLazy(func, message) {
+  if (DEBUG) {
+    assert(func(), message)
+  }
+}
