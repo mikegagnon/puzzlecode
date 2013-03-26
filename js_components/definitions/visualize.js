@@ -82,6 +82,7 @@ function animateCoins(bots) {
     })
     .attr("r", 100)
     .attr("opacity", "0.0")
+    .delay(ANIMATION_DUR / 3)
     .ease(EASING)
     .duration(ANIMATION_DUR)
 
