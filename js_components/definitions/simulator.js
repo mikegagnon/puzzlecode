@@ -85,12 +85,11 @@ function moveBot(bot) {
     console.dir(matchingCoin)
 
     // remove the coin from the board
-    // TODO: determine how to remove coins from teh BOARD and from svg
-    /*BOARD.coins = _(BOARD.coins)
+    BOARD.coins = _(BOARD.coins)
       .filter( function(coin) {
         return !(coin.x == bot.cellX && coin.y == bot.cellY)
       })
-      .value()*/
+      .value()
 
     BOARD.coinsCollected += 1
 

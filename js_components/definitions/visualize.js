@@ -14,6 +14,11 @@
  * limitations under the License.
  */
 
+/**
+ * Instead of using D3 selectAll, just do D3 select(node) for a given node
+ * reference.
+ */
+
 function directionToAngle(direction) {
   if (direction == Direction.UP) {
     return 0
@@ -52,17 +57,20 @@ function nonBotAnimate() {
   */
 }
 
-function animateCoins(bots) {
+function animateCoins(coins, bots) {
 
   function serial(coin) {
     return coin.x + "x" + coin.y
   }
 
+  // TODO: how can I simply get collectedCoins.length?
+  var numCollected = 0
+
   // object "x,y" keys for each coin being collected
   var collectedCoins = _(bots)
     .map( function(b) {
       if ("coin_collect" in b.animations) {
-        console.log("coin_collect" + serial(b.animations.coin_collect))
+        numCollected += 1
         return serial(b.animations.coin_collect)
       } else {
         return null
@@ -72,19 +80,22 @@ function animateCoins(bots) {
     .object([])
     .value()
 
-  var trans = d3.selectAll(".coin").data(BOARD.coins).transition()
+  if (numCollected > 0) {
 
-  console.dir(collectedCoins)
-  trans
-    .filter( function(coin) {
-      console.dir(serial(coin))
-      return serial(coin) in collectedCoins
-    })
-    .attr("r", 100)
-    .attr("opacity", "0.0")
-    .delay(ANIMATION_DUR / 3)
-    .ease(EASING)
-    .duration(ANIMATION_DUR)
+    var trans = d3.selectAll(".coin").data(coins).transition()
+
+    console.dir(collectedCoins)
+    trans
+      .filter( function(coin) {
+        console.dir(serial(coin))
+        return serial(coin) in collectedCoins
+      })
+      .attr("r", COIN_EXPLODE_RADIUS)
+      .attr("opacity", "0.0")
+      .delay(ANIMATION_DUR / 4)
+      .ease("cubic")
+      .duration(ANIMATION_DUR)
+  }
 
 }
 
@@ -93,9 +104,11 @@ function animate() {
       return;
     }
 
+    var prevCoins = _.clone(BOARD.coins)
+
     step(BOARD.bots)
 
-    animateCoins(BOARD.bots)
+    animateCoins(prevCoins, BOARD.bots)
 
     var transition = d3.selectAll(".bot").data(BOARD.bots).transition()
 
@@ -225,6 +238,7 @@ function animate() {
 
 function cleanUpVisualization() {
   d3.selectAll(".bot").remove()
+  d3.selectAll(".coin").remove()
   d3.selectAll(".botClone").remove()
 }
  
@@ -265,7 +279,7 @@ function drawCoins() {
     .attr("stroke", "goldenrod")
     .attr("fill", "gold")
     .attr("opacity", "1.0")
-    .attr("r", "6")
+    .attr("r", COIN_RADIUS)
     .attr("cx", function(d){ return d.x * cw + cw/2 } )
     .attr("cy", function(d){ return d.y * ch + ch/2} )
 }

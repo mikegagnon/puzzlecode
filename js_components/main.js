@@ -70,6 +70,10 @@ var RESERVED_WORDS = _(reservedWords.split(" "))
   .map(function(word) { return [word, true] })
   .object()
   .value()
+
+var COIN_RADIUS = 6
+var COIN_EXPLODE_RADIUS = 100
+
 window.onload = windowOnLoad
 createBoard()
 drawCells()
