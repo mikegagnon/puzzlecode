@@ -25,14 +25,13 @@ function Bot(x, y, facing, program) {
     this.ip = 0;
 
     // the next animation to perform for this bot
-    this.animation = "";
+    this.animations = {};
 }
 
 function turnBot(bot, direction) {
   var oldFacing = bot.facing
   bot.facing = rotateDirection(bot.facing, direction)
-  var animationData = new AnimationTurn(oldFacing, bot.facing)
-  bot.animation = new Animation(AnimationType.ROTATE, animationData)
+  bot.animations = { rotate : new AnimationTurn(oldFacing, bot.facing) }
 }
 
 function executeGoto(bot, nextIp) {
@@ -43,6 +42,8 @@ function executeGoto(bot, nextIp) {
 // executes the 'move' instruciton on the bot
 // updates the bot state
 function moveBot(bot) {
+
+  bot.animations = {}
 
   var prevX = bot.cellX
   var prevY = bot.cellY
@@ -68,6 +69,35 @@ function moveBot(bot) {
   xTorus = xResult[1]
   yTorus = yResult[1]
 
+  // did the bot pickup a coin?
+  var matchingCoins = _(BOARD.coins)
+    .filter( function(coin) {
+      return coin.x == bot.cellX && coin.y == bot.cellY
+    })
+    .value()
+
+  assert(matchingCoins.length == 0 || matchingCoins.length == 1,
+    "matchingCoins.length == 0 || matchingCoins.length == 1")
+
+  if (matchingCoins.length == 1) {
+    var matchingCoin = matchingCoins[0]
+    console.log("matchingCoin")
+    console.dir(matchingCoin)
+
+    // remove the coin from the board
+    // TODO: determine how to remove coins from teh BOARD and from svg
+    /*BOARD.coins = _(BOARD.coins)
+      .filter( function(coin) {
+        return !(coin.x == bot.cellX && coin.y == bot.cellY)
+      })
+      .value()*/
+
+    BOARD.coinsCollected += 1
+
+    bot.animations.coin_collect = matchingCoin
+  }
+
+  // define the animation for the move
   animationData = new AnimationMove(
     xTorus == "torus" || yTorus == "torus",
     prevX, prevY,
@@ -75,7 +105,7 @@ function moveBot(bot) {
     prevX + dx, prevY + dy,
     dx, dy) 
 
-  bot.animation = new Animation(AnimationType.MOVE, animationData)
+  bot.animations.move = animationData
 }
 
 // assumes relatively sane values for increment
@@ -101,7 +131,7 @@ function step(bots) {
 
     var instruction = bot.program.instructions[bot.ip]
     bot.ip = (bot.ip + 1) % bot.program.instructions.length
-    bot.animation = new Animation(AnimationType.NONE, null)
+    bot.animations = {}
     if (instruction.opcode == Opcode.MOVE) {
       moveBot(bot)
     } else if (instruction.opcode == Opcode.TURN) {

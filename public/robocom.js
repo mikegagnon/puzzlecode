@@ -629,10 +629,21 @@ function restartSimulation() {
   var programText = codeMirrorBox.getValue()
   var program = compileRobocom(programText)
   addLineComments(program.lineComments)
+
+  BOARD.coins = [
+      {x:1, y:1},
+      {x:2, y:1},
+      {x:3, y:1},
+      {x:4, y:1}
+    ]
+  BOARD.coinsCollected = 0
+  drawCoins()
+
   if (program.instructions != null) {
     BOARD.bots = initBots(program)
     drawBots()
   }
+
 }
 /**
  * Copyright 2013 Michael N. Gagnon
@@ -661,14 +672,13 @@ function Bot(x, y, facing, program) {
     this.ip = 0;
 
     // the next animation to perform for this bot
-    this.animation = "";
+    this.animations = {};
 }
 
 function turnBot(bot, direction) {
   var oldFacing = bot.facing
   bot.facing = rotateDirection(bot.facing, direction)
-  var animationData = new AnimationTurn(oldFacing, bot.facing)
-  bot.animation = new Animation(AnimationType.ROTATE, animationData)
+  bot.animations = { rotate : new AnimationTurn(oldFacing, bot.facing) }
 }
 
 function executeGoto(bot, nextIp) {
@@ -679,6 +689,8 @@ function executeGoto(bot, nextIp) {
 // executes the 'move' instruciton on the bot
 // updates the bot state
 function moveBot(bot) {
+
+  bot.animations = {}
 
   var prevX = bot.cellX
   var prevY = bot.cellY
@@ -704,6 +716,35 @@ function moveBot(bot) {
   xTorus = xResult[1]
   yTorus = yResult[1]
 
+  // did the bot pickup a coin?
+  var matchingCoins = _(BOARD.coins)
+    .filter( function(coin) {
+      return coin.x == bot.cellX && coin.y == bot.cellY
+    })
+    .value()
+
+  assert(matchingCoins.length == 0 || matchingCoins.length == 1,
+    "matchingCoins.length == 0 || matchingCoins.length == 1")
+
+  if (matchingCoins.length == 1) {
+    var matchingCoin = matchingCoins[0]
+    console.log("matchingCoin")
+    console.dir(matchingCoin)
+
+    // remove the coin from the board
+    // TODO: determine how to remove coins from teh BOARD and from svg
+    /*BOARD.coins = _(BOARD.coins)
+      .filter( function(coin) {
+        return !(coin.x == bot.cellX && coin.y == bot.cellY)
+      })
+      .value()*/
+
+    BOARD.coinsCollected += 1
+
+    bot.animations.coin_collect = matchingCoin
+  }
+
+  // define the animation for the move
   animationData = new AnimationMove(
     xTorus == "torus" || yTorus == "torus",
     prevX, prevY,
@@ -711,7 +752,7 @@ function moveBot(bot) {
     prevX + dx, prevY + dy,
     dx, dy) 
 
-  bot.animation = new Animation(AnimationType.MOVE, animationData)
+  bot.animations.move = animationData
 }
 
 // assumes relatively sane values for increment
@@ -737,7 +778,7 @@ function step(bots) {
 
     var instruction = bot.program.instructions[bot.ip]
     bot.ip = (bot.ip + 1) % bot.program.instructions.length
-    bot.animation = new Animation(AnimationType.NONE, null)
+    bot.animations = {}
     if (instruction.opcode == Opcode.MOVE) {
       moveBot(bot)
     } else if (instruction.opcode == Opcode.TURN) {
@@ -799,6 +840,7 @@ node.nextSibling));
 
 function nonBotAnimate() {
 
+  /*
   d3.selectAll(".coin")
     .data(BOARD.coins)
     .transition()
@@ -811,6 +853,42 @@ function nonBotAnimate() {
         .ease("cubic-in-out")
         .duration(NON_BOT_ANIMATION_DUR / 2)
     })
+  */
+}
+
+function animateCoins(bots) {
+
+  function serial(coin) {
+    return coin.x + "x" + coin.y
+  }
+
+  // object "x,y" keys for each coin being collected
+  var collectedCoins = _(bots)
+    .map( function(b) {
+      if ("coin_collect" in b.animations) {
+        console.log("coin_collect" + serial(b.animations.coin_collect))
+        return serial(b.animations.coin_collect)
+      } else {
+        return null
+      }
+    })
+    .compact()
+    .object([])
+    .value()
+
+  var trans = d3.selectAll(".coin").data(BOARD.coins).transition()
+
+  console.dir(collectedCoins)
+  trans
+    .filter( function(coin) {
+      console.dir(serial(coin))
+      return serial(coin) in collectedCoins
+    })
+    .attr("r", 100)
+    .attr("opacity", "0.0")
+    .ease(EASING)
+    .duration(ANIMATION_DUR)
+
 }
 
 function animate() {
@@ -819,24 +897,13 @@ function animate() {
     }
 
     step(BOARD.bots)
+
+    animateCoins(BOARD.bots)
+
     var transition = d3.selectAll(".bot").data(BOARD.bots).transition()
 
-    /**
-     * TODO:
-     * two groups of moves: the torus and non-torus moves
-     * for the torus moves:
-     *    - clone the bot and put it on the other side of the board (off the board)
-     *    - move both bots
-     *    - garbage collect the bots that were moved off the board
-     *    - how to associate the new bots with the old data?
-     *        - move the original bot across the board (hidden) and
-     *          put a clone where the original bot used to be.
-     */
-    d3.selectAll(".head").data(BOARD.bots).transition()
-
-    // TODO: this doesn't rotate around the origin; why not?
     transition.filter( function(bot) {
-          return bot.animation.type == AnimationType.ROTATE
+           return "rotate" in bot.animations
         })
         .attr("transform", function(bot) {
           var x = bot.cellX * cw + BOT_PHASE_SHIFT
@@ -848,16 +915,11 @@ function animate() {
       .duration(ANIMATION_DUR)
 
     var moveNonTorus = transition.filter( function(bot) {
-        var notTorus = bot.animation.type == AnimationType.MOVE &&
-          !bot.animation.data.torus
-        return notTorus
+        var move = bot.animations.move
+        return move != undefined && !move.torus
       })
 
-    // TODO: choose linear or cubic easing depending on speed of animation
-    // and delay between movements
     moveNonTorus
-        /*.attr("x", function(bot) { return bot.cellX * cw + BOT_PHASE_SHIFT })
-        .attr("y", function(bot) { return bot.cellY * ch + BOT_PHASE_SHIFT })*/
         .attr("transform", function(bot) {
           var x = bot.cellX * cw + BOT_PHASE_SHIFT
           var y = bot.cellY * ch + BOT_PHASE_SHIFT
@@ -875,9 +937,8 @@ function animate() {
         .duration(ANIMATION_DUR)
   
     torusBots = BOARD.bots.filter(function(bot) {
-      var torus = bot.animation.type == AnimationType.MOVE &&
-        bot.animation.data.torus
-      return torus
+      var move = bot.animations.move
+      return move != undefined && move.torus
     })
 
     vis.selectAll(".botClone")
@@ -886,8 +947,8 @@ function animate() {
       .attr("class", "bot")
       .attr("xlink:href", "#botTemplate")
       .attr("transform", function(bot) {
-          var x = bot.animation.data.prevX * cw + BOT_PHASE_SHIFT
-          var y = bot.animation.data.prevY * ch + BOT_PHASE_SHIFT
+          var x = bot.animations.move.prevX * cw + BOT_PHASE_SHIFT
+          var y = bot.animations.move.prevY * ch + BOT_PHASE_SHIFT
           if (bot.facing == Direction.RIGHT) {
             return "translate(" + x + "," + y + ") rotate(90 16 16)"
           } else if (bot.facing == Direction.DOWN) {
@@ -900,8 +961,8 @@ function animate() {
         })
     .transition()
       .attr("transform", function(bot) {
-          var x = bot.animation.data.oobNextX  * cw + BOT_PHASE_SHIFT
-          var y = bot.animation.data.oobNextY  * ch + BOT_PHASE_SHIFT
+          var x = bot.animations.move.oobNextX  * cw + BOT_PHASE_SHIFT
+          var y = bot.animations.move.oobNextY  * ch + BOT_PHASE_SHIFT
           if (bot.facing == Direction.RIGHT) {
             return "translate(" + x + "," + y + ") rotate(90 16 16)"
           } else if (bot.facing == Direction.DOWN) {
@@ -920,8 +981,8 @@ function animate() {
       })
 
   var torusTransition = transition.filter( function(bot) {
-      return bot.animation.type == AnimationType.MOVE &&
-        bot.animation.data.torus
+      var move = bot.animations.move
+      return move != undefined && move.torus
     })
 
   // TODO: optimization idea. I am concerned I am specifying unncessary
@@ -930,8 +991,8 @@ function animate() {
   // otherwise you can use a pre-rotate SVG element.
   torusTransition
     .attr("transform", function(bot) {
-          var x = bot.animation.data.oobPrevX * cw + BOT_PHASE_SHIFT
-          var y = bot.animation.data.oobPrevY * ch + BOT_PHASE_SHIFT
+          var x = bot.animations.move.oobPrevX * cw + BOT_PHASE_SHIFT
+          var y = bot.animations.move.oobPrevY * ch + BOT_PHASE_SHIFT
           if (bot.facing == Direction.RIGHT) {
             return "translate(" + x + "," + y + ") rotate(90 16 16)"
           } else if (bot.facing == Direction.DOWN) {
@@ -997,17 +1058,20 @@ function drawCells() {
     .attr("width", cw)
     .attr("height", ch)
 
+ }
+
+function drawCoins() {
   vis.selectAll(".coin")
     .data(BOARD.coins)
   .enter().append("svg:circle")
     .attr("class", "coin")
     .attr("stroke", "goldenrod")
     .attr("fill", "gold")
+    .attr("opacity", "1.0")
     .attr("r", "6")
-    .attr("cx", function(d){ return d[0] * cw + cw/2 } )
-    .attr("cy", function(d){ return d[1] * ch + ch/2} )
-
- }
+    .attr("cx", function(d){ return d.x * cw + cw/2 } )
+    .attr("cy", function(d){ return d.y * ch + ch/2} )
+}
 
 function drawBots() {
   vis.selectAll(".bot")
@@ -1028,7 +1092,8 @@ function drawBots() {
         return "translate(" + x + "," + y + ")"
       }
     })
-}/**
+}
+/**
  * Copyright 2013 Michael N. Gagnon
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -1082,10 +1147,16 @@ var ccx = 9, // cell count x
     pausePlay = null,
     DEBUG = true,
     IDENT_REGEX = /^[A-Za-z][A-Za-z0-9_]*$/,
-    // maps object type to array of objects of that type
+
+    /**
+     * TODO: create a cell property, where cell[x][y] yields
+     * a list of objects in that cell. In the mean time, I'll just search
+     * through the bots and coins objects when needed.
+     */
     BOARD = {
-      bots : null,
-      coins : [[1,1],[2,1],[3,1],[4,1]]
+      bots : [],
+      coins : [],
+      coinsCollected : 0
     }
 
 // map of reserved words (built using fancy lodash style)

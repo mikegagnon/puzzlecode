@@ -101,8 +101,19 @@ function restartSimulation() {
   var programText = codeMirrorBox.getValue()
   var program = compileRobocom(programText)
   addLineComments(program.lineComments)
+
+  BOARD.coins = [
+      {x:1, y:1},
+      {x:2, y:1},
+      {x:3, y:1},
+      {x:4, y:1}
+    ]
+  BOARD.coinsCollected = 0
+  drawCoins()
+
   if (program.instructions != null) {
     BOARD.bots = initBots(program)
     drawBots()
   }
+
 }

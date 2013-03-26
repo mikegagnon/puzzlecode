@@ -52,10 +52,16 @@ var ccx = 9, // cell count x
     pausePlay = null,
     DEBUG = true,
     IDENT_REGEX = /^[A-Za-z][A-Za-z0-9_]*$/,
-    // maps object type to array of objects of that type
+
+    /**
+     * TODO: create a cell property, where cell[x][y] yields
+     * a list of objects in that cell. In the mean time, I'll just search
+     * through the bots and coins objects when needed.
+     */
     BOARD = {
-      bots : null,
-      coins : [[1,1],[2,1],[3,1],[4,1]]
+      bots : [],
+      coins : [],
+      coinsCollected : 0
     }
 
 // map of reserved words (built using fancy lodash style)
