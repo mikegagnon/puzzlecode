@@ -113,7 +113,7 @@ function step(bots) {
 }
 
 function cleanUpSimulation() {
-  bots = []
+  BOARD.bots = []
 }
 
 function initBots(prog) {

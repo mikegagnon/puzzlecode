@@ -37,7 +37,7 @@ node.nextSibling));
 function nonBotAnimate() {
 
   d3.selectAll(".coin")
-    .data(COINS)
+    .data(BOARD.coins)
     .transition()
     .attr("r", "7")
     .ease("cubic-in-out")
@@ -55,8 +55,8 @@ function animate() {
       return;
     }
 
-    step(bots)
-    var transition = d3.selectAll(".bot").data(bots).transition()
+    step(BOARD.bots)
+    var transition = d3.selectAll(".bot").data(BOARD.bots).transition()
 
     /**
      * TODO:
@@ -69,7 +69,7 @@ function animate() {
      *        - move the original bot across the board (hidden) and
      *          put a clone where the original bot used to be.
      */
-    d3.selectAll(".head").data(bots).transition()
+    d3.selectAll(".head").data(BOARD.bots).transition()
 
     // TODO: this doesn't rotate around the origin; why not?
     transition.filter( function(bot) {
@@ -111,7 +111,7 @@ function animate() {
         .ease(EASING)
         .duration(ANIMATION_DUR)
   
-    torusBots = bots.filter(function(bot) {
+    torusBots = BOARD.bots.filter(function(bot) {
       var torus = bot.animation.type == AnimationType.MOVE &&
         bot.animation.data.torus
       return torus
@@ -235,7 +235,7 @@ function drawCells() {
     .attr("height", ch)
 
   vis.selectAll(".coin")
-    .data(COINS)
+    .data(BOARD.coins)
   .enter().append("svg:circle")
     .attr("class", "coin")
     .attr("stroke", "goldenrod")
@@ -248,7 +248,7 @@ function drawCells() {
 
 function drawBots() {
   vis.selectAll(".bot")
-    .data(bots)
+    .data(BOARD.bots)
   .enter().append("svg:use")
     .attr("class", "bot")
     .attr("xlink:href", "#botTemplate")

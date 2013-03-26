@@ -602,7 +602,7 @@ function doPause() {
 }
 
 function doPlay() {
-  if (bots.length > 0) {
+  if (BOARD.bots.length > 0) {
     playStatus = PlayStatus.PLAYING
     pausePlay.innerHTML = 'Pause'
   }
@@ -630,7 +630,7 @@ function restartSimulation() {
   var program = compileRobocom(programText)
   addLineComments(program.lineComments)
   if (program.instructions != null) {
-    bots = initBots(program)
+    BOARD.bots = initBots(program)
     drawBots()
   }
 }
@@ -749,7 +749,7 @@ function step(bots) {
 }
 
 function cleanUpSimulation() {
-  bots = []
+  BOARD.bots = []
 }
 
 function initBots(prog) {
@@ -800,7 +800,7 @@ node.nextSibling));
 function nonBotAnimate() {
 
   d3.selectAll(".coin")
-    .data(COINS)
+    .data(BOARD.coins)
     .transition()
     .attr("r", "7")
     .ease("cubic-in-out")
@@ -818,8 +818,8 @@ function animate() {
       return;
     }
 
-    step(bots)
-    var transition = d3.selectAll(".bot").data(bots).transition()
+    step(BOARD.bots)
+    var transition = d3.selectAll(".bot").data(BOARD.bots).transition()
 
     /**
      * TODO:
@@ -832,7 +832,7 @@ function animate() {
      *        - move the original bot across the board (hidden) and
      *          put a clone where the original bot used to be.
      */
-    d3.selectAll(".head").data(bots).transition()
+    d3.selectAll(".head").data(BOARD.bots).transition()
 
     // TODO: this doesn't rotate around the origin; why not?
     transition.filter( function(bot) {
@@ -874,7 +874,7 @@ function animate() {
         .ease(EASING)
         .duration(ANIMATION_DUR)
   
-    torusBots = bots.filter(function(bot) {
+    torusBots = BOARD.bots.filter(function(bot) {
       var torus = bot.animation.type == AnimationType.MOVE &&
         bot.animation.data.torus
       return torus
@@ -998,7 +998,7 @@ function drawCells() {
     .attr("height", ch)
 
   vis.selectAll(".coin")
-    .data(COINS)
+    .data(BOARD.coins)
   .enter().append("svg:circle")
     .attr("class", "coin")
     .attr("stroke", "goldenrod")
@@ -1011,7 +1011,7 @@ function drawCells() {
 
 function drawBots() {
   vis.selectAll(".bot")
-    .data(bots)
+    .data(BOARD.bots)
   .enter().append("svg:use")
     .attr("class", "bot")
     .attr("xlink:href", "#botTemplate")
@@ -1068,7 +1068,6 @@ var ccx = 9, // cell count x
     cw = 32, // cellWidth
     ch = 32,  // cellHeight
     vis = null,
-    bots = null,
     animateInterval = null,
     playStatus = PlayStatus.PLAYING,
     initPlaySpeed = PlaySpeed.NORMAL,
@@ -1082,9 +1081,12 @@ var ccx = 9, // cell count x
     codeMirrorBox = null,
     pausePlay = null,
     DEBUG = true,
-    IDENT_REGEX = /^[A-Za-z][A-Za-z0-9_]*$/
-
-var COINS = [[1,1],[2,1],[3,1],[4,1]]
+    IDENT_REGEX = /^[A-Za-z][A-Za-z0-9_]*$/,
+    // maps object type to array of objects of that type
+    BOARD = {
+      bots : null,
+      coins : [[1,1],[2,1],[3,1],[4,1]]
+    }
 
 // map of reserved words (built using fancy lodash style)
 var reservedWords = "move turn left right goto"

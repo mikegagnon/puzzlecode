@@ -74,7 +74,7 @@ function doPause() {
 }
 
 function doPlay() {
-  if (bots.length > 0) {
+  if (BOARD.bots.length > 0) {
     playStatus = PlayStatus.PLAYING
     pausePlay.innerHTML = 'Pause'
   }
@@ -102,7 +102,7 @@ function restartSimulation() {
   var program = compileRobocom(programText)
   addLineComments(program.lineComments)
   if (program.instructions != null) {
-    bots = initBots(program)
+    BOARD.bots = initBots(program)
     drawBots()
   }
 }

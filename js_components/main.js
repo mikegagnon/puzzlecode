@@ -38,7 +38,6 @@ var ccx = 9, // cell count x
     cw = 32, // cellWidth
     ch = 32,  // cellHeight
     vis = null,
-    bots = null,
     animateInterval = null,
     playStatus = PlayStatus.PLAYING,
     initPlaySpeed = PlaySpeed.NORMAL,
@@ -52,9 +51,12 @@ var ccx = 9, // cell count x
     codeMirrorBox = null,
     pausePlay = null,
     DEBUG = true,
-    IDENT_REGEX = /^[A-Za-z][A-Za-z0-9_]*$/
-
-var COINS = [[1,1],[2,1],[3,1],[4,1]]
+    IDENT_REGEX = /^[A-Za-z][A-Za-z0-9_]*$/,
+    // maps object type to array of objects of that type
+    BOARD = {
+      bots : null,
+      coins : [[1,1],[2,1],[3,1],[4,1]]
+    }
 
 // map of reserved words (built using fancy lodash style)
 var reservedWords = "move turn left right goto"
