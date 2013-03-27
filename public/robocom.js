@@ -881,43 +881,9 @@ node.nextSibling));
 
 function nonBotAnimate() {
   // TODO: animate coins rotating or something
-  // IDEA: perhaps the reason nonBotAnimate and animateCollectedCoins were
+  // IDEA: perhaps the reason nonBotAnimate and animateCoinCollection were
   // interferring is because they were both operating on the same svg elements
   // but they were using different transition objects.
-}
-
-function animateFailMove(transition) {
-  var MOVE_DEPTH = 6
-  transition
-  .filter( function(bot) {
-    return "failMove" in bot.animations
-  })
-  .attr("transform", function(bot) {
-    var animation = bot.animations.failMove
-    var dx = 0
-    var dy = 0
-    if (bot.cellX != animation.destX) {
-      dx = (animation.destX - bot.cellX) * MOVE_DEPTH
-    }
-    if (bot.cellY != animation.destY) {
-      dy = (animation.destY - bot.cellY) * MOVE_DEPTH
-    }
-    var x = bot.cellX * CELL_SIZE + dx
-    var y = bot.cellY * CELL_SIZE + dy
-    return botTransform(x, y, bot.facing)
-  })
-  .ease("cubic")
-  .duration(ANIMATION_DUR / 2)
-  .each("end", function() {
-    d3.select(this).transition() 
-      .attr("transform", function(bot) {
-        var x = bot.cellX * CELL_SIZE
-        var y = bot.cellY * CELL_SIZE 
-        return botTransform(x, y, bot.facing)
-      })
-  })
-  .ease(EASING)
-  .duration(ANIMATION_DUR / 2)
 }
 
 function animateCoinCollection(coins, bots) {
@@ -959,7 +925,54 @@ function animateCoinCollection(coins, bots) {
       .ease("cubic")
       .duration(ANIMATION_DUR)
   }
+}
 
+function animateFailMove(transition) {
+  var MOVE_DEPTH = 6
+  transition
+  .filter( function(bot) {
+    return "failMove" in bot.animations
+  })
+  .attr("transform", function(bot) {
+    var animation = bot.animations.failMove
+    var dx = 0
+    var dy = 0
+    if (bot.cellX != animation.destX) {
+      dx = (animation.destX - bot.cellX) * MOVE_DEPTH
+    }
+    if (bot.cellY != animation.destY) {
+      dy = (animation.destY - bot.cellY) * MOVE_DEPTH
+    }
+    var x = bot.cellX * CELL_SIZE + dx
+    var y = bot.cellY * CELL_SIZE + dy
+    return botTransform(x, y, bot.facing)
+  })
+  .ease("cubic")
+  .duration(ANIMATION_DUR / 2)
+  .each("end", function() {
+    d3.select(this).transition() 
+      .attr("transform", function(bot) {
+        var x = bot.cellX * CELL_SIZE
+        var y = bot.cellY * CELL_SIZE 
+        return botTransform(x, y, bot.facing)
+      })
+  })
+  .ease(EASING)
+  .duration(ANIMATION_DUR / 2)
+}
+
+function animateRotate(transition) {
+  transition.filter( function(bot) {
+    return "rotate" in bot.animations
+  })
+  .attr("transform", function(bot) {
+    var x = bot.cellX * CELL_SIZE
+    var y = bot.cellY * CELL_SIZE
+    return botTransform(x, y, bot.facing)
+
+  })
+  .ease(EASING)
+  .duration(ANIMATION_DUR)
 }
 
 // TODO: breakup into smaller functions
@@ -976,21 +989,11 @@ function animate() {
     var transition = d3.selectAll(".bot").data(BOARD.bots).transition()
 
     animateFailMove(transition)
-
+    animateRotate(transition)
     
 
 
-    transition.filter( function(bot) {
-           return "rotate" in bot.animations
-        })
-        .attr("transform", function(bot) {
-          var x = bot.cellX * CELL_SIZE
-          var y = bot.cellY * CELL_SIZE
-          var newAngle = directionToAngle(bot.facing)
-          return "translate(" + x + ", " + y + ") rotate(" + newAngle + " 16 16)"
-        })
-      .ease(EASING)
-      .duration(ANIMATION_DUR)
+
 
     var moveNonTorus = transition.filter( function(bot) {
         var move = bot.animations.move
