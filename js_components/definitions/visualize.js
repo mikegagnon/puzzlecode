@@ -309,14 +309,6 @@ function drawBots() {
     .attr("transform", function(bot) {
       var x = bot.cellX * CELL_SIZE
       var y = bot.cellY * CELL_SIZE
-      if (bot.facing == Direction.RIGHT) {
-        return "translate(" + x + "," + y + ") rotate(90 16 16)"
-      } else if (bot.facing == Direction.DOWN) {
-        return "translate(" + x + "," + y + ") rotate(180 16 16)"
-      } else if (bot.facing == Direction.LEFT) {
-        return "translate(" + x + "," + y + ") rotate(-90 16 16)"
-      } else {
-        return "translate(" + x + "," + y + ")"
-      }
+      return botTransform(x, y, bot.facing)
     })
 }
