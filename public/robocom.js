@@ -759,8 +759,6 @@ function moveBot(board, bot) {
 
     if (matchingCoins.length == 1) {
       var matchingCoin = matchingCoins[0]
-      console.log("matchingCoin")
-      console.dir(matchingCoin)
 
       // remove the coin from the board
       BOARD.coins = _(BOARD.coins)
@@ -987,111 +985,88 @@ function animateMoveNonTorus(transition) {
   .duration(ANIMATION_DUR)
 }
 
-// TODO: breakup into smaller functions
-function animate() {
-    if (playStatus == PlayStatus.PAUSED) {
-      return;
-    }
+function isTorusBot(bot) {
+  return "move" in bot.animations && bot.animations.move.torus
+}
 
-    var prevCoins = _.clone(BOARD.coins)
-    step(BOARD.bots)
+function animateMoveTorus(transition, bots) {
 
-    animateCoinCollection(prevCoins, BOARD.bots)
+  /**
+   * Replace the svg-bot element with a clone, and move the original bot
+   * across the screen (out of bounds). Then move both svg elements at the
+   * same time.
+   */
 
-    var transition = d3.selectAll(".bot").data(BOARD.bots).transition()
+  torusBots = bots.filter( function(bot) {
+    return isTorusBot(bot)
+  })
 
-    animateFailMove(transition)
-    animateRotate(transition)
-    animateMoveNonTorus(transition)
-
-  
-    torusBots = BOARD.bots.filter(function(bot) {
-      var move = bot.animations.move
-      return move != undefined && move.torus
-    })
-
-    vis.selectAll(".botClone")
-      .data(torusBots)
+  // create the clone of the bot
+  vis.selectAll(".botClone")
+    .data(torusBots)
     .enter().append("svg:use")
-      .attr("class", "bot")
-      .attr("xlink:href", "#botTemplate")
-      .attr("transform", function(bot) {
-          var x = bot.animations.move.prevX * CELL_SIZE
-          var y = bot.animations.move.prevY * CELL_SIZE
-          if (bot.facing == Direction.RIGHT) {
-            return "translate(" + x + "," + y + ") rotate(90 16 16)"
-          } else if (bot.facing == Direction.DOWN) {
-            return "translate(" + x + "," + y + ") rotate(180 16 16)"
-          } else if (bot.facing == Direction.LEFT) {
-            return "translate(" + x + "," + y + ") rotate(-90 16 16)"
-          } else {
-            return "translate(" + x + "," + y + ")"
-          }
-        })
+    .attr("class", "bot")
+    .attr("xlink:href", "#botTemplate")
+    .attr("transform", function(bot) {
+      var x = bot.animations.move.prevX * CELL_SIZE
+      var y = bot.animations.move.prevY * CELL_SIZE
+      return botTransform(x, y, bot.facing)
+    })
     .transition()
-      .attr("transform", function(bot) {
-          var x = bot.animations.move.oobNextX  * CELL_SIZE
-          var y = bot.animations.move.oobNextY  * CELL_SIZE
-          if (bot.facing == Direction.RIGHT) {
-            return "translate(" + x + "," + y + ") rotate(90 16 16)"
-          } else if (bot.facing == Direction.DOWN) {
-            return "translate(" + x + "," + y + ") rotate(180 16 16)"
-          } else if (bot.facing == Direction.LEFT) {
-            return "translate(" + x + "," + y + ") rotate(-90 16 16)"
-          } else {
-            return "translate(" + x + "," + y + ")"
-          }
-      })
-      .ease(EASING)
-      .duration(ANIMATION_DUR)
-      .each("end", function() {
-        // garbage collect the bot clones
-        d3.select(this).remove()
-      })
-
-  var torusTransition = transition.filter( function(bot) {
-      var move = bot.animations.move
-      return move != undefined && move.torus
+    .attr("transform", function(bot) {
+      var x = bot.animations.move.oobNextX * CELL_SIZE
+      var y = bot.animations.move.oobNextY * CELL_SIZE
+      return botTransform(x, y, bot.facing)
+    })
+    .ease(EASING)
+    .duration(ANIMATION_DUR)
+    .each("end", function() {
+      // garbage collect the bot clones
+      d3.select(this).remove()
     })
 
-  // TODO: optimization idea. I am concerned I am specifying unncessary
-  // rotations, when really
-  // the only time you need to do a rotation is during the turn instruction.
-  // otherwise you can use a pre-rotate SVG element.
-  torusTransition
+  // instantly move the bot across to the other side of the screen
+  transition.filter( function(bot) {
+      return isTorusBot(bot)
+    })
     .attr("transform", function(bot) {
-          var x = bot.animations.move.oobPrevX * CELL_SIZE
-          var y = bot.animations.move.oobPrevY * CELL_SIZE
-          if (bot.facing == Direction.RIGHT) {
-            return "translate(" + x + "," + y + ") rotate(90 16 16)"
-          } else if (bot.facing == Direction.DOWN) {
-            return "translate(" + x + "," + y + ") rotate(180 16 16)"
-          } else if (bot.facing == Direction.LEFT) {
-            return "translate(" + x + "," + y + ") rotate(-90 16 16)"
-          } else {
-            return "translate(" + x + "," + y + ")"
-          }
+      var x = bot.animations.move.oobPrevX * CELL_SIZE
+      var y = bot.animations.move.oobPrevY * CELL_SIZE
+      return botTransform(x, y, bot.facing)
     })
     .ease(EASING)
     .duration(0)
     .each("end", function() {
+      // once the bot is on the other side of the screen, move it like normal
       d3.select(this).transition() 
         .attr("transform", function(bot) {
           var x = bot.cellX * CELL_SIZE
           var y = bot.cellY * CELL_SIZE
-          if (bot.facing == Direction.RIGHT) {
-            return "translate(" + x + "," + y + ") rotate(90 16 16)"
-          } else if (bot.facing == Direction.DOWN) {
-            return "translate(" + x + "," + y + ") rotate(180 16 16)"
-          } else if (bot.facing == Direction.LEFT) {
-            return "translate(" + x + "," + y + ") rotate(-90 16 16)"
-          } else {
-            return "translate(" + x + "," + y + ")"
-          }
+          return botTransform(x, y, bot.facing)
         })
         .ease(EASING)
         .duration(ANIMATION_DUR)
     })
+
+}
+
+// TODO: breakup into smaller functions
+function animate() {
+  if (playStatus == PlayStatus.PAUSED) {
+    return;
+  }
+
+  var prevCoins = _.clone(BOARD.coins)
+  step(BOARD.bots)
+
+  animateCoinCollection(prevCoins, BOARD.bots)
+
+  var transition = d3.selectAll(".bot").data(BOARD.bots).transition()
+
+  animateFailMove(transition)
+  animateRotate(transition)
+  animateMoveNonTorus(transition)
+  animateMoveTorus(transition, BOARD.bots)
 }
 
 function cleanUpVisualization() {

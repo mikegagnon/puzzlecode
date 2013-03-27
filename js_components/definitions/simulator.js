@@ -105,8 +105,6 @@ function moveBot(board, bot) {
 
     if (matchingCoins.length == 1) {
       var matchingCoin = matchingCoins[0]
-      console.log("matchingCoin")
-      console.dir(matchingCoin)
 
       // remove the coin from the board
       BOARD.coins = _(BOARD.coins)
