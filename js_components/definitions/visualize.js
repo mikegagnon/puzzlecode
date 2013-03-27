@@ -217,12 +217,13 @@ function animate() {
     return;
   }
 
-  var prevCoins = _.clone(BOARD.coins)
-
   // advance the simulation by one "step"
   step(BOARD.bots)
 
-  animateCoinCollection(prevCoins, BOARD.bots)
+  // must pass initCoins for d3 transitions to work. Since the svg-coin
+  // elements are never removed from the board (until the simulation ends)
+  // the d3 transition must operate on BOARD.initCoins, not BOARD.coins
+  animateCoinCollection(BOARD.initCoins, BOARD.bots)
 
   var transition = d3.selectAll(".bot").data(BOARD.bots).transition()
 

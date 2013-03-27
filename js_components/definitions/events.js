@@ -102,12 +102,15 @@ function restartSimulation() {
   var program = compileRobocom(programText)
   addLineComments(program.lineComments)
 
-  BOARD.coins = [
+  BOARD.initCoins = [
       {x:1, y:1},
       {x:2, y:1},
       {x:3, y:1},
       {x:4, y:1}
     ]
+
+  BOARD.coins = _.clone(BOARD.initCoins)
+
   BOARD.coinsCollected = 0
   drawCoins()
 

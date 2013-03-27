@@ -630,12 +630,15 @@ function restartSimulation() {
   var program = compileRobocom(programText)
   addLineComments(program.lineComments)
 
-  BOARD.coins = [
+  BOARD.initCoins = [
       {x:1, y:1},
       {x:2, y:1},
       {x:3, y:1},
       {x:4, y:1}
     ]
+
+  BOARD.coins = _.clone(BOARD.initCoins)
+
   BOARD.coinsCollected = 0
   drawCoins()
 
@@ -1050,12 +1053,13 @@ function animate() {
     return;
   }
 
-  var prevCoins = _.clone(BOARD.coins)
-
   // advance the simulation by one "step"
   step(BOARD.bots)
 
-  animateCoinCollection(prevCoins, BOARD.bots)
+  // must pass initCoins for d3 transitions to work. Since the svg-coin
+  // elements are never removed from the board (until the simulation ends)
+  // the d3 transition must operate on BOARD.initCoins, not BOARD.coins
+  animateCoinCollection(BOARD.initCoins, BOARD.bots)
 
   var transition = d3.selectAll(".bot").data(BOARD.bots).transition()
 
@@ -1199,7 +1203,11 @@ var NUM_COLS = 9,
      */
     BOARD = {
       bots : [],
+      // the coins currently on the board (changes throughout a simulation)
       coins : [],
+      // the coins originally placed on the board (immutable throughout a
+      // simulation)
+      initCoins: [],
       coinsCollected : 0,
       blocks : []
     }

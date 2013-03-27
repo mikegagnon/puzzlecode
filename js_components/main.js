@@ -58,7 +58,11 @@ var NUM_COLS = 9,
      */
     BOARD = {
       bots : [],
+      // the coins currently on the board (changes throughout a simulation)
       coins : [],
+      // the coins originally placed on the board (immutable throughout a
+      // simulation)
+      initCoins: [],
       coinsCollected : 0,
       blocks : []
     }
