@@ -843,21 +843,7 @@ node.nextSibling));
 }
 
 function nonBotAnimate() {
-
-  /*
-  d3.selectAll(".coin")
-    .data(BOARD.coins)
-    .transition()
-    .attr("r", "7")
-    .ease("cubic-in-out")
-    .duration(NON_BOT_ANIMATION_DUR / 2)
-    .each("end", function() {
-      d3.select(this).transition()
-        .attr("r", "6")
-        .ease("cubic-in-out")
-        .duration(NON_BOT_ANIMATION_DUR / 2)
-    })
-  */
+  // TODO: animate coins rotating or something
 }
 
 function animateCoins(coins, bots) {
@@ -887,10 +873,8 @@ function animateCoins(coins, bots) {
 
     var trans = d3.selectAll(".coin").data(coins).transition()
 
-    console.dir(collectedCoins)
     trans
       .filter( function(coin) {
-        console.dir(serial(coin))
         return serial(coin) in collectedCoins
       })
       .attr("r", COIN_EXPLODE_RADIUS)
@@ -898,7 +882,6 @@ function animateCoins(coins, bots) {
       .delay(ANIMATION_DUR / 4)
       .ease("cubic")
       .duration(ANIMATION_DUR)
-      //.remove()
   }
 
 }
@@ -909,7 +892,6 @@ function animate() {
     }
 
     var prevCoins = _.clone(BOARD.coins)
-
     step(BOARD.bots)
 
     animateCoins(prevCoins, BOARD.bots)
@@ -1040,7 +1022,6 @@ function animate() {
   
 }
 
-// if you reset in the middle of a coin exploding, it won't get re-initialized
 function cleanUpVisualization() {
   d3.selectAll(".bot").remove()
   d3.selectAll(".coin").remove()
@@ -1133,7 +1114,7 @@ function drawBots() {
 PlaySpeed = {
   SUPER_SLOW: [2000, 4000, "Super slow", "cubic-in-out"],
   SLOW: [750, 1500, "Slow", "cubic-in-out"],
-  NORMAL: [400, 800, "Normal", "cubic-in-out"],
+  NORMAL: [400, 600, "Normal", "cubic-in-out"],
   FAST: [150, 150, "Fast", "linear"],
   SUPER_FAST: [0, 0, "Super fast", "linear"]
 }

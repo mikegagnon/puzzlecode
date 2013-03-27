@@ -40,21 +40,7 @@ node.nextSibling));
 }
 
 function nonBotAnimate() {
-
-  /*
-  d3.selectAll(".coin")
-    .data(BOARD.coins)
-    .transition()
-    .attr("r", "7")
-    .ease("cubic-in-out")
-    .duration(NON_BOT_ANIMATION_DUR / 2)
-    .each("end", function() {
-      d3.select(this).transition()
-        .attr("r", "6")
-        .ease("cubic-in-out")
-        .duration(NON_BOT_ANIMATION_DUR / 2)
-    })
-  */
+  // TODO: animate coins rotating or something
 }
 
 function animateCoins(coins, bots) {
@@ -84,10 +70,8 @@ function animateCoins(coins, bots) {
 
     var trans = d3.selectAll(".coin").data(coins).transition()
 
-    console.dir(collectedCoins)
     trans
       .filter( function(coin) {
-        console.dir(serial(coin))
         return serial(coin) in collectedCoins
       })
       .attr("r", COIN_EXPLODE_RADIUS)
@@ -105,7 +89,6 @@ function animate() {
     }
 
     var prevCoins = _.clone(BOARD.coins)
-
     step(BOARD.bots)
 
     animateCoins(prevCoins, BOARD.bots)

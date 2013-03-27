@@ -22,7 +22,7 @@
 PlaySpeed = {
   SUPER_SLOW: [2000, 4000, "Super slow", "cubic-in-out"],
   SLOW: [750, 1500, "Slow", "cubic-in-out"],
-  NORMAL: [400, 800, "Normal", "cubic-in-out"],
+  NORMAL: [400, 600, "Normal", "cubic-in-out"],
   FAST: [150, 150, "Fast", "linear"],
   SUPER_FAST: [0, 0, "Super fast", "linear"]
 }
