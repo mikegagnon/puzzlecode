@@ -969,7 +969,19 @@ function animateRotate(transition) {
     var x = bot.cellX * CELL_SIZE
     var y = bot.cellY * CELL_SIZE
     return botTransform(x, y, bot.facing)
+  })
+  .ease(EASING)
+  .duration(ANIMATION_DUR)
+}
 
+function animateMoveNonTorus(transition) {
+  transition.filter( function(bot) {
+    return "move" in bot.animations && !bot.animations.move.torus
+  })
+  .attr("transform", function(bot) {
+    var x = bot.cellX * CELL_SIZE
+    var y = bot.cellY * CELL_SIZE
+    return botTransform(x, y, bot.facing)
   })
   .ease(EASING)
   .duration(ANIMATION_DUR)
@@ -990,32 +1002,8 @@ function animate() {
 
     animateFailMove(transition)
     animateRotate(transition)
-    
+    animateMoveNonTorus(transition)
 
-
-
-
-    var moveNonTorus = transition.filter( function(bot) {
-        var move = bot.animations.move
-        return move != undefined && !move.torus
-      })
-
-    moveNonTorus
-        .attr("transform", function(bot) {
-          var x = bot.cellX * CELL_SIZE
-          var y = bot.cellY * CELL_SIZE
-          if (bot.facing == Direction.RIGHT) {
-            return "translate(" + x + "," + y + ") rotate(90 16 16)"
-          } else if (bot.facing == Direction.DOWN) {
-            return "translate(" + x + "," + y + ") rotate(180 16 16)"
-          } else if (bot.facing == Direction.LEFT) {
-            return "translate(" + x + "," + y + ") rotate(-90 16 16)"
-          } else {
-            return "translate(" + x + "," + y + ")"
-          }
-        })
-        .ease(EASING)
-        .duration(ANIMATION_DUR)
   
     torusBots = BOARD.bots.filter(function(bot) {
       var move = bot.animations.move
