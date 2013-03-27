@@ -34,14 +34,27 @@ function turnBot(bot, direction) {
   bot.animations = { rotate : new AnimationTurn(oldFacing, bot.facing) }
 }
 
+// TODO: handle case where goto goes past end of program
 function executeGoto(bot, nextIp) {
   bot.ip = nextIp
   // animation?
 }
 
+// a bot tries to move into cell x,y.
+// returns true if the bot is allowed to move in, false otherwise
+function tryMove(board, bot, x, y) {
+  var matchingBlocks = _(board.blocks)
+    .filter( function(block) {
+      return block.x == x && block.y == y
+    })
+    .value()
+
+  return matchingBlocks.length == 0
+}
+
 // executes the 'move' instruciton on the bot
 // updates the bot state
-function moveBot(bot) {
+function moveBot(board, bot) {
 
   bot.animations = {}
 
@@ -64,47 +77,59 @@ function moveBot(bot) {
 
   xResult = wrapAdd(bot.cellX, dx, ccx)
   yResult = wrapAdd(bot.cellY, dy, ccy)
-  bot.cellX = xResult[0]
-  bot.cellY = yResult[0]
+  destX = xResult[0]
+  destY = yResult[0]
   xTorus = xResult[1]
   yTorus = yResult[1]
 
-  // did the bot pickup a coin?
-  var matchingCoins = _(BOARD.coins)
-    .filter( function(coin) {
-      return coin.x == bot.cellX && coin.y == bot.cellY
-    })
-    .value()
+  if (!tryMove(board, bot, destX, destY)) {
+    bot.animations.failMove = {
+      destX: bot.cellX + dx,
+      destY: bot.cellY + dy
+    }
+  } else {
+    // TOOD: break this function up into smaller functions
 
-  assert(matchingCoins.length == 0 || matchingCoins.length == 1,
-    "matchingCoins.length == 0 || matchingCoins.length == 1")
+    bot.cellX = destX
+    bot.cellY = destY
 
-  if (matchingCoins.length == 1) {
-    var matchingCoin = matchingCoins[0]
-    console.log("matchingCoin")
-    console.dir(matchingCoin)
-
-    // remove the coin from the board
-    BOARD.coins = _(BOARD.coins)
+    // did the bot pickup a coin?
+    var matchingCoins = _(BOARD.coins)
       .filter( function(coin) {
-        return !(coin.x == bot.cellX && coin.y == bot.cellY)
+        return coin.x == bot.cellX && coin.y == bot.cellY
       })
       .value()
 
-    BOARD.coinsCollected += 1
+    assert(matchingCoins.length == 0 || matchingCoins.length == 1,
+      "matchingCoins.length == 0 || matchingCoins.length == 1")
 
-    bot.animations.coin_collect = matchingCoin
+    if (matchingCoins.length == 1) {
+      var matchingCoin = matchingCoins[0]
+      console.log("matchingCoin")
+      console.dir(matchingCoin)
+
+      // remove the coin from the board
+      BOARD.coins = _(BOARD.coins)
+        .filter( function(coin) {
+          return !(coin.x == bot.cellX && coin.y == bot.cellY)
+        })
+        .value()
+
+      BOARD.coinsCollected += 1
+
+      bot.animations.coin_collect = matchingCoin
+    }
+
+    // define the animation for the move
+    var animationData = new AnimationMove(
+      xTorus == "torus" || yTorus == "torus",
+      prevX, prevY,
+      bot.cellX - dx, bot.cellY - dy,
+      prevX + dx, prevY + dy,
+      dx, dy)
+
+    bot.animations.move = animationData
   }
-
-  // define the animation for the move
-  animationData = new AnimationMove(
-    xTorus == "torus" || yTorus == "torus",
-    prevX, prevY,
-    bot.cellX - dx, bot.cellY - dy,
-    prevX + dx, prevY + dy,
-    dx, dy) 
-
-  bot.animations.move = animationData
 }
 
 // assumes relatively sane values for increment
@@ -132,7 +157,7 @@ function step(bots) {
     bot.ip = (bot.ip + 1) % bot.program.instructions.length
     bot.animations = {}
     if (instruction.opcode == Opcode.MOVE) {
-      moveBot(bot)
+      moveBot(BOARD, bot)
     } else if (instruction.opcode == Opcode.TURN) {
       turnBot(bot, instruction.data)
     } else if (instruction.opcode == Opcode.GOTO) {

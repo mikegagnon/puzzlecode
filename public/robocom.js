@@ -644,6 +644,13 @@ function restartSimulation() {
     drawBots()
   }
 
+  BOARD.blocks = [
+      {x:1, y:2},
+      {x:2, y:2},
+      {x:3, y:2},
+    ]
+  drawBlocks()
+
 }
 /**
  * Copyright 2013 Michael N. Gagnon
@@ -681,14 +688,27 @@ function turnBot(bot, direction) {
   bot.animations = { rotate : new AnimationTurn(oldFacing, bot.facing) }
 }
 
+// TODO: handle case where goto goes past end of program
 function executeGoto(bot, nextIp) {
   bot.ip = nextIp
   // animation?
 }
 
+// a bot tries to move into cell x,y.
+// returns true if the bot is allowed to move in, false otherwise
+function tryMove(board, bot, x, y) {
+  var matchingBlocks = _(board.blocks)
+    .filter( function(block) {
+      return block.x == x && block.y == y
+    })
+    .value()
+
+  return matchingBlocks.length == 0
+}
+
 // executes the 'move' instruciton on the bot
 // updates the bot state
-function moveBot(bot) {
+function moveBot(board, bot) {
 
   bot.animations = {}
 
@@ -711,47 +731,59 @@ function moveBot(bot) {
 
   xResult = wrapAdd(bot.cellX, dx, ccx)
   yResult = wrapAdd(bot.cellY, dy, ccy)
-  bot.cellX = xResult[0]
-  bot.cellY = yResult[0]
+  destX = xResult[0]
+  destY = yResult[0]
   xTorus = xResult[1]
   yTorus = yResult[1]
 
-  // did the bot pickup a coin?
-  var matchingCoins = _(BOARD.coins)
-    .filter( function(coin) {
-      return coin.x == bot.cellX && coin.y == bot.cellY
-    })
-    .value()
+  if (!tryMove(board, bot, destX, destY)) {  
+    bot.animations.failMove = {
+      destX: bot.cellX + dx,
+      destY: bot.cellY + dy
+    }
+  } else {
+    // TOOD: break this function up into smaller functions
 
-  assert(matchingCoins.length == 0 || matchingCoins.length == 1,
-    "matchingCoins.length == 0 || matchingCoins.length == 1")
+    bot.cellX = destX
+    bot.cellY = destY
 
-  if (matchingCoins.length == 1) {
-    var matchingCoin = matchingCoins[0]
-    console.log("matchingCoin")
-    console.dir(matchingCoin)
-
-    // remove the coin from the board
-    BOARD.coins = _(BOARD.coins)
+    // did the bot pickup a coin?
+    var matchingCoins = _(BOARD.coins)
       .filter( function(coin) {
-        return !(coin.x == bot.cellX && coin.y == bot.cellY)
+        return coin.x == bot.cellX && coin.y == bot.cellY
       })
       .value()
 
-    BOARD.coinsCollected += 1
+    assert(matchingCoins.length == 0 || matchingCoins.length == 1,
+      "matchingCoins.length == 0 || matchingCoins.length == 1")
 
-    bot.animations.coin_collect = matchingCoin
+    if (matchingCoins.length == 1) {
+      var matchingCoin = matchingCoins[0]
+      console.log("matchingCoin")
+      console.dir(matchingCoin)
+
+      // remove the coin from the board
+      BOARD.coins = _(BOARD.coins)
+        .filter( function(coin) {
+          return !(coin.x == bot.cellX && coin.y == bot.cellY)
+        })
+        .value()
+
+      BOARD.coinsCollected += 1
+
+      bot.animations.coin_collect = matchingCoin
+    }
+
+    // define the animation for the move
+    var animationData = new AnimationMove(
+      xTorus == "torus" || yTorus == "torus",
+      prevX, prevY,
+      bot.cellX - dx, bot.cellY - dy,
+      prevX + dx, prevY + dy,
+      dx, dy) 
+
+    bot.animations.move = animationData
   }
-
-  // define the animation for the move
-  animationData = new AnimationMove(
-    xTorus == "torus" || yTorus == "torus",
-    prevX, prevY,
-    bot.cellX - dx, bot.cellY - dy,
-    prevX + dx, prevY + dy,
-    dx, dy) 
-
-  bot.animations.move = animationData
 }
 
 // assumes relatively sane values for increment
@@ -779,7 +811,7 @@ function step(bots) {
     bot.ip = (bot.ip + 1) % bot.program.instructions.length
     bot.animations = {}
     if (instruction.opcode == Opcode.MOVE) {
-      moveBot(bot)
+      moveBot(BOARD, bot)
     } else if (instruction.opcode == Opcode.TURN) {
       turnBot(bot, instruction.data)
     } else if (instruction.opcode == Opcode.GOTO) {
@@ -846,6 +878,57 @@ function nonBotAnimate() {
   // TODO: animate coins rotating or something
 }
 
+function animateFailMove(transition) {
+    transition
+    .filter( function(bot) {
+        return "failMove" in bot.animations
+      })
+        .attr("transform", function(bot) {
+          var animation = bot.animations.failMove  
+          var dx = 0
+          var dy = 0
+          if (bot.cellX != animation.destX) {
+            dx = (animation.destX - bot.cellX) * 6
+          }
+          if (bot.cellY != animation.destY) {
+            dy = (animation.destY - bot.cellY) * 6
+          }
+          var x = bot.cellX * cw + dx
+          var y = bot.cellY * ch + dy
+          console.log(x + " " + y)
+          if (bot.facing == Direction.RIGHT) {
+            return "translate(" + x + "," + y + ") rotate(90 16 16)"
+          } else if (bot.facing == Direction.DOWN) {
+            return "translate(" + x + "," + y + ") rotate(180 16 16)"
+          } else if (bot.facing == Direction.LEFT) {
+            return "translate(" + x + "," + y + ") rotate(-90 16 16)"
+          } else {
+            return "translate(" + x + "," + y + ")"
+          }
+        })
+        .ease("cubic")
+        .duration(ANIMATION_DUR / 2)
+        .each("end", function() {
+          d3.select(this).transition() 
+            .attr("transform", function(bot) {
+              var x = bot.cellX * cw 
+              var y = bot.cellY * ch 
+              if (bot.facing == Direction.RIGHT) {
+                return "translate(" + x + "," + y + ") rotate(90 16 16)"
+              } else if (bot.facing == Direction.DOWN) {
+                return "translate(" + x + "," + y + ") rotate(180 16 16)"
+              } else if (bot.facing == Direction.LEFT) {
+                return "translate(" + x + "," + y + ") rotate(-90 16 16)"
+              } else {
+                return "translate(" + x + "," + y + ")"
+              }
+            })
+        })
+        .ease(EASING)
+        .duration(ANIMATION_DUR / 2)
+}
+
+
 function animateCoins(coins, bots) {
 
   function serial(coin) {
@@ -886,6 +969,7 @@ function animateCoins(coins, bots) {
 
 }
 
+// TODO: breakup into smaller functions
 function animate() {
     if (playStatus == PlayStatus.PAUSED) {
       return;
@@ -897,6 +981,11 @@ function animate() {
     animateCoins(prevCoins, BOARD.bots)
 
     var transition = d3.selectAll(".bot").data(BOARD.bots).transition()
+
+    animateFailMove(transition)
+
+    
+
 
     transition.filter( function(bot) {
            return "rotate" in bot.animations
@@ -1019,13 +1108,13 @@ function animate() {
         .ease(EASING)
         .duration(ANIMATION_DUR)
     })
-  
 }
 
 function cleanUpVisualization() {
   d3.selectAll(".bot").remove()
   d3.selectAll(".coin").remove()
   d3.selectAll(".botClone").remove()
+  d3.selectAll(".block").remove()
 }
  
 function createBoard() {
@@ -1068,6 +1157,19 @@ function drawCoins() {
     .attr("r", COIN_RADIUS)
     .attr("cx", function(d){ return d.x * cw + cw/2 } )
     .attr("cy", function(d){ return d.y * ch + ch/2} )
+}
+
+function drawBlocks() {
+  vis.selectAll(".block")
+    .data(BOARD.blocks)
+  .enter().append("svg:rect")
+    .attr("class", "block")
+    .attr("stroke", "darkgray")
+    .attr("fill", "darkgray")
+    .attr("width", cw)
+    .attr("height", ch)
+    .attr("x", function(d){ return d.x * cw } )
+    .attr("y", function(d){ return d.y * ch } )
 }
 
 function drawBots() {
@@ -1128,6 +1230,7 @@ PlayStatus = {
 var ccx = 9, // cell count x
     ccy = 7, // cell count y
     cw = 32, // cellWidth
+    // TODO: replace cw and ch with a single var
     ch = 32,  // cellHeight
     vis = null,
     animateInterval = null,
@@ -1138,7 +1241,9 @@ var ccx = 9, // cell count x
     EASING = initPlaySpeed[3],
     NON_BOT_ANIMATION_DUR = PlaySpeed.SLOW[0],
     NON_BOT_CYCLE_DUR = NON_BOT_ANIMATION_DUR,
+    // TODO: get rid of bot_phase_shift
     BOT_PHASE_SHIFT = 0,
+    //initialProgram = "\nstart:\nmove\nmove\nturn left\ngoto start\n",
     initialProgram = "\nstart:\nmove\nmove\nturn left\ngoto start\n",
     codeMirrorBox = null,
     pausePlay = null,
@@ -1153,7 +1258,8 @@ var ccx = 9, // cell count x
     BOARD = {
       bots : [],
       coins : [],
-      coinsCollected : 0
+      coinsCollected : 0,
+      blocks : []
     }
 
 // map of reserved words (built using fancy lodash style)
@@ -1227,4 +1333,38 @@ for (var i = 0; i < testInstructions.length; i++) {
   var result = compileLine(line)[0]
   assert(_.isEqual(result, expected),
     "compile('" + line + "') != expected")
+}
+/**
+ * Copyright 2013 Michael N. Gagnon
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// list of [board, bot, x, y, expectedResult] test cases
+var testTryMove = [
+    [{blocks : [{x:5,y:5}]}, {facing: "any"}, 5, 5, false],
+    [{blocks : [{x:5,y:5}]}, {facing: "any"}, 5, 6, true],
+    [{blocks : [{x:5,y:5}]}, {facing: "any"}, 6, 5, true],
+    [{blocks : [{x:5,y:5}]}, {facing: "any"}, 6, 6, true]
+  ]
+
+for (var i = 0; i < testTryMove.length; i++) {
+  var board    = testTryMove[i][0]
+  var bot      = testTryMove[i][1]
+  var x        = testTryMove[i][2]
+  var y        = testTryMove[i][3]
+  var expected = testTryMove[i][4]
+  var result = tryMove(board, bot, x, y)
+  assert(_.isEqual(result, expected),
+    "tryMove '" + testTryMove[i] + "' failed")
 }

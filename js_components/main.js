@@ -36,6 +36,7 @@ PlayStatus = {
 var ccx = 9, // cell count x
     ccy = 7, // cell count y
     cw = 32, // cellWidth
+    // TODO: replace cw and ch with a single var
     ch = 32,  // cellHeight
     vis = null,
     animateInterval = null,
@@ -46,7 +47,9 @@ var ccx = 9, // cell count x
     EASING = initPlaySpeed[3],
     NON_BOT_ANIMATION_DUR = PlaySpeed.SLOW[0],
     NON_BOT_CYCLE_DUR = NON_BOT_ANIMATION_DUR,
+    // TODO: get rid of bot_phase_shift
     BOT_PHASE_SHIFT = 0,
+    //initialProgram = "\nstart:\nmove\nmove\nturn left\ngoto start\n",
     initialProgram = "\nstart:\nmove\nmove\nturn left\ngoto start\n",
     codeMirrorBox = null,
     pausePlay = null,
@@ -61,7 +64,8 @@ var ccx = 9, // cell count x
     BOARD = {
       bots : [],
       coins : [],
-      coinsCollected : 0
+      coinsCollected : 0,
+      blocks : []
     }
 
 // map of reserved words (built using fancy lodash style)

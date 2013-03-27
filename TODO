@@ -1,2 +1,18 @@
-Need major work on usability / instructions / walkthroughs.
-- Perhaps present a popup alert the first time you get a compile error
+- Need major work on usability / instructions / walkthroughs.
+-- Perhaps present a popup alert the first time you get a compile error
+- Implement instructions
+- Unit tests
+- Puzzle system. Each puzzle contains
+-- board map (e.g. coins, blocks)
+-- constraints (e.g. available instructions, max program size, max cycles
+    before timeout)
+-- win conditions (e.g. collect N coins, stop on an exit square, )
+-- description: describe the puzzle to the user
+-- tips (e.g., explain the "move" instruction, how to compile program, etc.)
+- Idea: Campaign format
+-- Campaign is composed of a series of "worlds.""
+-- Each world contains a series of puzzles. Beating certain puzzles
+   opens up access to other worlds. E.g. there might be 10 puzzles in the
+   "move / turn" world, but you only need to beat the 3rd to get access to the
+   next world. The other 7 are optional.
+- Use consistent object-creation idoms

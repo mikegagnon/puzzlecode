@@ -43,6 +43,57 @@ function nonBotAnimate() {
   // TODO: animate coins rotating or something
 }
 
+function animateFailMove(transition) {
+    transition
+    .filter( function(bot) {
+        return "failMove" in bot.animations
+      })
+        .attr("transform", function(bot) {
+          var animation = bot.animations.failMove
+          var dx = 0
+          var dy = 0
+          if (bot.cellX != animation.destX) {
+            dx = (animation.destX - bot.cellX) * 6
+          }
+          if (bot.cellY != animation.destY) {
+            dy = (animation.destY - bot.cellY) * 6
+          }
+          var x = bot.cellX * cw + dx
+          var y = bot.cellY * ch + dy
+          console.log(x + " " + y)
+          if (bot.facing == Direction.RIGHT) {
+            return "translate(" + x + "," + y + ") rotate(90 16 16)"
+          } else if (bot.facing == Direction.DOWN) {
+            return "translate(" + x + "," + y + ") rotate(180 16 16)"
+          } else if (bot.facing == Direction.LEFT) {
+            return "translate(" + x + "," + y + ") rotate(-90 16 16)"
+          } else {
+            return "translate(" + x + "," + y + ")"
+          }
+        })
+        .ease("cubic")
+        .duration(ANIMATION_DUR / 2)
+        .each("end", function() {
+          d3.select(this).transition() 
+            .attr("transform", function(bot) {
+              var x = bot.cellX * cw 
+              var y = bot.cellY * ch 
+              if (bot.facing == Direction.RIGHT) {
+                return "translate(" + x + "," + y + ") rotate(90 16 16)"
+              } else if (bot.facing == Direction.DOWN) {
+                return "translate(" + x + "," + y + ") rotate(180 16 16)"
+              } else if (bot.facing == Direction.LEFT) {
+                return "translate(" + x + "," + y + ") rotate(-90 16 16)"
+              } else {
+                return "translate(" + x + "," + y + ")"
+              }
+            })
+        })
+        .ease(EASING)
+        .duration(ANIMATION_DUR / 2)
+}
+
+
 function animateCoins(coins, bots) {
 
   function serial(coin) {
@@ -83,6 +134,7 @@ function animateCoins(coins, bots) {
 
 }
 
+// TODO: breakup into smaller functions
 function animate() {
     if (playStatus == PlayStatus.PAUSED) {
       return;
@@ -94,6 +146,11 @@ function animate() {
     animateCoins(prevCoins, BOARD.bots)
 
     var transition = d3.selectAll(".bot").data(BOARD.bots).transition()
+
+    animateFailMove(transition)
+
+    
+
 
     transition.filter( function(bot) {
            return "rotate" in bot.animations
@@ -216,13 +273,13 @@ function animate() {
         .ease(EASING)
         .duration(ANIMATION_DUR)
     })
-  
 }
 
 function cleanUpVisualization() {
   d3.selectAll(".bot").remove()
   d3.selectAll(".coin").remove()
   d3.selectAll(".botClone").remove()
+  d3.selectAll(".block").remove()
 }
  
 function createBoard() {
@@ -265,6 +322,19 @@ function drawCoins() {
     .attr("r", COIN_RADIUS)
     .attr("cx", function(d){ return d.x * cw + cw/2 } )
     .attr("cy", function(d){ return d.y * ch + ch/2} )
+}
+
+function drawBlocks() {
+  vis.selectAll(".block")
+    .data(BOARD.blocks)
+  .enter().append("svg:rect")
+    .attr("class", "block")
+    .attr("stroke", "darkgray")
+    .attr("fill", "darkgray")
+    .attr("width", cw)
+    .attr("height", ch)
+    .attr("x", function(d){ return d.x * cw } )
+    .attr("y", function(d){ return d.y * ch } )
 }
 
 function drawBots() {
