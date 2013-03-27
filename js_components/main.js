@@ -62,6 +62,7 @@ var NUM_COLS = 9,
       coins : [],
       // the coins originally placed on the board (immutable throughout a
       // simulation)
+      // TODO: assert that each coin is unique
       initCoins: [],
       coinsCollected : 0,
       blocks : []

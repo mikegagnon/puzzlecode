@@ -883,45 +883,25 @@ function nonBotAnimate() {
 
 function animateCoinCollection(coins, bots) {
 
-  // need to serialize coin objects as strings so they can be used as keys
-  // in the collectedCoins object
-  function serial(coin) {
-    return coin.x + "x" + coin.y
-  }
-
-  // TODO: how can I simply get collectedCoins.length?
-  var numCollected = 0
-
-  // object "x,y" keys for each coin being collected
-  var collectedCoins = _(bots)
+  _(bots)
     .map( function(b) {
       if ("coin_collect" in b.animations) {
-        numCollected += 1
-        return serial(b.animations.coin_collect)
+        // need to serialize coin objects as strings so they can be used as keys
+        // in the collectedCoins object
+        return b.animations.coin_collect
       } else {
         return null
       }
     })
     .compact()
-    .object([])
-    .value()
-
-  if (numCollected > 0) {
-
-    // for some reason, the explosion doesn't always finish.
-    // Perhaps multiple coin explosions
-    // are interferring with d3's selection process. Perhaps try
-    // selecting individual elements instead of selectAll
-    d3.selectAll(".coin").data(coins).transition()
-      .filter( function(coin) {
-        return serial(coin) in collectedCoins
-      })
-      .attr("r", COIN_EXPLODE_RADIUS)
-      .attr("opacity", "0.0")
-      .delay(ANIMATION_DUR / 4)
-      .ease("cubic")
-      .duration(ANIMATION_DUR)
-  }
+    .forEach( function(coin) {
+      d3.select("#" + coinId(coin)).transition()
+        .attr("r", COIN_EXPLODE_RADIUS)
+        .attr("opacity", "0.0")
+        .delay(ANIMATION_DUR / 4)
+        .ease("cubic")
+        .duration(ANIMATION_DUR)
+    })
 }
 
 function animateFailMove(transition) {
@@ -1107,11 +1087,16 @@ function drawCells() {
 
  }
 
+function coinId(coin) {
+  return "coin_" + coin.x + "_" + coin.y
+}
+
 function drawCoins() {
   VIS.selectAll(".coin")
     .data(BOARD.coins)
     .enter().append("svg:circle")
     .attr("class", "coin")
+    .attr("id", function(coin){ return coinId(coin)} )
     .attr("stroke", "goldenrod")
     .attr("fill", "gold")
     .attr("opacity", "1.0")
