@@ -38,12 +38,6 @@ function botTransform(x, y, facing) {
     "rotate(" + directionToAngle(facing) + " 16 16)"
 }
 
-function clone(selector) {
-    var node = d3.select(selector).node();
-    return d3.select(node.parentNode.insertBefore(node.cloneNode(true),
-node.nextSibling));
-}
-
 function nonBotAnimate() {
   // TODO: animate coins rotating or something
   // IDEA: perhaps the reason nonBotAnimate and animateCoinCollection were
@@ -169,7 +163,7 @@ function animateMoveTorus(transition, bots) {
   })
 
   // create the clone of the bot
-  vis.selectAll(".botClone")
+  VIS.selectAll(".botClone")
     .data(torusBots)
     .enter().append("svg:use")
     .attr("class", "bot")
@@ -219,7 +213,7 @@ function animateMoveTorus(transition, bots) {
 
 // TODO: breakup into smaller functions
 function animate() {
-  if (playStatus == PlayStatus.PAUSED) {
+  if (PLAY_STATUS == PlayStatus.PAUSED) {
     return;
   }
 
@@ -246,24 +240,24 @@ function cleanUpVisualization() {
 }
  
 function createBoard() {
-  vis = d3.select("#board")
+  VIS = d3.select("#board")
     .attr("class", "vis")
-    .attr("width", ccx * CELL_SIZE)
-    .attr("height", ccy * CELL_SIZE)
+    .attr("width", NUM_COLS * CELL_SIZE)
+    .attr("height", NUM_ROWS * CELL_SIZE)
 }
 
 function drawCells() {
 
   var cells = new Array()
-  for (var x = 0; x < ccx; x++) {
-    for (var y = 0 ; y < ccy; y++) {
+  for (var x = 0; x < NUM_COLS; x++) {
+    for (var y = 0 ; y < NUM_ROWS; y++) {
       cells.push({'x': x, 'y': y })
     }
   }
 
-  vis.selectAll(".cell")
+  VIS.selectAll(".cell")
     .data(cells)
-  .enter().append("svg:rect")
+    .enter().append("svg:rect")
     .attr("class", "cell")
     .attr("stroke", "lightgray")
     .attr("fill", "white")
@@ -275,9 +269,9 @@ function drawCells() {
  }
 
 function drawCoins() {
-  vis.selectAll(".coin")
+  VIS.selectAll(".coin")
     .data(BOARD.coins)
-  .enter().append("svg:circle")
+    .enter().append("svg:circle")
     .attr("class", "coin")
     .attr("stroke", "goldenrod")
     .attr("fill", "gold")
@@ -288,9 +282,9 @@ function drawCoins() {
 }
 
 function drawBlocks() {
-  vis.selectAll(".block")
+  VIS.selectAll(".block")
     .data(BOARD.blocks)
-  .enter().append("svg:rect")
+    .enter().append("svg:rect")
     .attr("class", "block")
     .attr("stroke", "darkgray")
     .attr("fill", "darkgray")
@@ -301,9 +295,9 @@ function drawBlocks() {
 }
 
 function drawBots() {
-  vis.selectAll(".bot")
+  VIS.selectAll(".bot")
     .data(BOARD.bots)
-  .enter().append("svg:use")
+    .enter().append("svg:use")
     .attr("class", "bot")
     .attr("xlink:href", "#botTemplate")
     .attr("transform", function(bot) {

@@ -33,21 +33,20 @@ PlayStatus = {
 }
 
 // TODO: better var names and all caps
-var ccx = 9, // cell count x
-    ccy = 7, // cell count y
+var NUM_COLS = 9,
+    NUM_ROWS = 7,
     CELL_SIZE = 32,
-    vis = null,
-    animateInterval = null,
-    playStatus = PlayStatus.PLAYING,
-    initPlaySpeed = PlaySpeed.NORMAL,
-    ANIMATION_DUR = initPlaySpeed[0]
-    CYCLE_DUR = initPlaySpeed[1],
-    EASING = initPlaySpeed[3],
+    VIS = null,
+    ANIMATE_INTERVAL = null,
+    PLAY_STATUS = PlayStatus.PLAYING,
+    INIT_PLAY_SPEED = PlaySpeed.NORMAL,
+    ANIMATION_DUR = INIT_PLAY_SPEED[0]
+    CYCLE_DUR = INIT_PLAY_SPEED[1],
+    EASING = INIT_PLAY_SPEED[3],
     NON_BOT_ANIMATION_DUR = PlaySpeed.SLOW[0],
     NON_BOT_CYCLE_DUR = NON_BOT_ANIMATION_DUR,
-    //initialProgram = "\nstart:\nmove\nmove\nturn left\ngoto start\n",
-    initialProgram = "\nstart:\nmove\nmove\nturn left\ngoto start\n",
-    codeMirrorBox = null,
+    INITIAL_PROGRAM = "\nstart:\nmove\nmove\nturn left\ngoto start\n",
+    CODE_MIRROR_BOX = null,
     pausePlay = null,
     DEBUG = true,
     IDENT_REGEX = /^[A-Za-z][A-Za-z0-9_]*$/,

@@ -75,8 +75,8 @@ function moveBot(board, bot) {
     // assert(false)
   }
 
-  xResult = wrapAdd(bot.cellX, dx, ccx)
-  yResult = wrapAdd(bot.cellY, dy, ccy)
+  xResult = wrapAdd(bot.cellX, dx, NUM_COLS)
+  yResult = wrapAdd(bot.cellY, dy, NUM_ROWS)
   destX = xResult[0]
   destY = yResult[0]
   xTorus = xResult[1]
@@ -170,8 +170,8 @@ function cleanUpSimulation() {
 
 function initBots(prog) {
   var initBot = new Bot(
-    Math.floor((ccx - 1) / 2),
-    Math.floor((ccy - 1)/ 2),
+    Math.floor((NUM_COLS - 1) / 2),
+    Math.floor((NUM_ROWS - 1)/ 2),
     Direction.UP,
     prog)
 

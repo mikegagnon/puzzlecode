@@ -39,8 +39,8 @@ function windowOnLoad() {
     .getElementById("restart")
     .addEventListener("click", restartSimulation);
 
-  codeMirrorBox = CodeMirror(document.getElementById("container"), {
-    value: initialProgram,
+  CODE_MIRROR_BOX = CodeMirror(document.getElementById("container"), {
+    value: INITIAL_PROGRAM,
     gutters: ["note-gutter", "CodeMirror-linenumbers"],
     mode:  "text/x-robocom",
     theme: "solarized dark",
@@ -52,7 +52,7 @@ function windowOnLoad() {
   doPlay()
 
   // TODO: where should i put this?
-  animateInterval = setInterval("animate()", CYCLE_DUR)
+  ANIMATE_INTERVAL = setInterval("animate()", CYCLE_DUR)
   nonBotAnimateInterval = setInterval("nonBotAnimate()", NON_BOT_CYCLE_DUR)
 }
 
@@ -63,26 +63,26 @@ function setSpeed(speed) {
   CYCLE_DUR = speed[1]
   EASING = speed[3]
   speedText.innerHTML = speed[2]
-  clearInterval(animateInterval)
-  animateInterval = setInterval("animate()", CYCLE_DUR)
+  clearInterval(ANIMATE_INTERVAL)
+  ANIMATE_INTERVAL = setInterval("animate()", CYCLE_DUR)
 }
 
 // TODO: consider graying out the play button when it's not possible to play it
 function doPause() {
-  playStatus = PlayStatus.PAUSED
+  PLAY_STATUS = PlayStatus.PAUSED
   pausePlay.innerHTML = 'Play!'
 }
 
 function doPlay() {
   if (BOARD.bots.length > 0) {
-    playStatus = PlayStatus.PLAYING
+    PLAY_STATUS = PlayStatus.PLAYING
     pausePlay.innerHTML = 'Pause'
   }
 }
 
 function togglePausePlay() {
   // TODO: determine is this is threadsafe in JS
-  if (playStatus == PlayStatus.PAUSED) {
+  if (PLAY_STATUS == PlayStatus.PAUSED) {
     doPlay()
   } else {
     doPause()
@@ -98,7 +98,7 @@ function restartSimulation() {
   doPause()
   cleanUpSimulation()
   cleanUpVisualization()
-  var programText = codeMirrorBox.getValue()
+  var programText = CODE_MIRROR_BOX.getValue()
   var program = compileRobocom(programText)
   addLineComments(program.lineComments)
 

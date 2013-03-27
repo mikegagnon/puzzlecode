@@ -110,10 +110,10 @@ function AnimationTurn(oldFacing, newFacing) {
 
 // lineComments is a map where line index points to comment for that line
 function addLineComments(lineComments) {
-  codeMirrorBox.clearGutter("note-gutter")
+  CODE_MIRROR_BOX.clearGutter("note-gutter")
   for (i in lineComments) {
       var comment = lineComments[i]
-      codeMirrorBox
+      CODE_MIRROR_BOX
         .setGutterMarker(
           parseInt(i),
           "note-gutter",
@@ -567,8 +567,8 @@ function windowOnLoad() {
     .getElementById("restart")
     .addEventListener("click", restartSimulation);
 
-  codeMirrorBox = CodeMirror(document.getElementById("container"), {
-    value: initialProgram,
+  CODE_MIRROR_BOX = CodeMirror(document.getElementById("container"), {
+    value: INITIAL_PROGRAM,
     gutters: ["note-gutter", "CodeMirror-linenumbers"],
     mode:  "text/x-robocom",
     theme: "solarized dark",
@@ -580,7 +580,7 @@ function windowOnLoad() {
   doPlay()
 
   // TODO: where should i put this?
-  animateInterval = setInterval("animate()", CYCLE_DUR)
+  ANIMATE_INTERVAL = setInterval("animate()", CYCLE_DUR)
   nonBotAnimateInterval = setInterval("nonBotAnimate()", NON_BOT_CYCLE_DUR)
 }
 
@@ -591,26 +591,26 @@ function setSpeed(speed) {
   CYCLE_DUR = speed[1]
   EASING = speed[3]
   speedText.innerHTML = speed[2]
-  clearInterval(animateInterval)
-  animateInterval = setInterval("animate()", CYCLE_DUR)
+  clearInterval(ANIMATE_INTERVAL)
+  ANIMATE_INTERVAL = setInterval("animate()", CYCLE_DUR)
 }
 
 // TODO: consider graying out the play button when it's not possible to play it
 function doPause() {
-  playStatus = PlayStatus.PAUSED
+  PLAY_STATUS = PlayStatus.PAUSED
   pausePlay.innerHTML = 'Play!'
 }
 
 function doPlay() {
   if (BOARD.bots.length > 0) {
-    playStatus = PlayStatus.PLAYING
+    PLAY_STATUS = PlayStatus.PLAYING
     pausePlay.innerHTML = 'Pause'
   }
 }
 
 function togglePausePlay() {
   // TODO: determine is this is threadsafe in JS
-  if (playStatus == PlayStatus.PAUSED) {
+  if (PLAY_STATUS == PlayStatus.PAUSED) {
     doPlay()
   } else {
     doPause()
@@ -626,7 +626,7 @@ function restartSimulation() {
   doPause()
   cleanUpSimulation()
   cleanUpVisualization()
-  var programText = codeMirrorBox.getValue()
+  var programText = CODE_MIRROR_BOX.getValue()
   var program = compileRobocom(programText)
   addLineComments(program.lineComments)
 
@@ -729,8 +729,8 @@ function moveBot(board, bot) {
     // assert(false)
   }
 
-  xResult = wrapAdd(bot.cellX, dx, ccx)
-  yResult = wrapAdd(bot.cellY, dy, ccy)
+  xResult = wrapAdd(bot.cellX, dx, NUM_COLS)
+  yResult = wrapAdd(bot.cellY, dy, NUM_ROWS)
   destX = xResult[0]
   destY = yResult[0]
   xTorus = xResult[1]
@@ -824,8 +824,8 @@ function cleanUpSimulation() {
 
 function initBots(prog) {
   var initBot = new Bot(
-    Math.floor((ccx - 1) / 2),
-    Math.floor((ccy - 1)/ 2),
+    Math.floor((NUM_COLS - 1) / 2),
+    Math.floor((NUM_ROWS - 1)/ 2),
     Direction.UP,
     prog)
 
@@ -869,12 +869,6 @@ function directionToAngle(direction) {
 function botTransform(x, y, facing) {
   return "translate(" + x + ", " + y + ") " +
     "rotate(" + directionToAngle(facing) + " 16 16)"
-}
-
-function clone(selector) {
-    var node = d3.select(selector).node();
-    return d3.select(node.parentNode.insertBefore(node.cloneNode(true),
-node.nextSibling));
 }
 
 function nonBotAnimate() {
@@ -1002,7 +996,7 @@ function animateMoveTorus(transition, bots) {
   })
 
   // create the clone of the bot
-  vis.selectAll(".botClone")
+  VIS.selectAll(".botClone")
     .data(torusBots)
     .enter().append("svg:use")
     .attr("class", "bot")
@@ -1052,7 +1046,7 @@ function animateMoveTorus(transition, bots) {
 
 // TODO: breakup into smaller functions
 function animate() {
-  if (playStatus == PlayStatus.PAUSED) {
+  if (PLAY_STATUS == PlayStatus.PAUSED) {
     return;
   }
 
@@ -1079,24 +1073,24 @@ function cleanUpVisualization() {
 }
  
 function createBoard() {
-  vis = d3.select("#board")
+  VIS = d3.select("#board")
     .attr("class", "vis")
-    .attr("width", ccx * CELL_SIZE)
-    .attr("height", ccy * CELL_SIZE)
+    .attr("width", NUM_COLS * CELL_SIZE)
+    .attr("height", NUM_ROWS * CELL_SIZE)
 }
 
 function drawCells() {
 
   var cells = new Array()
-  for (var x = 0; x < ccx; x++) {
-    for (var y = 0 ; y < ccy; y++) {
+  for (var x = 0; x < NUM_COLS; x++) {
+    for (var y = 0 ; y < NUM_ROWS; y++) {
       cells.push({'x': x, 'y': y })
     }
   }
 
-  vis.selectAll(".cell")
+  VIS.selectAll(".cell")
     .data(cells)
-  .enter().append("svg:rect")
+    .enter().append("svg:rect")
     .attr("class", "cell")
     .attr("stroke", "lightgray")
     .attr("fill", "white")
@@ -1108,9 +1102,9 @@ function drawCells() {
  }
 
 function drawCoins() {
-  vis.selectAll(".coin")
+  VIS.selectAll(".coin")
     .data(BOARD.coins)
-  .enter().append("svg:circle")
+    .enter().append("svg:circle")
     .attr("class", "coin")
     .attr("stroke", "goldenrod")
     .attr("fill", "gold")
@@ -1121,9 +1115,9 @@ function drawCoins() {
 }
 
 function drawBlocks() {
-  vis.selectAll(".block")
+  VIS.selectAll(".block")
     .data(BOARD.blocks)
-  .enter().append("svg:rect")
+    .enter().append("svg:rect")
     .attr("class", "block")
     .attr("stroke", "darkgray")
     .attr("fill", "darkgray")
@@ -1134,9 +1128,9 @@ function drawBlocks() {
 }
 
 function drawBots() {
-  vis.selectAll(".bot")
+  VIS.selectAll(".bot")
     .data(BOARD.bots)
-  .enter().append("svg:use")
+    .enter().append("svg:use")
     .attr("class", "bot")
     .attr("xlink:href", "#botTemplate")
     .attr("transform", function(bot) {
@@ -1180,21 +1174,20 @@ PlayStatus = {
 }
 
 // TODO: better var names and all caps
-var ccx = 9, // cell count x
-    ccy = 7, // cell count y
+var NUM_COLS = 9,
+    NUM_ROWS = 7,
     CELL_SIZE = 32,
-    vis = null,
-    animateInterval = null,
-    playStatus = PlayStatus.PLAYING,
-    initPlaySpeed = PlaySpeed.NORMAL,
-    ANIMATION_DUR = initPlaySpeed[0]
-    CYCLE_DUR = initPlaySpeed[1],
-    EASING = initPlaySpeed[3],
+    VIS = null,
+    ANIMATE_INTERVAL = null,
+    PLAY_STATUS = PlayStatus.PLAYING,
+    INIT_PLAY_SPEED = PlaySpeed.NORMAL,
+    ANIMATION_DUR = INIT_PLAY_SPEED[0]
+    CYCLE_DUR = INIT_PLAY_SPEED[1],
+    EASING = INIT_PLAY_SPEED[3],
     NON_BOT_ANIMATION_DUR = PlaySpeed.SLOW[0],
     NON_BOT_CYCLE_DUR = NON_BOT_ANIMATION_DUR,
-    //initialProgram = "\nstart:\nmove\nmove\nturn left\ngoto start\n",
-    initialProgram = "\nstart:\nmove\nmove\nturn left\ngoto start\n",
-    codeMirrorBox = null,
+    INITIAL_PROGRAM = "\nstart:\nmove\nmove\nturn left\ngoto start\n",
+    CODE_MIRROR_BOX = null,
     pausePlay = null,
     DEBUG = true,
     IDENT_REGEX = /^[A-Za-z][A-Za-z0-9_]*$/,
