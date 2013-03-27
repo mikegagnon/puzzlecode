@@ -72,9 +72,11 @@ function animateCoinCollection(coins, bots) {
 
   if (numCollected > 0) {
 
-    var trans = d3.selectAll(".coin").data(coins).transition()
-
-    trans
+    // for some reason, the explosion doesn't always finish.
+    // Perhaps multiple coin explosions
+    // are interferring with d3's selection process. Perhaps try
+    // selecting individual elements instead of selectAll
+    d3.selectAll(".coin").data(coins).transition()
       .filter( function(coin) {
         return serial(coin) in collectedCoins
       })
