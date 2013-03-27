@@ -32,3 +32,18 @@ for (var i = 0; i < testTryMove.length; i++) {
   assert(_.isEqual(result, expected),
     "tryMove '" + testTryMove[i] + "' failed")
 }
+
+// list of [board, bot, expectedBoard, expectedBot] test cases
+/*var testMoveBot = [
+    [{blocks: [{x:5, y:5}]}]
+]
+
+for (var i = 0; i < testMoveBot.length; i++) {
+  var board    = testTryMove[i][0]
+  var bot      = testTryMove[i][1]
+  var expectedBoard = testTryMove[i][2]
+  var expectedBot = testTryMove[i][3]
+  var result = moveBot(board, bot, x, y)
+  assert(_.isEqual(result, expected),
+    "tryMove '" + testTryMove[i] + "' failed")
+}*/

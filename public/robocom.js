@@ -643,7 +643,7 @@ function restartSimulation() {
   drawCoins()
 
   if (program.instructions != null) {
-    BOARD.bots = initBots(program)
+    BOARD.bots = initBots(BOARD, program)
     drawBots()
   }
 
@@ -732,8 +732,8 @@ function moveBot(board, bot) {
     // assert(false)
   }
 
-  xResult = wrapAdd(bot.cellX, dx, NUM_COLS)
-  yResult = wrapAdd(bot.cellY, dy, NUM_ROWS)
+  xResult = wrapAdd(bot.cellX, dx, board.num_cols)
+  yResult = wrapAdd(bot.cellY, dy, board.num_rows)
   destX = xResult[0]
   destY = yResult[0]
   xTorus = xResult[1]
@@ -825,10 +825,10 @@ function cleanUpSimulation() {
   BOARD.bots = []
 }
 
-function initBots(prog) {
+function initBots(board, prog) {
   var initBot = new Bot(
-    Math.floor((NUM_COLS - 1) / 2),
-    Math.floor((NUM_ROWS - 1)/ 2),
+    Math.floor((board.num_cols - 1) / 2),
+    Math.floor((board.num_rows - 1)/ 2),
     Direction.UP,
     prog)
 
@@ -882,6 +882,14 @@ function nonBotAnimate() {
 }
 
 function animateCoinCollection(coins, bots) {
+
+  /**
+   * NOTE: I found that animations would interfere with each other on fast
+   * speeds if I used d3.selectAll (presumably due to race conditions).
+   * I fixed this issue by using d3.select to only select the svg elements
+   * that will actually be animated. It will probably be good to follow this
+   * approach elsewhere.
+   */
 
   _(bots)
     .map( function(b) {
@@ -1058,18 +1066,18 @@ function cleanUpVisualization() {
   d3.selectAll(".block").remove()
 }
  
-function createBoard() {
+function createBoard(board) {
   VIS = d3.select("#board")
     .attr("class", "vis")
-    .attr("width", NUM_COLS * CELL_SIZE)
-    .attr("height", NUM_ROWS * CELL_SIZE)
+    .attr("width", board.num_cols * CELL_SIZE)
+    .attr("height", board.num_rows * CELL_SIZE)
 }
 
-function drawCells() {
+function drawCells(board) {
 
   var cells = new Array()
-  for (var x = 0; x < NUM_COLS; x++) {
-    for (var y = 0 ; y < NUM_ROWS; y++) {
+  for (var x = 0; x < board.num_cols; x++) {
+    for (var y = 0 ; y < board.num_rows; y++) {
       cells.push({'x': x, 'y': y })
     }
   }
@@ -1165,13 +1173,11 @@ PlayStatus = {
 }
 
 // TODO: better var names and all caps
-var NUM_COLS = 9,
-    NUM_ROWS = 7,
-    CELL_SIZE = 32,
+var CELL_SIZE = 32,
     VIS = null,
     ANIMATE_INTERVAL = null,
     PLAY_STATUS = PlayStatus.PLAYING,
-    INIT_PLAY_SPEED = PlaySpeed.FAST,
+    INIT_PLAY_SPEED = PlaySpeed.NORMAL,
     ANIMATION_DUR = INIT_PLAY_SPEED[0]
     CYCLE_DUR = INIT_PLAY_SPEED[1],
     EASING = INIT_PLAY_SPEED[3],
@@ -1189,11 +1195,14 @@ var NUM_COLS = 9,
      * through the bots and coins objects when needed.
      */
     BOARD = {
+      num_cols: 9,
+      num_rows: 7,
       bots : [],
       // the coins currently on the board (changes throughout a simulation)
       coins : [],
       // the coins originally placed on the board (immutable throughout a
       // simulation)
+      // TODO: assert that each coin is unique
       initCoins: [],
       coinsCollected : 0,
       blocks : []
@@ -1210,8 +1219,8 @@ var COIN_RADIUS = 6
 var COIN_EXPLODE_RADIUS = 100
 
 window.onload = windowOnLoad
-createBoard()
-drawCells()
+createBoard(BOARD)
+drawCells(BOARD)
 /**
  * Copyright 2013 Michael N. Gagnon
  *
@@ -1305,3 +1314,18 @@ for (var i = 0; i < testTryMove.length; i++) {
   assert(_.isEqual(result, expected),
     "tryMove '" + testTryMove[i] + "' failed")
 }
+
+// list of [board, bot, expectedBoard, expectedBot] test cases
+/*var testMoveBot = [
+    [{blocks: [{x:5, y:5}]}]
+]
+
+for (var i = 0; i < testMoveBot.length; i++) {
+  var board    = testTryMove[i][0]
+  var bot      = testTryMove[i][1]
+  var expectedBoard = testTryMove[i][2]
+  var expectedBot = testTryMove[i][3]
+  var result = moveBot(board, bot, x, y)
+  assert(_.isEqual(result, expected),
+    "tryMove '" + testTryMove[i] + "' failed")
+}*/

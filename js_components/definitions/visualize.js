@@ -230,18 +230,18 @@ function cleanUpVisualization() {
   d3.selectAll(".block").remove()
 }
  
-function createBoard() {
+function createBoard(board) {
   VIS = d3.select("#board")
     .attr("class", "vis")
-    .attr("width", NUM_COLS * CELL_SIZE)
-    .attr("height", NUM_ROWS * CELL_SIZE)
+    .attr("width", board.num_cols * CELL_SIZE)
+    .attr("height", board.num_rows * CELL_SIZE)
 }
 
-function drawCells() {
+function drawCells(board) {
 
   var cells = new Array()
-  for (var x = 0; x < NUM_COLS; x++) {
-    for (var y = 0 ; y < NUM_ROWS; y++) {
+  for (var x = 0; x < board.num_cols; x++) {
+    for (var y = 0 ; y < board.num_rows; y++) {
       cells.push({'x': x, 'y': y })
     }
   }

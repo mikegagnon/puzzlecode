@@ -3,6 +3,7 @@
 --- Reset, simply resets the state to initial state
 ---- You can only modify the source code when the game is paused and in the
      inital state. When the source is not modifiable gray it out or something.
+     Whenever cursor moves to a different line, recompile the program.
 --- Modify play / pause button, to play / pause /resume button
 ---- "play" is only available when the game is paused and in the initial
      configuration. pressing play compiles the program and begins the

@@ -115,7 +115,7 @@ function restartSimulation() {
   drawCoins()
 
   if (program.instructions != null) {
-    BOARD.bots = initBots(program)
+    BOARD.bots = initBots(BOARD, program)
     drawBots()
   }
 

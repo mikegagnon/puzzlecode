@@ -33,13 +33,11 @@ PlayStatus = {
 }
 
 // TODO: better var names and all caps
-var NUM_COLS = 9,
-    NUM_ROWS = 7,
-    CELL_SIZE = 32,
+var CELL_SIZE = 32,
     VIS = null,
     ANIMATE_INTERVAL = null,
     PLAY_STATUS = PlayStatus.PLAYING,
-    INIT_PLAY_SPEED = PlaySpeed.FAST,
+    INIT_PLAY_SPEED = PlaySpeed.NORMAL,
     ANIMATION_DUR = INIT_PLAY_SPEED[0]
     CYCLE_DUR = INIT_PLAY_SPEED[1],
     EASING = INIT_PLAY_SPEED[3],
@@ -57,6 +55,8 @@ var NUM_COLS = 9,
      * through the bots and coins objects when needed.
      */
     BOARD = {
+      num_cols: 9,
+      num_rows: 7,
       bots : [],
       // the coins currently on the board (changes throughout a simulation)
       coins : [],
@@ -79,5 +79,5 @@ var COIN_RADIUS = 6
 var COIN_EXPLODE_RADIUS = 100
 
 window.onload = windowOnLoad
-createBoard()
-drawCells()
+createBoard(BOARD)
+drawCells(BOARD)
