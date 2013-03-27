@@ -736,7 +736,7 @@ function moveBot(board, bot) {
   xTorus = xResult[1]
   yTorus = yResult[1]
 
-  if (!tryMove(board, bot, destX, destY)) {  
+  if (!tryMove(board, bot, destX, destY)) {
     bot.animations.failMove = {
       destX: bot.cellX + dx,
       destY: bot.cellY + dy
@@ -780,7 +780,7 @@ function moveBot(board, bot) {
       prevX, prevY,
       bot.cellX - dx, bot.cellY - dy,
       prevX + dx, prevY + dy,
-      dx, dy) 
+      dx, dy)
 
     bot.animations.move = animationData
   }
@@ -868,6 +868,11 @@ function directionToAngle(direction) {
   }
 }
 
+function botTransform(x, y, facing) {
+  return "translate(" + x + ", " + y + ") " +
+    "rotate(" + directionToAngle(facing) + " 16 16)"
+}
+
 function clone(selector) {
     var node = d3.select(selector).node();
     return d3.select(node.parentNode.insertBefore(node.cloneNode(true),
@@ -876,61 +881,49 @@ node.nextSibling));
 
 function nonBotAnimate() {
   // TODO: animate coins rotating or something
+  // IDEA: perhaps the reason nonBotAnimate and animateCollectedCoins were
+  // interferring is because they were both operating on the same svg elements
+  // but they were using different transition objects.
 }
 
 function animateFailMove(transition) {
-    transition
-    .filter( function(bot) {
-        return "failMove" in bot.animations
+  var MOVE_DEPTH = 6
+  transition
+  .filter( function(bot) {
+    return "failMove" in bot.animations
+  })
+  .attr("transform", function(bot) {
+    var animation = bot.animations.failMove
+    var dx = 0
+    var dy = 0
+    if (bot.cellX != animation.destX) {
+      dx = (animation.destX - bot.cellX) * MOVE_DEPTH
+    }
+    if (bot.cellY != animation.destY) {
+      dy = (animation.destY - bot.cellY) * MOVE_DEPTH
+    }
+    var x = bot.cellX * CELL_SIZE + dx
+    var y = bot.cellY * CELL_SIZE + dy
+    return botTransform(x, y, bot.facing)
+  })
+  .ease("cubic")
+  .duration(ANIMATION_DUR / 2)
+  .each("end", function() {
+    d3.select(this).transition() 
+      .attr("transform", function(bot) {
+        var x = bot.cellX * CELL_SIZE
+        var y = bot.cellY * CELL_SIZE 
+        return botTransform(x, y, bot.facing)
       })
-        .attr("transform", function(bot) {
-          var animation = bot.animations.failMove  
-          var dx = 0
-          var dy = 0
-          if (bot.cellX != animation.destX) {
-            dx = (animation.destX - bot.cellX) * 6
-          }
-          if (bot.cellY != animation.destY) {
-            dy = (animation.destY - bot.cellY) * 6
-          }
-          var x = bot.cellX * cw + dx
-          var y = bot.cellY * ch + dy
-          console.log(x + " " + y)
-          if (bot.facing == Direction.RIGHT) {
-            return "translate(" + x + "," + y + ") rotate(90 16 16)"
-          } else if (bot.facing == Direction.DOWN) {
-            return "translate(" + x + "," + y + ") rotate(180 16 16)"
-          } else if (bot.facing == Direction.LEFT) {
-            return "translate(" + x + "," + y + ") rotate(-90 16 16)"
-          } else {
-            return "translate(" + x + "," + y + ")"
-          }
-        })
-        .ease("cubic")
-        .duration(ANIMATION_DUR / 2)
-        .each("end", function() {
-          d3.select(this).transition() 
-            .attr("transform", function(bot) {
-              var x = bot.cellX * cw 
-              var y = bot.cellY * ch 
-              if (bot.facing == Direction.RIGHT) {
-                return "translate(" + x + "," + y + ") rotate(90 16 16)"
-              } else if (bot.facing == Direction.DOWN) {
-                return "translate(" + x + "," + y + ") rotate(180 16 16)"
-              } else if (bot.facing == Direction.LEFT) {
-                return "translate(" + x + "," + y + ") rotate(-90 16 16)"
-              } else {
-                return "translate(" + x + "," + y + ")"
-              }
-            })
-        })
-        .ease(EASING)
-        .duration(ANIMATION_DUR / 2)
+  })
+  .ease(EASING)
+  .duration(ANIMATION_DUR / 2)
 }
 
+function animateCoinCollection(coins, bots) {
 
-function animateCoins(coins, bots) {
-
+  // need to serialize coin objects as strings so they can be used as keys
+  // in the collectedCoins object
   function serial(coin) {
     return coin.x + "x" + coin.y
   }
@@ -978,7 +971,7 @@ function animate() {
     var prevCoins = _.clone(BOARD.coins)
     step(BOARD.bots)
 
-    animateCoins(prevCoins, BOARD.bots)
+    animateCoinCollection(prevCoins, BOARD.bots)
 
     var transition = d3.selectAll(".bot").data(BOARD.bots).transition()
 
@@ -991,8 +984,8 @@ function animate() {
            return "rotate" in bot.animations
         })
         .attr("transform", function(bot) {
-          var x = bot.cellX * cw + BOT_PHASE_SHIFT
-          var y = bot.cellY * ch + BOT_PHASE_SHIFT
+          var x = bot.cellX * CELL_SIZE
+          var y = bot.cellY * CELL_SIZE
           var newAngle = directionToAngle(bot.facing)
           return "translate(" + x + ", " + y + ") rotate(" + newAngle + " 16 16)"
         })
@@ -1006,8 +999,8 @@ function animate() {
 
     moveNonTorus
         .attr("transform", function(bot) {
-          var x = bot.cellX * cw + BOT_PHASE_SHIFT
-          var y = bot.cellY * ch + BOT_PHASE_SHIFT
+          var x = bot.cellX * CELL_SIZE
+          var y = bot.cellY * CELL_SIZE
           if (bot.facing == Direction.RIGHT) {
             return "translate(" + x + "," + y + ") rotate(90 16 16)"
           } else if (bot.facing == Direction.DOWN) {
@@ -1032,8 +1025,8 @@ function animate() {
       .attr("class", "bot")
       .attr("xlink:href", "#botTemplate")
       .attr("transform", function(bot) {
-          var x = bot.animations.move.prevX * cw + BOT_PHASE_SHIFT
-          var y = bot.animations.move.prevY * ch + BOT_PHASE_SHIFT
+          var x = bot.animations.move.prevX * CELL_SIZE
+          var y = bot.animations.move.prevY * CELL_SIZE
           if (bot.facing == Direction.RIGHT) {
             return "translate(" + x + "," + y + ") rotate(90 16 16)"
           } else if (bot.facing == Direction.DOWN) {
@@ -1046,8 +1039,8 @@ function animate() {
         })
     .transition()
       .attr("transform", function(bot) {
-          var x = bot.animations.move.oobNextX  * cw + BOT_PHASE_SHIFT
-          var y = bot.animations.move.oobNextY  * ch + BOT_PHASE_SHIFT
+          var x = bot.animations.move.oobNextX  * CELL_SIZE
+          var y = bot.animations.move.oobNextY  * CELL_SIZE
           if (bot.facing == Direction.RIGHT) {
             return "translate(" + x + "," + y + ") rotate(90 16 16)"
           } else if (bot.facing == Direction.DOWN) {
@@ -1076,8 +1069,8 @@ function animate() {
   // otherwise you can use a pre-rotate SVG element.
   torusTransition
     .attr("transform", function(bot) {
-          var x = bot.animations.move.oobPrevX * cw + BOT_PHASE_SHIFT
-          var y = bot.animations.move.oobPrevY * ch + BOT_PHASE_SHIFT
+          var x = bot.animations.move.oobPrevX * CELL_SIZE
+          var y = bot.animations.move.oobPrevY * CELL_SIZE
           if (bot.facing == Direction.RIGHT) {
             return "translate(" + x + "," + y + ") rotate(90 16 16)"
           } else if (bot.facing == Direction.DOWN) {
@@ -1093,8 +1086,8 @@ function animate() {
     .each("end", function() {
       d3.select(this).transition() 
         .attr("transform", function(bot) {
-          var x = bot.cellX * cw + BOT_PHASE_SHIFT
-          var y = bot.cellY * ch + BOT_PHASE_SHIFT 
+          var x = bot.cellX * CELL_SIZE
+          var y = bot.cellY * CELL_SIZE
           if (bot.facing == Direction.RIGHT) {
             return "translate(" + x + "," + y + ") rotate(90 16 16)"
           } else if (bot.facing == Direction.DOWN) {
@@ -1120,8 +1113,8 @@ function cleanUpVisualization() {
 function createBoard() {
   vis = d3.select("#board")
     .attr("class", "vis")
-    .attr("width", ccx * cw)
-    .attr("height", ccy * ch)
+    .attr("width", ccx * CELL_SIZE)
+    .attr("height", ccy * CELL_SIZE)
 }
 
 function drawCells() {
@@ -1139,10 +1132,10 @@ function drawCells() {
     .attr("class", "cell")
     .attr("stroke", "lightgray")
     .attr("fill", "white")
-    .attr("x", function(d) { return d.x * cw })
-    .attr("y", function(d) { return d.y * ch })
-    .attr("width", cw)
-    .attr("height", ch)
+    .attr("x", function(d) { return d.x * CELL_SIZE })
+    .attr("y", function(d) { return d.y * CELL_SIZE })
+    .attr("width", CELL_SIZE)
+    .attr("height", CELL_SIZE)
 
  }
 
@@ -1155,8 +1148,8 @@ function drawCoins() {
     .attr("fill", "gold")
     .attr("opacity", "1.0")
     .attr("r", COIN_RADIUS)
-    .attr("cx", function(d){ return d.x * cw + cw/2 } )
-    .attr("cy", function(d){ return d.y * ch + ch/2} )
+    .attr("cx", function(d){ return d.x * CELL_SIZE + CELL_SIZE/2 } )
+    .attr("cy", function(d){ return d.y * CELL_SIZE + CELL_SIZE/2} )
 }
 
 function drawBlocks() {
@@ -1166,10 +1159,10 @@ function drawBlocks() {
     .attr("class", "block")
     .attr("stroke", "darkgray")
     .attr("fill", "darkgray")
-    .attr("width", cw)
-    .attr("height", ch)
-    .attr("x", function(d){ return d.x * cw } )
-    .attr("y", function(d){ return d.y * ch } )
+    .attr("width", CELL_SIZE)
+    .attr("height", CELL_SIZE)
+    .attr("x", function(d){ return d.x * CELL_SIZE } )
+    .attr("y", function(d){ return d.y * CELL_SIZE } )
 }
 
 function drawBots() {
@@ -1179,8 +1172,8 @@ function drawBots() {
     .attr("class", "bot")
     .attr("xlink:href", "#botTemplate")
     .attr("transform", function(bot) {
-      var x = bot.cellX * cw + BOT_PHASE_SHIFT
-      var y = bot.cellY * ch + BOT_PHASE_SHIFT
+      var x = bot.cellX * CELL_SIZE
+      var y = bot.cellY * CELL_SIZE
       if (bot.facing == Direction.RIGHT) {
         return "translate(" + x + "," + y + ") rotate(90 16 16)"
       } else if (bot.facing == Direction.DOWN) {
@@ -1229,9 +1222,7 @@ PlayStatus = {
 // TODO: better var names and all caps
 var ccx = 9, // cell count x
     ccy = 7, // cell count y
-    cw = 32, // cellWidth
-    // TODO: replace cw and ch with a single var
-    ch = 32,  // cellHeight
+    CELL_SIZE = 32,
     vis = null,
     animateInterval = null,
     playStatus = PlayStatus.PLAYING,
@@ -1241,8 +1232,6 @@ var ccx = 9, // cell count x
     EASING = initPlaySpeed[3],
     NON_BOT_ANIMATION_DUR = PlaySpeed.SLOW[0],
     NON_BOT_CYCLE_DUR = NON_BOT_ANIMATION_DUR,
-    // TODO: get rid of bot_phase_shift
-    BOT_PHASE_SHIFT = 0,
     //initialProgram = "\nstart:\nmove\nmove\nturn left\ngoto start\n",
     initialProgram = "\nstart:\nmove\nmove\nturn left\ngoto start\n",
     codeMirrorBox = null,

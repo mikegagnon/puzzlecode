@@ -35,9 +35,7 @@ PlayStatus = {
 // TODO: better var names and all caps
 var ccx = 9, // cell count x
     ccy = 7, // cell count y
-    cw = 32, // cellWidth
-    // TODO: replace cw and ch with a single var
-    ch = 32,  // cellHeight
+    CELL_SIZE = 32,
     vis = null,
     animateInterval = null,
     playStatus = PlayStatus.PLAYING,
@@ -47,8 +45,6 @@ var ccx = 9, // cell count x
     EASING = initPlaySpeed[3],
     NON_BOT_ANIMATION_DUR = PlaySpeed.SLOW[0],
     NON_BOT_CYCLE_DUR = NON_BOT_ANIMATION_DUR,
-    // TODO: get rid of bot_phase_shift
-    BOT_PHASE_SHIFT = 0,
     //initialProgram = "\nstart:\nmove\nmove\nturn left\ngoto start\n",
     initialProgram = "\nstart:\nmove\nmove\nturn left\ngoto start\n",
     codeMirrorBox = null,
