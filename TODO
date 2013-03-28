@@ -33,3 +33,4 @@
    next world. The other 7 are optional.
 - Use consistent object-creation idoms
 - Multi-cycle instructions
+- Use cloneDeep instead of clone, where appropriate

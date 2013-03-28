@@ -46,3 +46,9 @@ function test(bool, func) {
     func()
   }
 }
+
+// return a deep copy of origObj, with newObj merged in
+// useful for testing
+function cloneDeep(origObj, newObj) {
+  return _.assign(_.cloneDeep(origObj), newObj)
+}

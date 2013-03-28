@@ -403,6 +403,12 @@ function test(bool, func) {
     func()
   }
 }
+
+// return a deep copy of origObj, with newObj merged in
+// useful for testing
+function cloneDeep(origObj, newObj) {
+  return _.assign(_.cloneDeep(origObj), newObj)
+}
 /**
  * Copyright 2013 Michael N. Gagnon
  *
@@ -1255,9 +1261,12 @@ for (var i = 0; i < testTryMove.length; i++) {
 }
 
 // list of [board, bot, expectedBoard, expectedBot] test cases
-var board = {
+var emptyBoard = {
   num_cols: 4,
   num_rows: 5,
+}
+
+/* 
   coins : [
     {x: 1, y: 1}
   ],
@@ -1266,19 +1275,141 @@ var board = {
     {x: 0, y: 0},
     {x: 3, y: 4}
   ]
+*/
+
+var bot_2_2_up = {
+  cellX: 2,
+  cellY: 2,
+  facing: Direction.UP
+}
+
+var bot_0_0_up = {
+  cellX: 0,
+  cellY: 0,
+  facing: Direction.UP
 }
 
 var testMoveBot = [
-    [ _.clone(board),
-      { cellX: 2,
-        cellY: 2,
-        facing: Direction.UP},
-      board,
-      { cellX: 2,
-        cellY: 1,
-        facing: Direction.UP,
-        animations: {nonTorusMove: true}},
-    ]
+
+  /**
+   * non-torus moves on an empty board
+   *************************************************************************/
+  // up
+  [ cloneDeep(emptyBoard),
+    cloneDeep(bot_2_2_up),
+    cloneDeep(emptyBoard),
+    cloneDeep(bot_2_2_up, {
+      cellY: 1,
+      animations: {nonTorusMove: true}
+    })
+  ],
+  // down
+  [ cloneDeep(emptyBoard),
+    cloneDeep(bot_2_2_up, {facing: Direction.DOWN} ),
+    cloneDeep(emptyBoard),
+    cloneDeep(bot_2_2_up, {
+      facing: Direction.DOWN,
+      cellY: 3,
+      animations: {nonTorusMove: true}
+    })
+  ],
+  // left
+  [ cloneDeep(emptyBoard),
+    cloneDeep(bot_2_2_up, {facing: Direction.LEFT} ),
+    cloneDeep(emptyBoard),
+    cloneDeep(bot_2_2_up, {
+      facing: Direction.LEFT,
+      cellX: 1,
+      animations: {nonTorusMove: true}
+    })
+  ],
+  // right
+  [ cloneDeep(emptyBoard),
+    cloneDeep(bot_2_2_up, {facing: Direction.RIGHT} ),
+    cloneDeep(emptyBoard),
+    cloneDeep(bot_2_2_up, {
+      facing: Direction.RIGHT,
+      cellX: 3,
+      animations: {nonTorusMove: true}
+    })
+  ],
+
+  /**
+   * __torus__ moves on an empty board
+   *************************************************************************/
+  // up
+  [ cloneDeep(emptyBoard),
+    cloneDeep(bot_0_0_up),
+    cloneDeep(emptyBoard),
+    cloneDeep(bot_0_0_up, {
+      cellY: 4,
+      animations: {torusMove: {
+        prevX: 0,
+        prevY: 0,
+        oobPrevX: 0,
+        oobPrevY: 5,
+        oobNextX: 0,
+        oobNextY: -1
+      }}
+    })
+  ],
+  // down
+  [ cloneDeep(emptyBoard),
+    cloneDeep(bot_0_0_up, {
+      facing: Direction.DOWN,
+      cellY: 4
+    }),
+    cloneDeep(emptyBoard),
+    cloneDeep(bot_0_0_up, {
+      facing: Direction.DOWN,
+      cellY: 0,
+      animations: {torusMove: {
+        prevX: 0,
+        prevY: 4,
+        oobPrevX: 0,
+        oobPrevY: -1,
+        oobNextX: 0,
+        oobNextY: 5
+      }}
+    })
+  ],
+  // left
+  [ cloneDeep(emptyBoard),
+    cloneDeep(bot_0_0_up, {facing: Direction.LEFT} ),
+    cloneDeep(emptyBoard),
+    cloneDeep(bot_0_0_up, {
+      facing: Direction.LEFT,
+      cellX: 3,
+      animations: {torusMove: {
+        prevX: 0,
+        prevY: 0,
+        oobPrevX: 4,
+        oobPrevY: 0,
+        oobNextX: -1,
+        oobNextY: 0
+      }}
+    })
+  ],
+  // right
+  [ cloneDeep(emptyBoard),
+    cloneDeep(bot_0_0_up, {
+      facing: Direction.RIGHT,
+      cellX: 3
+    }),
+    cloneDeep(emptyBoard),
+    cloneDeep(bot_0_0_up, {
+      facing: Direction.RIGHT,
+      cellX: 0,
+      animations: {torusMove: {
+        prevX: 3,
+        prevY: 0,
+        oobPrevX: -1,
+        oobPrevY: 0,
+        oobNextX: 4,
+        oobNextY: 0
+      }}
+    })
+  ],
 ]
 
 for (var i = 0; i < testMoveBot.length; i++) {
