@@ -36,30 +36,6 @@ function Animation(type, data) {
   this.data = data
 }
 
-// move a bot (covers both torus and non-torus moves)
-function AnimationMove(
-    // boolean
-    torus,
-    // previous cell coordinates
-    prevX, prevY,
-    // out-of-bounds prev-X and prev-Y
-    oobPrevX, oobPrevY,
-    // out-of-bounds next-X and next-Y
-    // i.e. what nextX and nextY would be if it weren't for the wrap around
-    oobNextX, oobNextY,
-    // either -1, 0, or 1
-    dx, dy) {
-  this.torus = torus
-  this.prevX = prevX
-  this.prevY = prevY
-  this.oobPrevX = oobPrevX
-  this.oobPrevY = oobPrevY
-  this.oobNextX = oobNextX
-  this.oobNextY = oobNextY
-  this.dx = dx
-  this.dy = dy
-}
-
 // rotate a bot
 function AnimationTurn(oldFacing, newFacing) {
   this.oldFacing = oldFacing

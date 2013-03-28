@@ -36,30 +36,6 @@ function Animation(type, data) {
   this.data = data
 }
 
-// move a bot (covers both torus and non-torus moves)
-function AnimationMove(
-    // boolean
-    torus,
-    // previous cell coordinates
-    prevX, prevY,
-    // out-of-bounds prev-X and prev-Y
-    oobPrevX, oobPrevY,
-    // out-of-bounds next-X and next-Y
-    // i.e. what nextX and nextY would be if it weren't for the wrap around
-    oobNextX, oobNextY,
-    // either -1, 0, or 1
-    dx, dy) {
-  this.torus = torus
-  this.prevX = prevX
-  this.prevY = prevY
-  this.oobPrevX = oobPrevX
-  this.oobPrevY = oobPrevY
-  this.oobNextX = oobNextX
-  this.oobNextY = oobNextY
-  this.dx = dx
-  this.dy = dy
-}
-
 // rotate a bot
 function AnimationTurn(oldFacing, newFacing) {
   this.oldFacing = oldFacing
@@ -462,12 +438,18 @@ function assert(bool, message) {
   }
 }
 
-
 function assertLazy(func, message) {
   if (DEBUG) {
     assert(func(), message)
   }
-}/**
+}
+
+function test(bool, func) {
+  if (!bool) {
+    func()
+  }
+}
+/**
  * Copyright 2013 Michael N. Gagnon
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -699,6 +681,7 @@ function executeGoto(bot, nextIp) {
 
 // a bot tries to move into cell x,y.
 // returns true if the bot is allowed to move in, false otherwise
+// TODO: also check for bots
 function tryMove(board, bot, x, y) {
   var matchingBlocks = _(board.blocks)
     .filter( function(block) {
@@ -775,15 +758,19 @@ function moveBot(board, bot) {
       bot.animations.coin_collect = matchingCoin
     }
 
-    // define the animation for the move
-    var animationData = new AnimationMove(
-      xTorus == "torus" || yTorus == "torus",
-      prevX, prevY,
-      bot.cellX - dx, bot.cellY - dy,
-      prevX + dx, prevY + dy,
-      dx, dy)
+    if (xTorus != "torus" && yTorus != "torus") {
+      bot.animations.nonTorusMove = true
+    } else {
+      bot.animations.torusMove = {
+        prevX: prevX,
+        prevY: prevY,
+        oobPrevX: bot.cellX - dx,
+        oobPrevY: bot.cellY - dy,
+        oobNextX: prevX + dx, 
+        oobNextY: prevY + dy
+      }
+    }
 
-    bot.animations.move = animationData
   }
 }
 
@@ -961,7 +948,7 @@ function animateRotate(transition) {
 
 function animateMoveNonTorus(transition) {
   transition.filter( function(bot) {
-    return "move" in bot.animations && !bot.animations.move.torus
+    return "nonTorusMove" in bot.animations
   })
   .attr("transform", function(bot) {
     var x = bot.cellX * CELL_SIZE
@@ -970,10 +957,6 @@ function animateMoveNonTorus(transition) {
   })
   .ease(EASING)
   .duration(ANIMATION_DUR)
-}
-
-function isTorusBot(bot) {
-  return "move" in bot.animations && bot.animations.move.torus
 }
 
 function animateMoveTorus(transition, bots) {
@@ -985,7 +968,7 @@ function animateMoveTorus(transition, bots) {
    */
 
   torusBots = bots.filter( function(bot) {
-    return isTorusBot(bot)
+    return "torusMove" in bot.animations
   })
 
   // create the clone of the bot
@@ -995,14 +978,14 @@ function animateMoveTorus(transition, bots) {
     .attr("class", "bot")
     .attr("xlink:href", "#botTemplate")
     .attr("transform", function(bot) {
-      var x = bot.animations.move.prevX * CELL_SIZE
-      var y = bot.animations.move.prevY * CELL_SIZE
+      var x = bot.animations.torusMove.prevX * CELL_SIZE
+      var y = bot.animations.torusMove.prevY * CELL_SIZE
       return botTransform(x, y, bot.facing)
     })
     .transition()
     .attr("transform", function(bot) {
-      var x = bot.animations.move.oobNextX * CELL_SIZE
-      var y = bot.animations.move.oobNextY * CELL_SIZE
+      var x = bot.animations.torusMove.oobNextX * CELL_SIZE
+      var y = bot.animations.torusMove.oobNextY * CELL_SIZE
       return botTransform(x, y, bot.facing)
     })
     .ease(EASING)
@@ -1014,11 +997,11 @@ function animateMoveTorus(transition, bots) {
 
   // instantly move the bot across to the other side of the screen
   transition.filter( function(bot) {
-      return isTorusBot(bot)
+      return "torusMove" in bot.animations
     })
     .attr("transform", function(bot) {
-      var x = bot.animations.move.oobPrevX * CELL_SIZE
-      var y = bot.animations.move.oobPrevY * CELL_SIZE
+      var x = bot.animations.torusMove.oobPrevX * CELL_SIZE
+      var y = bot.animations.torusMove.oobPrevY * CELL_SIZE
       return botTransform(x, y, bot.facing)
     })
     .ease(EASING)
@@ -1297,11 +1280,13 @@ for (var i = 0; i < testInstructions.length; i++) {
  */
 
 // list of [board, bot, x, y, expectedResult] test cases
+var board = {blocks : [{x:5,y:5}]}
+var bot = {facing: "any"}
 var testTryMove = [
-    [{blocks : [{x:5,y:5}]}, {facing: "any"}, 5, 5, false],
-    [{blocks : [{x:5,y:5}]}, {facing: "any"}, 5, 6, true],
-    [{blocks : [{x:5,y:5}]}, {facing: "any"}, 6, 5, true],
-    [{blocks : [{x:5,y:5}]}, {facing: "any"}, 6, 6, true]
+    [board, bot, 5, 5, false],
+    [board, bot, 5, 6, true],
+    [board, bot, 6, 5, true],
+    [board, bot, 6, 6, true],
   ]
 
 for (var i = 0; i < testTryMove.length; i++) {
@@ -1316,16 +1301,40 @@ for (var i = 0; i < testTryMove.length; i++) {
 }
 
 // list of [board, bot, expectedBoard, expectedBot] test cases
-/*var testMoveBot = [
-    [{blocks: [{x:5, y:5}]}]
+var board = {
+  num_cols: 4,
+  num_rows: 5,
+  coins : [
+    {x: 1, y: 1}
+  ],
+  coinsCollected : 0,
+  blocks : [
+    {x: 0, y: 0},
+    {x: 3, y: 4}
+  ]
+}
+
+var testMoveBot = [
+    [ _.clone(board),
+      {cellX: 2, cellY: 2, facing: Direction.UP},
+      board,
+      {cellX: 2, cellY: 1, facing: Direction.UP},
+    ]
 ]
 
 for (var i = 0; i < testMoveBot.length; i++) {
-  var board    = testTryMove[i][0]
-  var bot      = testTryMove[i][1]
-  var expectedBoard = testTryMove[i][2]
-  var expectedBot = testTryMove[i][3]
-  var result = moveBot(board, bot, x, y)
-  assert(_.isEqual(result, expected),
-    "tryMove '" + testTryMove[i] + "' failed")
-}*/
+  var board    = testMoveBot[i][0]
+  var bot      = testMoveBot[i][1]
+  var expectedBoard = testMoveBot[i][2]
+  var expectedBot = testMoveBot[i][3]
+  moveBot(board, bot)
+  test(_.isEqual([board, bot], [expectedBoard, expectedBot]),
+    function() {
+      console.error("testMoveBot[" + i + "]"),
+      console.dir(board)
+      console.dir(bot)
+      console.dir(expectedBoard)
+      console.dir(expectedBot)
+
+    })
+}

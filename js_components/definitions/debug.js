@@ -35,9 +35,14 @@ function assert(bool, message) {
   }
 }
 
-
 function assertLazy(func, message) {
   if (DEBUG) {
     assert(func(), message)
+  }
+}
+
+function test(bool, func) {
+  if (!bool) {
+    func()
   }
 }

@@ -15,11 +15,13 @@
  */
 
 // list of [board, bot, x, y, expectedResult] test cases
+var board = {blocks : [{x:5,y:5}]}
+var bot = {facing: "any"}
 var testTryMove = [
-    [{blocks : [{x:5,y:5}]}, {facing: "any"}, 5, 5, false],
-    [{blocks : [{x:5,y:5}]}, {facing: "any"}, 5, 6, true],
-    [{blocks : [{x:5,y:5}]}, {facing: "any"}, 6, 5, true],
-    [{blocks : [{x:5,y:5}]}, {facing: "any"}, 6, 6, true]
+    [board, bot, 5, 5, false],
+    [board, bot, 5, 6, true],
+    [board, bot, 6, 5, true],
+    [board, bot, 6, 6, true],
   ]
 
 for (var i = 0; i < testTryMove.length; i++) {
@@ -34,16 +36,40 @@ for (var i = 0; i < testTryMove.length; i++) {
 }
 
 // list of [board, bot, expectedBoard, expectedBot] test cases
-/*var testMoveBot = [
-    [{blocks: [{x:5, y:5}]}]
+var board = {
+  num_cols: 4,
+  num_rows: 5,
+  coins : [
+    {x: 1, y: 1}
+  ],
+  coinsCollected : 0,
+  blocks : [
+    {x: 0, y: 0},
+    {x: 3, y: 4}
+  ]
+}
+
+var testMoveBot = [
+    [ _.clone(board),
+      {cellX: 2, cellY: 2, facing: Direction.UP},
+      board,
+      {cellX: 2, cellY: 1, facing: Direction.UP},
+    ]
 ]
 
 for (var i = 0; i < testMoveBot.length; i++) {
-  var board    = testTryMove[i][0]
-  var bot      = testTryMove[i][1]
-  var expectedBoard = testTryMove[i][2]
-  var expectedBot = testTryMove[i][3]
-  var result = moveBot(board, bot, x, y)
-  assert(_.isEqual(result, expected),
-    "tryMove '" + testTryMove[i] + "' failed")
-}*/
+  var board    = testMoveBot[i][0]
+  var bot      = testMoveBot[i][1]
+  var expectedBoard = testMoveBot[i][2]
+  var expectedBot = testMoveBot[i][3]
+  moveBot(board, bot)
+  test(_.isEqual([board, bot], [expectedBoard, expectedBot]),
+    function() {
+      console.error("testMoveBot[" + i + "]"),
+      console.dir(board)
+      console.dir(bot)
+      console.dir(expectedBoard)
+      console.dir(expectedBot)
+
+    })
+}

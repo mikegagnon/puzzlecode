@@ -125,7 +125,7 @@ function animateRotate(transition) {
 
 function animateMoveNonTorus(transition) {
   transition.filter( function(bot) {
-    return "move" in bot.animations && !bot.animations.move.torus
+    return "nonTorusMove" in bot.animations
   })
   .attr("transform", function(bot) {
     var x = bot.cellX * CELL_SIZE
@@ -134,10 +134,6 @@ function animateMoveNonTorus(transition) {
   })
   .ease(EASING)
   .duration(ANIMATION_DUR)
-}
-
-function isTorusBot(bot) {
-  return "move" in bot.animations && bot.animations.move.torus
 }
 
 function animateMoveTorus(transition, bots) {
@@ -149,7 +145,7 @@ function animateMoveTorus(transition, bots) {
    */
 
   torusBots = bots.filter( function(bot) {
-    return isTorusBot(bot)
+    return "torusMove" in bot.animations
   })
 
   // create the clone of the bot
@@ -159,14 +155,14 @@ function animateMoveTorus(transition, bots) {
     .attr("class", "bot")
     .attr("xlink:href", "#botTemplate")
     .attr("transform", function(bot) {
-      var x = bot.animations.move.prevX * CELL_SIZE
-      var y = bot.animations.move.prevY * CELL_SIZE
+      var x = bot.animations.torusMove.prevX * CELL_SIZE
+      var y = bot.animations.torusMove.prevY * CELL_SIZE
       return botTransform(x, y, bot.facing)
     })
     .transition()
     .attr("transform", function(bot) {
-      var x = bot.animations.move.oobNextX * CELL_SIZE
-      var y = bot.animations.move.oobNextY * CELL_SIZE
+      var x = bot.animations.torusMove.oobNextX * CELL_SIZE
+      var y = bot.animations.torusMove.oobNextY * CELL_SIZE
       return botTransform(x, y, bot.facing)
     })
     .ease(EASING)
@@ -178,11 +174,11 @@ function animateMoveTorus(transition, bots) {
 
   // instantly move the bot across to the other side of the screen
   transition.filter( function(bot) {
-      return isTorusBot(bot)
+      return "torusMove" in bot.animations
     })
     .attr("transform", function(bot) {
-      var x = bot.animations.move.oobPrevX * CELL_SIZE
-      var y = bot.animations.move.oobPrevY * CELL_SIZE
+      var x = bot.animations.torusMove.oobPrevX * CELL_SIZE
+      var y = bot.animations.torusMove.oobPrevY * CELL_SIZE
       return botTransform(x, y, bot.facing)
     })
     .ease(EASING)

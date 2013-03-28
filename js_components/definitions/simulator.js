@@ -42,6 +42,7 @@ function executeGoto(bot, nextIp) {
 
 // a bot tries to move into cell x,y.
 // returns true if the bot is allowed to move in, false otherwise
+// TODO: also check for bots
 function tryMove(board, bot, x, y) {
   var matchingBlocks = _(board.blocks)
     .filter( function(block) {
@@ -118,15 +119,19 @@ function moveBot(board, bot) {
       bot.animations.coin_collect = matchingCoin
     }
 
-    // define the animation for the move
-    var animationData = new AnimationMove(
-      xTorus == "torus" || yTorus == "torus",
-      prevX, prevY,
-      bot.cellX - dx, bot.cellY - dy,
-      prevX + dx, prevY + dy,
-      dx, dy)
+    if (xTorus != "torus" && yTorus != "torus") {
+      bot.animations.nonTorusMove = true
+    } else {
+      bot.animations.torusMove = {
+        prevX: prevX,
+        prevY: prevY,
+        oobPrevX: bot.cellX - dx,
+        oobPrevY: bot.cellY - dy,
+        oobNextX: prevX + dx, 
+        oobNextY: prevY + dy
+      }
+    }
 
-    bot.animations.move = animationData
   }
 }
 
