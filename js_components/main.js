@@ -28,15 +28,16 @@ PlaySpeed = {
 }
 
 PlayStatus = {
-  PAUSED: 0,
-  PLAYING: 1
+  INITAL_STATE_PAUSED: 0,
+  PLAYING: 1,
+  PAUSED: 2,
 }
 
 // TODO: better var names and all caps
 var CELL_SIZE = 32,
     VIS = null,
     ANIMATE_INTERVAL = null,
-    PLAY_STATUS = PlayStatus.PLAYING,
+    PLAY_STATUS = PlayStatus.INITAL_STATE_PAUSED,
     INIT_PLAY_SPEED = PlaySpeed.NORMAL,
     ANIMATION_DUR = INIT_PLAY_SPEED[0]
     CYCLE_DUR = INIT_PLAY_SPEED[1],

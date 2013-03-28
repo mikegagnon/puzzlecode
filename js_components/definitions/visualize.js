@@ -199,7 +199,7 @@ function animateMoveTorus(transition, bots) {
 
 // TODO: breakup into smaller functions
 function animate() {
-  if (PLAY_STATUS == PlayStatus.PAUSED) {
+  if (PLAY_STATUS != PlayStatus.PLAYING) {
     return;
   }
 

@@ -527,8 +527,15 @@ function windowOnLoad() {
     console.dir(line)
   })
 
+  // You cannot edit the program, unless it is in the reset state
+  CODE_MIRROR_BOX.on("beforeChange", function(cm, change) {
+    if (PLAY_STATUS != PlayStatus.INITAL_STATE_PAUSED) {
+      change.cancel()
+    }
+  })
+
   restartSimulation()
-  doPlay()
+  //doPlay()
 
   // TODO: where should i put this?
   ANIMATE_INTERVAL = setInterval("animate()", CYCLE_DUR)
@@ -550,20 +557,30 @@ function setSpeed(speed) {
 // TODO: This doesn't work
 function doPause() {
   PLAY_STATUS = PlayStatus.PAUSED
-  pausePlay.innerHTML = 'Run!'
+  pausePlay.innerHTML = 'Resume'
+  d3.select("#pauseplay").attr("class", "btn")
 }
 
-function doPlay() {
-  if (BOARD.bots.length > 0) {
-    PLAY_STATUS = PlayStatus.PLAYING
-    pausePlay.innerHTML = 'Pause'
+function doResume() {
+  PLAY_STATUS = PlayStatus.PLAYING
+  pausePlay.innerHTML = 'Pause'
+  d3.select("#pauseplay").attr("class", "btn")
+  CODE_MIRROR_BOX.setOption("theme", "solarized light")
+}
+
+function doRun() {
+  var program = compile()
+  if (program.instructions != null) {
+    doResume()
   }
 }
 
 function togglePausePlay() {
   // TODO: determine is this is threadsafe in JS
-  if (PLAY_STATUS == PlayStatus.PAUSED) {
-    doPlay()
+  if (PLAY_STATUS == PlayStatus.INITAL_STATE_PAUSED) {
+    doRun()
+  } else if (PLAY_STATUS == PlayStatus.PAUSED) {
+    doResume()
   } else {
     doPause()
   }
@@ -573,6 +590,17 @@ function compile() {
   var programText = CODE_MIRROR_BOX.getValue()
   var program = compileRobocom(programText)
   addLineComments(CODE_MIRROR_BOX, program.lineComments)
+
+  if (PLAY_STATUS == PlayStatus.INITAL_STATE_PAUSED) {
+    if (program.instructions == null) {
+      d3.select("#pauseplay").attr("class", "btn btn-primary disabled")
+    } else {
+      d3.select("#pauseplay").attr("class", "btn btn-primary")
+      BOARD.bots = initBots(BOARD, program)
+      drawBots()
+    }
+  }
+
   return program
 }
 
@@ -582,7 +610,10 @@ function compile() {
  * - compiles the program
  */
 function restartSimulation() {
-  doPause()
+  PLAY_STATUS = PlayStatus.INITAL_STATE_PAUSED
+  CODE_MIRROR_BOX.setOption("theme", "solarized dark")
+
+  pausePlay.innerHTML = 'Run!'
   cleanUpSimulation()
   cleanUpVisualization()
 
@@ -1016,7 +1047,7 @@ function animateMoveTorus(transition, bots) {
 
 // TODO: breakup into smaller functions
 function animate() {
-  if (PLAY_STATUS == PlayStatus.PAUSED) {
+  if (PLAY_STATUS != PlayStatus.PLAYING) {
     return;
   }
 
@@ -1145,15 +1176,16 @@ PlaySpeed = {
 }
 
 PlayStatus = {
-  PAUSED: 0,
-  PLAYING: 1
+  INITAL_STATE_PAUSED: 0,
+  PLAYING: 1,
+  PAUSED: 2,
 }
 
 // TODO: better var names and all caps
 var CELL_SIZE = 32,
     VIS = null,
     ANIMATE_INTERVAL = null,
-    PLAY_STATUS = PlayStatus.PLAYING,
+    PLAY_STATUS = PlayStatus.INITAL_STATE_PAUSED,
     INIT_PLAY_SPEED = PlaySpeed.NORMAL,
     ANIMATION_DUR = INIT_PLAY_SPEED[0]
     CYCLE_DUR = INIT_PLAY_SPEED[1],

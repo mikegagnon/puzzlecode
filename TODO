@@ -1,16 +1,15 @@
 - Need major work on usability / instructions / walkthroughs.
 -- Idea for button semantics:
---- Reset, simply resets the state to initial state
----- You can only modify the source code when the game is paused and in the
-     inital state. When the source is not modifiable gray it out or something.
-     Whenever cursor moves to a different line, recompile the program.
---- Modify play / pause button, to play / pause /resume button
----- "play" is only available when the game is paused and in the initial
-     configuration. pressing play compiles the program and begins the
-     simulation (assuming there are no errors).
----- once play begins, it turns into the pause button. Pressing pause will
-     pause the game and change the button to a "resume" button.
----- resume unpauses the game. (Or should the button be labelled unpause?)
+--- Reset: resets the state to initial state and compiles program
+--- Run / pause /resume button
+---- If the board has been reset, the button will say "run."
+------ If there is a compile error, then run will be grayed out and not
+       clicable
+------ If no compile errors, it's blue and can be clicked
+---- once play begins, it turns into a normal colored pause button.
+     Pressing pause will pause the game and change the button to a "resume"
+     button.
+---- resume unpauses the game.
 -- Perhaps present a popup alert the first time you get a compile error
 -- Add a "step" button
 -- Highlight instructions as they are being executed.
