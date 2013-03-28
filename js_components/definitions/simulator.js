@@ -31,7 +31,7 @@ function Bot(x, y, facing, program) {
 function turnBot(bot, direction) {
   var oldFacing = bot.facing
   bot.facing = rotateDirection(bot.facing, direction)
-  bot.animations = { rotate : new AnimationTurn(oldFacing, bot.facing) }
+  bot.animations.rotate = true
 }
 
 // TODO: handle case where goto goes past end of program

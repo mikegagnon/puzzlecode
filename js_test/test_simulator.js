@@ -51,9 +51,14 @@ var board = {
 
 var testMoveBot = [
     [ _.clone(board),
-      {cellX: 2, cellY: 2, facing: Direction.UP},
+      { cellX: 2,
+        cellY: 2,
+        facing: Direction.UP},
       board,
-      {cellX: 2, cellY: 1, facing: Direction.UP},
+      { cellX: 2,
+        cellY: 1,
+        facing: Direction.UP,
+        animations: {nonTorusMove: true}},
     ]
 ]
 
