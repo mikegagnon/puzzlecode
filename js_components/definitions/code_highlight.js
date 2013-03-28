@@ -39,11 +39,11 @@
  */
 
 // lineComments is a map where line index points to comment for that line
-function addLineComments(lineComments) {
-  CODE_MIRROR_BOX.clearGutter("note-gutter")
+function addLineComments(codeMirrorBox, lineComments) {
+  codeMirrorBox.clearGutter("note-gutter")
   for (i in lineComments) {
       var comment = lineComments[i]
-      CODE_MIRROR_BOX
+      codeMirrorBox
         .setGutterMarker(
           parseInt(i),
           "note-gutter",

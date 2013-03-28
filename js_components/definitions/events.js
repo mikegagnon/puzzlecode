@@ -39,14 +39,22 @@ function windowOnLoad() {
     .getElementById("restart")
     .addEventListener("click", restartSimulation);
 
-  CODE_MIRROR_BOX = CodeMirror(document.getElementById("container"), {
+  var settings = {
     value: INITIAL_PROGRAM,
     gutters: ["note-gutter", "CodeMirror-linenumbers"],
     mode:  "text/x-robocom",
     theme: "solarized dark",
     smartIndent: false,
     lineNumbers: true,
-  });
+  }
+
+  CODE_MIRROR_BOX = CodeMirror(document.getElementById("codeMirrorEdit"), settings)
+
+  CODE_MIRROR_BOX_NON_EDIT = CodeMirror(document.getElementById("codeMirrorNonEdit"),
+    cloneDeep(settings, { readOnly: "nocursor" }))
+  CODE_MIRROR_BOX_NON_EDIT.setValue(CODE_MIRROR_BOX.getValue())
+
+  d3.select("#codeMirrorNonEdit").attr("style", "display: none")
 
   restartSimulation()
   doPlay()
@@ -68,15 +76,31 @@ function setSpeed(speed) {
 }
 
 // TODO: consider graying out the play button when it's not possible to play it
+// TODO: This doesn't work
 function doPause() {
   PLAY_STATUS = PlayStatus.PAUSED
   pausePlay.innerHTML = 'Play!'
+
+  // TODO: cover text box in gray
+  // TODO: determine state machine for all possible ways text editor should
+  // become disabled, re-enabled put these in own function
+  d3.select("#codeMirrorNonEdit").attr("style", "display:none")
+  d3.select("#codeMirrorEdit").attr("style", "")
+
+  var programText = CODE_MIRROR_BOX.getValue() 
+  CODE_MIRROR_BOX_NON_EDIT.setValue(programText)
+  var program = compileRobocom(programText)
+  addLineComments(CODE_MIRROR_BOX_NON_EDIT, program.lineComments)
+
 }
 
 function doPlay() {
   if (BOARD.bots.length > 0) {
     PLAY_STATUS = PlayStatus.PLAYING
     pausePlay.innerHTML = 'Pause'
+    d3.select("#codeMirrorNonEdit").attr("style", "")
+    d3.select("#codeMirrorEdit").attr("style", "display:none")
+
   }
 }
 
@@ -100,7 +124,7 @@ function restartSimulation() {
   cleanUpVisualization()
   var programText = CODE_MIRROR_BOX.getValue()
   var program = compileRobocom(programText)
-  addLineComments(program.lineComments)
+  addLineComments(CODE_MIRROR_BOX, program.lineComments)
 
   BOARD.initCoins = [
       {x:1, y:1},

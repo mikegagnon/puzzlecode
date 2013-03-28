@@ -39,11 +39,11 @@
  */
 
 // lineComments is a map where line index points to comment for that line
-function addLineComments(lineComments) {
-  CODE_MIRROR_BOX.clearGutter("note-gutter")
+function addLineComments(codeMirrorBox, lineComments) {
+  codeMirrorBox.clearGutter("note-gutter")
   for (i in lineComments) {
       var comment = lineComments[i]
-      CODE_MIRROR_BOX
+      codeMirrorBox
         .setGutterMarker(
           parseInt(i),
           "note-gutter",
@@ -404,11 +404,6 @@ function test(bool, func) {
   }
 }
 
-// return a deep copy of origObj, with newObj merged in
-// useful for testing
-function cloneDeep(origObj, newObj) {
-  return _.assign(_.cloneDeep(origObj), newObj)
-}
 /**
  * Copyright 2013 Michael N. Gagnon
  *
@@ -509,14 +504,22 @@ function windowOnLoad() {
     .getElementById("restart")
     .addEventListener("click", restartSimulation);
 
-  CODE_MIRROR_BOX = CodeMirror(document.getElementById("container"), {
+  var settings = {
     value: INITIAL_PROGRAM,
     gutters: ["note-gutter", "CodeMirror-linenumbers"],
     mode:  "text/x-robocom",
     theme: "solarized dark",
     smartIndent: false,
     lineNumbers: true,
-  });
+  }
+
+  CODE_MIRROR_BOX = CodeMirror(document.getElementById("codeMirrorEdit"), settings)
+
+  CODE_MIRROR_BOX_NON_EDIT = CodeMirror(document.getElementById("codeMirrorNonEdit"),
+    cloneDeep(settings, { readOnly: "nocursor" }))
+  CODE_MIRROR_BOX_NON_EDIT.setValue(CODE_MIRROR_BOX.getValue())
+
+  d3.select("#codeMirrorNonEdit").attr("style", "display: none")
 
   restartSimulation()
   doPlay()
@@ -541,12 +544,27 @@ function setSpeed(speed) {
 function doPause() {
   PLAY_STATUS = PlayStatus.PAUSED
   pausePlay.innerHTML = 'Play!'
+
+  // TODO: cover text box in gray
+  // TODO: determine state machine for all possible ways text editor should
+  // become disabled, re-enabled put these in own function
+  d3.select("#codeMirrorNonEdit").attr("style", "display:none")
+  d3.select("#codeMirrorEdit").attr("style", "")
+
+  var programText = CODE_MIRROR_BOX.getValue() 
+  CODE_MIRROR_BOX_NON_EDIT.setValue(programText)
+  var program = compileRobocom(programText)
+  addLineComments(CODE_MIRROR_BOX_NON_EDIT, program.lineComments)
+
 }
 
 function doPlay() {
   if (BOARD.bots.length > 0) {
     PLAY_STATUS = PlayStatus.PLAYING
     pausePlay.innerHTML = 'Pause'
+    d3.select("#codeMirrorNonEdit").attr("style", "")
+    d3.select("#codeMirrorEdit").attr("style", "display:none")
+
   }
 }
 
@@ -570,7 +588,7 @@ function restartSimulation() {
   cleanUpVisualization()
   var programText = CODE_MIRROR_BOX.getValue()
   var program = compileRobocom(programText)
-  addLineComments(program.lineComments)
+  addLineComments(CODE_MIRROR_BOX, program.lineComments)
 
   BOARD.initCoins = [
       {x:1, y:1},
@@ -782,6 +800,25 @@ function initBots(board, prog) {
   return [initBot]  
 }
 /**
+ * Copyright 2013 Michael N. Gagnon
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// return a deep copy of origObj, with newObj merged in
+function cloneDeep(origObj, newObj) {
+  return _.assign(_.cloneDeep(origObj), newObj)
+}/**
  * Copyright 2013 Michael N. Gagnon
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -1289,6 +1326,9 @@ var bot_0_0_up = {
   facing: Direction.UP
 }
 
+// TESTS TODO:
+// - move being blocked by an object
+// - move that picks up a coin
 var testMoveBot = [
 
   /**

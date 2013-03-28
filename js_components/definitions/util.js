@@ -14,36 +14,7 @@
  * limitations under the License.
  */
 
-// some functions useful for debugging
-
-// add size functions to selections and transitions
-d3.selection.prototype.size = function() {
-  var n = 0;
-  this.each(function() { ++n; });
-  return n;
-};
-
- d3.transition.prototype.size = function() {
-  var n = 0;
-  this.each(function() { ++n; });
-  return n;
-};
-
-function assert(bool, message) {
-  if (!bool) {
-    alert(message)
-  }
+// return a deep copy of origObj, with newObj merged in
+function cloneDeep(origObj, newObj) {
+  return _.assign(_.cloneDeep(origObj), newObj)
 }
-
-function assertLazy(func, message) {
-  if (DEBUG) {
-    assert(func(), message)
-  }
-}
-
-function test(bool, func) {
-  if (!bool) {
-    func()
-  }
-}
-
