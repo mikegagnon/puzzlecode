@@ -513,13 +513,19 @@ function windowOnLoad() {
     lineNumbers: true,
   }
 
-  CODE_MIRROR_BOX = CodeMirror(document.getElementById("codeMirrorEdit"), settings)
+  CODE_MIRROR_BOX = CodeMirror(document.getElementById("codeMirrorEdit"),
+    settings)
 
-  CODE_MIRROR_BOX_NON_EDIT = CodeMirror(document.getElementById("codeMirrorNonEdit"),
-    cloneDeep(settings, { readOnly: "nocursor" }))
-  CODE_MIRROR_BOX_NON_EDIT.setValue(CODE_MIRROR_BOX.getValue())
-
-  d3.select("#codeMirrorNonEdit").attr("style", "display: none")
+  //  TODO: put the cursorActivity function in seperate file
+  var line = 0
+  CODE_MIRROR_BOX.on("cursorActivity", function(cm) {
+    var newLine = cm.getCursor().line
+    if (line != newLine) {
+      compile()
+    }
+    line = newLine
+    console.dir(line)
+  })
 
   restartSimulation()
   doPlay()
@@ -541,30 +547,16 @@ function setSpeed(speed) {
 }
 
 // TODO: consider graying out the play button when it's not possible to play it
+// TODO: This doesn't work
 function doPause() {
   PLAY_STATUS = PlayStatus.PAUSED
-  pausePlay.innerHTML = 'Play!'
-
-  // TODO: cover text box in gray
-  // TODO: determine state machine for all possible ways text editor should
-  // become disabled, re-enabled put these in own function
-  d3.select("#codeMirrorNonEdit").attr("style", "display:none")
-  d3.select("#codeMirrorEdit").attr("style", "")
-
-  var programText = CODE_MIRROR_BOX.getValue() 
-  CODE_MIRROR_BOX_NON_EDIT.setValue(programText)
-  var program = compileRobocom(programText)
-  addLineComments(CODE_MIRROR_BOX_NON_EDIT, program.lineComments)
-
+  pausePlay.innerHTML = 'Run!'
 }
 
 function doPlay() {
   if (BOARD.bots.length > 0) {
     PLAY_STATUS = PlayStatus.PLAYING
     pausePlay.innerHTML = 'Pause'
-    d3.select("#codeMirrorNonEdit").attr("style", "")
-    d3.select("#codeMirrorEdit").attr("style", "display:none")
-
   }
 }
 
@@ -577,6 +569,13 @@ function togglePausePlay() {
   }
 }
 
+function compile() {
+  var programText = CODE_MIRROR_BOX.getValue()
+  var program = compileRobocom(programText)
+  addLineComments(CODE_MIRROR_BOX, program.lineComments)
+  return program
+}
+
 /**
  * - Pauses the simulation
  * - resets the board state
@@ -586,9 +585,6 @@ function restartSimulation() {
   doPause()
   cleanUpSimulation()
   cleanUpVisualization()
-  var programText = CODE_MIRROR_BOX.getValue()
-  var program = compileRobocom(programText)
-  addLineComments(CODE_MIRROR_BOX, program.lineComments)
 
   BOARD.initCoins = [
       {x:1, y:1},
@@ -602,6 +598,7 @@ function restartSimulation() {
   BOARD.coinsCollected = 0
   drawCoins()
 
+  var program = compile()
   if (program.instructions != null) {
     BOARD.bots = initBots(BOARD, program)
     drawBots()
