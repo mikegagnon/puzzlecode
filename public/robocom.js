@@ -519,12 +519,13 @@ function windowOnLoad() {
   //  TODO: put the cursorActivity function in seperate file
   var line = 0
   CODE_MIRROR_BOX.on("cursorActivity", function(cm) {
-    var newLine = cm.getCursor().line
-    if (line != newLine) {
-      compile()
+    if (PLAY_STATUS == PlayStatus.INITAL_STATE_PAUSED) {
+      var newLine = cm.getCursor().line
+      if (line != newLine) {
+        compile()
+      }
+      line = newLine
     }
-    line = newLine
-    console.dir(line)
   })
 
   // You cannot edit the program, unless it is in the reset state
@@ -565,12 +566,15 @@ function doResume() {
   PLAY_STATUS = PlayStatus.PLAYING
   pausePlay.innerHTML = 'Pause'
   d3.select("#pauseplay").attr("class", "btn")
-  CODE_MIRROR_BOX.setOption("theme", "solarized light")
+  d3.select("#messageBox").text("To edit your program, click 'Reset'")
+
 }
 
 function doRun() {
   var program = compile()
-  if (program.instructions != null) {
+  if (program.instructions == null) {
+    //
+  } else {
     doResume()
   }
 }
@@ -593,12 +597,22 @@ function compile() {
 
   if (PLAY_STATUS == PlayStatus.INITAL_STATE_PAUSED) {
     if (program.instructions == null) {
-      d3.select("#pauseplay").attr("class", "btn btn-primary disabled")
+      d3.select("#pauseplay").attr("class", "btn disabled")
     } else {
       d3.select("#pauseplay").attr("class", "btn btn-primary")
       BOARD.bots = initBots(BOARD, program)
       drawBots()
     }
+  } else {
+    console.error("foo")
+  }
+
+  if (program.instructions == null){
+    d3.select("#messageBox").text("ERROR: You must fix the errors  " +
+      "before you run it.")
+  } else {
+    // TODO: put this comm functionality in function
+    d3.select("#messageBox").text("Click the 'Run!' button to run your program")
   }
 
   return program
@@ -611,9 +625,10 @@ function compile() {
  */
 function restartSimulation() {
   PLAY_STATUS = PlayStatus.INITAL_STATE_PAUSED
-  CODE_MIRROR_BOX.setOption("theme", "solarized dark")
 
   pausePlay.innerHTML = 'Run!'
+  d3.select("#messageBox").text("Click the 'Run!' button to run your program")
+
   cleanUpSimulation()
   cleanUpVisualization()
 

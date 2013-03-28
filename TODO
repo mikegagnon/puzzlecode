@@ -10,6 +10,9 @@
      Pressing pause will pause the game and change the button to a "resume"
      button.
 ---- resume unpauses the game.
+-- Idea: recompile after every character, but only update line comments if
+   there is no error. This way as soon as you type the fourth letter in "move"
+   you will get the help text (but you won't get errors as you type it)
 -- Perhaps present a popup alert the first time you get a compile error
 -- Add a "step" button
 -- Highlight instructions as they are being executed.
