@@ -144,7 +144,7 @@ function compile() {
 
   if (program.instructions == null){
     d3.select("#messageBox").text("ERROR: You must fix the errors  " +
-      "before you run it.")
+      "before you can run your program.")
   } else {
     // TODO: put this comm functionality in function
     d3.select("#messageBox").text("Click the 'Run!' button to run your program")
@@ -168,6 +168,7 @@ function restartSimulation() {
   cleanUpVisualization()
 
   BOARD.initCoins = [
+      {x:0, y:1},
       {x:1, y:1},
       {x:2, y:1},
       {x:3, y:1},
@@ -186,9 +187,8 @@ function restartSimulation() {
   }
 
   BOARD.blocks = [
-      {x:1, y:2},
       {x:2, y:2},
-      {x:3, y:2},
+      {x:2, y:3},
     ]
   drawBlocks()
 

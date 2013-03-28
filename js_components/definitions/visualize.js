@@ -73,6 +73,11 @@ function animateCoinCollection(coins, bots) {
         .delay(ANIMATION_DUR / 4)
         .ease("cubic")
         .duration(ANIMATION_DUR)
+        .each("end", function() {
+          if (BOARD.coins.length == 0) {
+            alert("You win!")
+          }
+        })
     })
 }
 
