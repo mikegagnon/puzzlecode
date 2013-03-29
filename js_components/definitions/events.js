@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
+// TODO: this code is becoming a mess. Needs good refactoring.
+
 // These event handlers are registered in main.js and in index.html
-
-
 function windowOnLoad() {
 
   // Defines a syntax highlighter for the robocom language
@@ -35,6 +35,10 @@ function windowOnLoad() {
 
   pausePlay = document.getElementById("pauseplay")
   pausePlay.addEventListener("click", togglePausePlay);
+
+  document
+    .getElementById("stepButton")
+    .addEventListener("click", stepButtonClick);
 
   document
     .getElementById("restart")
@@ -109,9 +113,7 @@ function doResume() {
 
 function doRun() {
   var program = compile()
-  if (program.instructions == null) {
-    //
-  } else {
+  if (program.instructions != null) {
     doResume()
   }
 }
@@ -127,6 +129,34 @@ function togglePausePlay() {
   }
 }
 
+function doFirstStep() {
+  var program = compile()
+  if (program.instructions != null) {
+    doStep()
+  }
+}
+
+function doStep() {
+  PLAY_STATUS = PlayStatus.PAUSED
+  pausePlay.innerHTML = 'Resume'
+  d3.select("#pauseplay").attr("class", "btn")
+  CODE_MIRROR_BOX.setOption("theme", DISABLED_CODE_THEME)
+  d3.select("#messageBox").text("To edit your program, click 'Reset'")
+  // TODO: clicking "Step" to fast will lead to bad animations
+  // TODO: the highlighted instruction is the one that just executed
+  // perhaps instead show the next instruction that will execute
+
+  stepAndAnimate()
+}
+
+function stepButtonClick() {
+  if (PLAY_STATUS == PlayStatus.INITAL_STATE_PAUSED) {
+    doFirstStep()
+  } else {
+    doStep()
+  }
+}
+
 // TODO: decouple compile from updating the GUI
 function compile() {
   var programText = CODE_MIRROR_BOX.getValue()
@@ -136,8 +166,10 @@ function compile() {
   if (PLAY_STATUS == PlayStatus.INITAL_STATE_PAUSED) {
     if (program.instructions == null) {
       d3.select("#pauseplay").attr("class", "btn disabled")
+      d3.select("#stepButton").attr("class", "btn disabled")
     } else {
       d3.select("#pauseplay").attr("class", "btn btn-primary")
+      d3.select("#stepButton").attr("class", "btn")
       BOARD.bots = initBots(BOARD, program)
       drawBots()
     }

@@ -235,8 +235,12 @@ function animateProgram(board) {
 function animate() {
   if (PLAY_STATUS != PlayStatus.PLAYING) {
     return;
+  } else {
+    stepAndAnimate()
   }
+}
 
+function stepAndAnimate() {
   // advance the simulation by one "step"
   step(BOARD.bots)
 
