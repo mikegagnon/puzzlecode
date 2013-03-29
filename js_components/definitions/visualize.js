@@ -262,7 +262,10 @@ function cleanUpVisualization() {
   d3.selectAll(".block").remove()
 
   // TODO: turn off line highlighting
-
+  if ("_activeLine" in CODE_MIRROR_BOX) {
+    CODE_MIRROR_BOX.removeLineClass(
+      CODE_MIRROR_BOX._activeLine, "background", BACK_CLASS);
+  }
 }
  
 function createBoard(board) {
