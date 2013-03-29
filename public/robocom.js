@@ -567,7 +567,6 @@ function doResume() {
   pausePlay.innerHTML = 'Pause'
   d3.select("#pauseplay").attr("class", "btn")
   d3.select("#messageBox").text("To edit your program, click 'Reset'")
-
 }
 
 function doRun() {
