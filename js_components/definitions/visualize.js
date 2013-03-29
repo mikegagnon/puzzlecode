@@ -193,6 +193,7 @@ function animateMoveTorus(transition, bots) {
       d3.select(this).transition() 
         .attr("transform", function(bot) {
           var x = bot.cellX * CELL_SIZE
+
           var y = bot.cellY * CELL_SIZE
           return botTransform(x, y, bot.facing)
         })
@@ -200,6 +201,34 @@ function animateMoveTorus(transition, bots) {
         .duration(ANIMATION_DUR)
     })
 
+}
+
+function animateProgram(board) {
+
+  // Animation is too fast; don't highlight lines
+  if (CYCLE_DUR < MAX_HIGHLIGHT_SPEED) {
+    // TODO: make sure nothing is higlighted
+    return
+  }
+
+  // TODO: find the bot currently being traced and only animate that bot's prog
+  if (board.bots.length == 0) {
+    return
+  }
+
+  var bot = board.bots[0]
+  var lineNum = bot.animations.lineIndex
+  var cm = CODE_MIRROR_BOX
+
+  // inspired by http://codemirror.net/demo/activeline.html
+  var lineHandle = cm.getLineHandle(lineNum);
+  if (cm._activeLine != lineHandle) {
+    if ("_activeLine" in cm) {
+      cm.removeLineClass(cm._activeLine, "background", BACK_CLASS);
+    }
+    cm.addLineClass(lineHandle, "background", BACK_CLASS);
+    cm._activeLine = lineHandle;
+  }
 }
 
 // TODO: breakup into smaller functions
@@ -210,6 +239,8 @@ function animate() {
 
   // advance the simulation by one "step"
   step(BOARD.bots)
+
+  animateProgram(BOARD)
 
   // must pass initCoins for d3 transitions to work. Since the svg-coin
   // elements are never removed from the board (until the simulation ends)
@@ -229,6 +260,9 @@ function cleanUpVisualization() {
   d3.selectAll(".coin").remove()
   d3.selectAll(".botClone").remove()
   d3.selectAll(".block").remove()
+
+  // TODO: turn off line highlighting
+
 }
  
 function createBoard(board) {

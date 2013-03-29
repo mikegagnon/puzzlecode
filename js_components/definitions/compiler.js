@@ -26,9 +26,13 @@ function RobocomInstruction(
     // value must be in the Opcode enum
     opcode,
     // data object, whose type is determined by opcode
-    data) {
+    data,
+    // from program text
+    lineIndex
+    ) {
   this.opcode = opcode
   this.data = data
+  this.lineIndex = lineIndex
 }
 
 function RobocomProgram(
@@ -198,7 +202,7 @@ function isValidLabel(label) {
  *  comment is a DOM node, or null
  *  error is true iff there was an error compiling this line
  */
-function compileLine(line, labels) {
+function compileLine(line, lineIndex, labels) {
   
   tokens = tokenize(line)
   tokens = removeComment(tokens)
@@ -224,16 +228,23 @@ function compileLine(line, labels) {
   }
 
   var opcode = tokens[0]
+  var result = undefined
   if (opcode == "move") {
-    return compileMove(tokens).concat([label])
+    result = compileMove(tokens).concat([label])
   } else if (opcode == "turn") {
-    return compileTurn(tokens).concat([label])
+    result = compileTurn(tokens).concat([label])
   } else if (opcode == "goto") {
-    return compileGoto(tokens).concat([label])
+    result = compileGoto(tokens).concat([label])
   } else {
     comment = newErrorComment("'" + opcode + "' is not an instruction", "#")
-    return [null, comment, true, null]
+    result = [null, comment, true, null]
   }
+  var instruction = result[0]
+  if (instruction != null) {
+    instruction.lineIndex = lineIndex
+  }
+  return result
+
 }
 
 // Compiles a programText into a RobocomProgram object
@@ -253,7 +264,7 @@ function compileRobocom(programText) {
   // first pass: do everything except finalize GOTO statements
   for (var i = 0; i < lines.length; i++) {
     var line = lines[i]
-    var compiledLine = compileLine(line, labels)
+    var compiledLine = compileLine(line, i, labels)
     var instruction = compiledLine[0]
     var comment = compiledLine[1]
     var lineError = compiledLine[2]

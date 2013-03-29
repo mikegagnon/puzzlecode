@@ -18,6 +18,10 @@
  * Holds all top-level variables, function invocations etc.
  */
 
+// if CYCLE_DUR < MAX_HIGHLIGHT_SPEED, lines will not be highlighted
+// to show program execution
+var MAX_HIGHLIGHT_SPEED = 150
+
 // [animationDuration, delayDuration, description, easing]
 PlaySpeed = {
   SUPER_SLOW: [2000, 4000, "Super slow", "cubic-in-out"],
@@ -32,6 +36,10 @@ PlayStatus = {
   PLAYING: 1,
   PAUSED: 2,
 }
+
+// TODO better name and document
+var WRAP_CLASS = "activeline";
+var BACK_CLASS = "activeline-background";
 
 // TODO: better var names and all caps
 var CELL_SIZE = 32,
@@ -49,6 +57,8 @@ var CELL_SIZE = 32,
     pausePlay = null,
     DEBUG = true,
     IDENT_REGEX = /^[A-Za-z][A-Za-z0-9_]*$/,
+    NORMAL_CODE_THEME = "solarized dark",
+    DISABLED_CODE_THEME = "solarized_dim dark"
 
     /**
      * TODO: create a cell property, where cell[x][y] yields

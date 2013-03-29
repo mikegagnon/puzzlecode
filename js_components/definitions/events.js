@@ -16,6 +16,7 @@
 
 // These event handlers are registered in main.js and in index.html
 
+
 function windowOnLoad() {
 
   // Defines a syntax highlighter for the robocom language
@@ -54,8 +55,8 @@ function windowOnLoad() {
   //  TODO: put the cursorActivity function in seperate file
   var line = 0
   CODE_MIRROR_BOX.on("cursorActivity", function(cm) {
+    var newLine = cm.getCursor().line
     if (PLAY_STATUS == PlayStatus.INITAL_STATE_PAUSED) {
-      var newLine = cm.getCursor().line
       if (line != newLine) {
         compile()
       }
@@ -71,7 +72,6 @@ function windowOnLoad() {
   })
 
   restartSimulation()
-  //doPlay()
 
   // TODO: where should i put this?
   ANIMATE_INTERVAL = setInterval("animate()", CYCLE_DUR)
@@ -95,6 +95,7 @@ function doPause() {
   PLAY_STATUS = PlayStatus.PAUSED
   pausePlay.innerHTML = 'Resume'
   d3.select("#pauseplay").attr("class", "btn")
+  CODE_MIRROR_BOX.setOption("theme", DISABLED_CODE_THEME)
 }
 
 function doResume() {
@@ -102,6 +103,8 @@ function doResume() {
   pausePlay.innerHTML = 'Pause'
   d3.select("#pauseplay").attr("class", "btn")
   d3.select("#messageBox").text("To edit your program, click 'Reset'")
+  CODE_MIRROR_BOX.setOption("theme", DISABLED_CODE_THEME)
+
 }
 
 function doRun() {
@@ -124,6 +127,7 @@ function togglePausePlay() {
   }
 }
 
+// TODO: decouple compile from updating the GUI
 function compile() {
   var programText = CODE_MIRROR_BOX.getValue()
   var program = compileRobocom(programText)
@@ -159,6 +163,7 @@ function compile() {
  */
 function restartSimulation() {
   PLAY_STATUS = PlayStatus.INITAL_STATE_PAUSED
+  CODE_MIRROR_BOX.setOption("theme", NORMAL_CODE_THEME)
 
   pausePlay.innerHTML = 'Run!'
   d3.select("#messageBox").text("Click the 'Run!' button to run your program")

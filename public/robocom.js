@@ -77,9 +77,13 @@ function RobocomInstruction(
     // value must be in the Opcode enum
     opcode,
     // data object, whose type is determined by opcode
-    data) {
+    data,
+    // from program text
+    lineIndex
+    ) {
   this.opcode = opcode
   this.data = data
+  this.lineIndex = lineIndex
 }
 
 function RobocomProgram(
@@ -249,7 +253,7 @@ function isValidLabel(label) {
  *  comment is a DOM node, or null
  *  error is true iff there was an error compiling this line
  */
-function compileLine(line, labels) {
+function compileLine(line, lineIndex, labels) {
   
   tokens = tokenize(line)
   tokens = removeComment(tokens)
@@ -275,16 +279,23 @@ function compileLine(line, labels) {
   }
 
   var opcode = tokens[0]
+  var result = undefined
   if (opcode == "move") {
-    return compileMove(tokens).concat([label])
+    result = compileMove(tokens).concat([label])
   } else if (opcode == "turn") {
-    return compileTurn(tokens).concat([label])
+    result = compileTurn(tokens).concat([label])
   } else if (opcode == "goto") {
-    return compileGoto(tokens).concat([label])
+    result = compileGoto(tokens).concat([label])
   } else {
     comment = newErrorComment("'" + opcode + "' is not an instruction", "#")
-    return [null, comment, true, null]
+    result = [null, comment, true, null]
   }
+  var instruction = result[0]
+  if (instruction != null) {
+    instruction.lineIndex = lineIndex
+  }
+  return result
+
 }
 
 // Compiles a programText into a RobocomProgram object
@@ -304,7 +315,7 @@ function compileRobocom(programText) {
   // first pass: do everything except finalize GOTO statements
   for (var i = 0; i < lines.length; i++) {
     var line = lines[i]
-    var compiledLine = compileLine(line, labels)
+    var compiledLine = compileLine(line, i, labels)
     var instruction = compiledLine[0]
     var comment = compiledLine[1]
     var lineError = compiledLine[2]
@@ -481,6 +492,7 @@ function rotateDirection(oldFacing, rotateDirection) {
 
 // These event handlers are registered in main.js and in index.html
 
+
 function windowOnLoad() {
 
   // Defines a syntax highlighter for the robocom language
@@ -519,8 +531,8 @@ function windowOnLoad() {
   //  TODO: put the cursorActivity function in seperate file
   var line = 0
   CODE_MIRROR_BOX.on("cursorActivity", function(cm) {
+    var newLine = cm.getCursor().line
     if (PLAY_STATUS == PlayStatus.INITAL_STATE_PAUSED) {
-      var newLine = cm.getCursor().line
       if (line != newLine) {
         compile()
       }
@@ -536,7 +548,6 @@ function windowOnLoad() {
   })
 
   restartSimulation()
-  //doPlay()
 
   // TODO: where should i put this?
   ANIMATE_INTERVAL = setInterval("animate()", CYCLE_DUR)
@@ -560,6 +571,7 @@ function doPause() {
   PLAY_STATUS = PlayStatus.PAUSED
   pausePlay.innerHTML = 'Resume'
   d3.select("#pauseplay").attr("class", "btn")
+  CODE_MIRROR_BOX.setOption("theme", DISABLED_CODE_THEME)
 }
 
 function doResume() {
@@ -567,6 +579,8 @@ function doResume() {
   pausePlay.innerHTML = 'Pause'
   d3.select("#pauseplay").attr("class", "btn")
   d3.select("#messageBox").text("To edit your program, click 'Reset'")
+  CODE_MIRROR_BOX.setOption("theme", DISABLED_CODE_THEME)
+
 }
 
 function doRun() {
@@ -589,6 +603,7 @@ function togglePausePlay() {
   }
 }
 
+// TODO: decouple compile from updating the GUI
 function compile() {
   var programText = CODE_MIRROR_BOX.getValue()
   var program = compileRobocom(programText)
@@ -624,6 +639,7 @@ function compile() {
  */
 function restartSimulation() {
   PLAY_STATUS = PlayStatus.INITAL_STATE_PAUSED
+  CODE_MIRROR_BOX.setOption("theme", NORMAL_CODE_THEME)
 
   pausePlay.innerHTML = 'Run!'
   d3.select("#messageBox").text("Click the 'Run!' button to run your program")
@@ -818,6 +834,8 @@ function step(bots) {
     var instruction = bot.program.instructions[bot.ip]
     bot.ip = (bot.ip + 1) % bot.program.instructions.length
     bot.animations = {}
+    console.dir(instruction)
+    console.log(instruction.lineIndex)
     if (instruction.opcode == Opcode.MOVE) {
       moveBot(BOARD, bot)
     } else if (instruction.opcode == Opcode.TURN) {
@@ -825,6 +843,7 @@ function step(bots) {
     } else if (instruction.opcode == Opcode.GOTO) {
       executeGoto(bot, instruction.data)
     }
+    bot.animations.lineIndex = instruction.lineIndex
   }
 }
 
@@ -1055,6 +1074,7 @@ function animateMoveTorus(transition, bots) {
       d3.select(this).transition() 
         .attr("transform", function(bot) {
           var x = bot.cellX * CELL_SIZE
+
           var y = bot.cellY * CELL_SIZE
           return botTransform(x, y, bot.facing)
         })
@@ -1062,6 +1082,33 @@ function animateMoveTorus(transition, bots) {
         .duration(ANIMATION_DUR)
     })
 
+}
+
+function animateProgram(board) {
+
+  // Animation is too fast; don't highlight lines
+  if (CYCLE_DUR < MAX_HIGHLIGHT_SPEED) {
+    return
+  }
+
+  // TODO: find the bot currently being traced and only animate that bot's prog
+  if (board.bots.length == 0) {
+    return
+  }
+
+  var bot = board.bots[0]
+  var lineNum = bot.animations.lineIndex
+  var cm = CODE_MIRROR_BOX
+
+  // inspired by http://codemirror.net/demo/activeline.html
+  var lineHandle = cm.getLineHandle(lineNum);
+  if (cm._activeLine != lineHandle) {
+    if ("_activeLine" in cm) {
+      cm.removeLineClass(cm._activeLine, "background", BACK_CLASS);
+    }
+    cm.addLineClass(lineHandle, "background", BACK_CLASS);
+    cm._activeLine = lineHandle;
+  }
 }
 
 // TODO: breakup into smaller functions
@@ -1072,6 +1119,8 @@ function animate() {
 
   // advance the simulation by one "step"
   step(BOARD.bots)
+
+  animateProgram(BOARD)
 
   // must pass initCoins for d3 transitions to work. Since the svg-coin
   // elements are never removed from the board (until the simulation ends)
@@ -1091,6 +1140,9 @@ function cleanUpVisualization() {
   d3.selectAll(".coin").remove()
   d3.selectAll(".botClone").remove()
   d3.selectAll(".block").remove()
+
+  // TODO: turn off line highlighting
+
 }
  
 function createBoard(board) {
@@ -1185,6 +1237,10 @@ function drawBots() {
  * Holds all top-level variables, function invocations etc.
  */
 
+// if CYCLE_DUR < MAX_HIGHLIGHT_SPEED, lines will not be highlighted
+// to show program execution
+var MAX_HIGHLIGHT_SPEED = 150
+
 // [animationDuration, delayDuration, description, easing]
 PlaySpeed = {
   SUPER_SLOW: [2000, 4000, "Super slow", "cubic-in-out"],
@@ -1199,6 +1255,10 @@ PlayStatus = {
   PLAYING: 1,
   PAUSED: 2,
 }
+
+// TODO better name and document
+var WRAP_CLASS = "activeline";
+var BACK_CLASS = "activeline-background";
 
 // TODO: better var names and all caps
 var CELL_SIZE = 32,
@@ -1216,6 +1276,8 @@ var CELL_SIZE = 32,
     pausePlay = null,
     DEBUG = true,
     IDENT_REGEX = /^[A-Za-z][A-Za-z0-9_]*$/,
+    NORMAL_CODE_THEME = "solarized dark",
+    DISABLED_CODE_THEME = "solarized_dim dark"
 
     /**
      * TODO: create a cell property, where cell[x][y] yields
