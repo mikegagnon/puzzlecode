@@ -650,7 +650,7 @@ function compile() {
       drawBots()
     }
   } else {
-    console.error("foo")
+    console.error("I don't expect compile to be called unless board is reset")
   }
 
   if (program.instructions == null){
@@ -866,8 +866,6 @@ function step(bots) {
     var instruction = bot.program.instructions[bot.ip]
     bot.ip = (bot.ip + 1) % bot.program.instructions.length
     bot.animations = {}
-    console.dir(instruction)
-    console.log(instruction.lineIndex)
     if (instruction.opcode == Opcode.MOVE) {
       moveBot(BOARD, bot)
     } else if (instruction.opcode == Opcode.TURN) {
@@ -1116,11 +1114,17 @@ function animateMoveTorus(transition, bots) {
 
 }
 
+// animate the program's text
 function animateProgram(board) {
+
+  var cm = CODE_MIRROR_BOX
 
   // Animation is too fast; don't highlight lines
   if (CYCLE_DUR < MAX_HIGHLIGHT_SPEED) {
-    // TODO: make sure nothing is higlighted
+    // TODO: remove _activeLine from cm
+    if ("_activeLine" in cm) {
+      cm.removeLineClass(cm._activeLine, "background", BACK_CLASS);
+    }
     return
   }
 
@@ -1131,7 +1135,6 @@ function animateProgram(board) {
 
   var bot = board.bots[0]
   var lineNum = bot.animations.lineIndex
-  var cm = CODE_MIRROR_BOX
 
   // inspired by http://codemirror.net/demo/activeline.html
   var lineHandle = cm.getLineHandle(lineNum);

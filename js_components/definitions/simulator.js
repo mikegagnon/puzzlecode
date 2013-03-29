@@ -159,8 +159,6 @@ function step(bots) {
     var instruction = bot.program.instructions[bot.ip]
     bot.ip = (bot.ip + 1) % bot.program.instructions.length
     bot.animations = {}
-    console.dir(instruction)
-    console.log(instruction.lineIndex)
     if (instruction.opcode == Opcode.MOVE) {
       moveBot(BOARD, bot)
     } else if (instruction.opcode == Opcode.TURN) {

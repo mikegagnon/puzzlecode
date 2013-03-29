@@ -174,7 +174,7 @@ function compile() {
       drawBots()
     }
   } else {
-    console.error("foo")
+    console.error("I don't expect compile to be called unless board is reset")
   }
 
   if (program.instructions == null){

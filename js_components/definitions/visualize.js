@@ -203,11 +203,17 @@ function animateMoveTorus(transition, bots) {
 
 }
 
+// animate the program's text
 function animateProgram(board) {
+
+  var cm = CODE_MIRROR_BOX
 
   // Animation is too fast; don't highlight lines
   if (CYCLE_DUR < MAX_HIGHLIGHT_SPEED) {
-    // TODO: make sure nothing is higlighted
+    // TODO: remove _activeLine from cm
+    if ("_activeLine" in cm) {
+      cm.removeLineClass(cm._activeLine, "background", BACK_CLASS);
+    }
     return
   }
 
@@ -218,7 +224,6 @@ function animateProgram(board) {
 
   var bot = board.bots[0]
   var lineNum = bot.animations.lineIndex
-  var cm = CODE_MIRROR_BOX
 
   // inspired by http://codemirror.net/demo/activeline.html
   var lineHandle = cm.getLineHandle(lineNum);
