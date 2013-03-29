@@ -208,9 +208,9 @@ function animateProgram(board) {
 
   var cm = CODE_MIRROR_BOX
 
-  // Animation is too fast; don't highlight lines
+  // if animation is too fast, don't highlight lines
   if (CYCLE_DUR < MAX_HIGHLIGHT_SPEED) {
-    // TODO: remove _activeLine from cm
+    // TODO: remove _activeLine field from cm
     if ("_activeLine" in cm) {
       cm.removeLineClass(cm._activeLine, "background", BACK_CLASS);
     }
