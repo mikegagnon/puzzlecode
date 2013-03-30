@@ -765,8 +765,6 @@ function tryMove(board, bot, x, y) {
 // updates the bot state
 function moveBot(board, bot) {
 
-  bot.animations = {}
-
   var prevX = bot.cellX
   var prevY = bot.cellY
 
@@ -801,8 +799,6 @@ function moveBot(board, bot) {
 
     bot.cellX = destX
     bot.cellY = destY
-
-
 
     // did the bot pickup a coin?
     var matchingCoins = _(board.coins)
@@ -866,17 +862,19 @@ function step(bots) {
   for (var i = 0; i < numBots; i++) {
     var bot = bots[i]
 
+    bot.animations = {}
+
     // make sure this bot hasn't finished
     if ("done" in bot.program) {
       continue
     } 
-
+    
     var instruction = bot.program.instructions[bot.ip]
+    bot.animations.lineIndex = instruction.lineIndex
 
     // NOTE: executing the instruction may modify the ip
     bot.ip = bot.ip + 1
 
-    bot.animations = {}
     if (instruction.opcode == Opcode.MOVE) {
       moveBot(BOARD, bot)
     } else if (instruction.opcode == Opcode.TURN) {
@@ -889,6 +887,7 @@ function step(bots) {
     // if the bot has reached the end of its program
     if (bot.ip >= bot.program.instructions.length) {
       bot.program.done = true
+      bot.animations.programDone = true
     }
   }
 }
@@ -1068,6 +1067,33 @@ function animateMoveNonTorus(transition) {
   .duration(ANIMATION_DUR)
 }
 
+function animateProgramDone(bots) {
+
+  doneBots = bots.filter( function(bot) {
+    return "programDone" in bot.animations
+  })
+
+  VIS.selectAll(".programDone")
+    .data(doneBots)
+    .enter()
+    .append("svg:use")
+    .attr("class", "bot")
+    .attr("xlink:href", "#xTemplate")
+    .attr("transform", function(bot) {
+      var x = bot.cellX * CELL_SIZE
+      var y = bot.cellY * CELL_SIZE
+      return botTransform(x, y, bot.facing)
+    })
+    .attr("opacity", "0.0")
+  .transition()
+    .attr("opacity", "0.75")
+    .delay(ANIMATION_DUR)
+    .ease(EASING)
+    .duration(ANIMATION_DUR / 2)
+
+
+}
+
 function animateMoveTorus(transition, bots) {
 
   /**
@@ -1150,6 +1176,10 @@ function animateProgram(board) {
   }
 
   var bot = board.bots[0]
+  if (!("lineIndex" in bot.animations)) {
+    return
+  }
+
   var lineNum = bot.animations.lineIndex
 
   // inspired by http://codemirror.net/demo/activeline.html
@@ -1189,6 +1219,8 @@ function stepAndAnimate() {
   animateRotate(transition)
   animateMoveNonTorus(transition)
   animateMoveTorus(transition, BOARD.bots)
+  animateProgramDone(BOARD.bots)
+
 }
 
 function cleanUpVisualization() {
@@ -1487,13 +1519,15 @@ var emptyBoard = {
 var bot_2_2_up = {
   cellX: 2,
   cellY: 2,
-  facing: Direction.UP
+  facing: Direction.UP,
+  animations: {}
 }
 
 var bot_0_0_up = {
   cellX: 0,
   cellY: 0,
-  facing: Direction.UP
+  facing: Direction.UP,
+  animations: {}
 }
 
 // list of [board, bot, expectedBoard, expectedBot] test cases

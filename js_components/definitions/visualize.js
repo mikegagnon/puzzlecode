@@ -141,6 +141,33 @@ function animateMoveNonTorus(transition) {
   .duration(ANIMATION_DUR)
 }
 
+function animateProgramDone(bots) {
+
+  doneBots = bots.filter( function(bot) {
+    return "programDone" in bot.animations
+  })
+
+  VIS.selectAll(".programDone")
+    .data(doneBots)
+    .enter()
+    .append("svg:use")
+    .attr("class", "bot")
+    .attr("xlink:href", "#xTemplate")
+    .attr("transform", function(bot) {
+      var x = bot.cellX * CELL_SIZE
+      var y = bot.cellY * CELL_SIZE
+      return botTransform(x, y, bot.facing)
+    })
+    .attr("opacity", "0.0")
+  .transition()
+    .attr("opacity", "0.75")
+    .delay(ANIMATION_DUR)
+    .ease(EASING)
+    .duration(ANIMATION_DUR / 2)
+
+
+}
+
 function animateMoveTorus(transition, bots) {
 
   /**
@@ -223,6 +250,10 @@ function animateProgram(board) {
   }
 
   var bot = board.bots[0]
+  if (!("lineIndex" in bot.animations)) {
+    return
+  }
+
   var lineNum = bot.animations.lineIndex
 
   // inspired by http://codemirror.net/demo/activeline.html
@@ -262,6 +293,8 @@ function stepAndAnimate() {
   animateRotate(transition)
   animateMoveNonTorus(transition)
   animateMoveTorus(transition, BOARD.bots)
+  animateProgramDone(BOARD.bots)
+
 }
 
 function cleanUpVisualization() {

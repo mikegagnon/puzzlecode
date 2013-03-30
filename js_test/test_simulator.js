@@ -56,13 +56,15 @@ var emptyBoard = {
 var bot_2_2_up = {
   cellX: 2,
   cellY: 2,
-  facing: Direction.UP
+  facing: Direction.UP,
+  animations: {}
 }
 
 var bot_0_0_up = {
   cellX: 0,
   cellY: 0,
-  facing: Direction.UP
+  facing: Direction.UP,
+  animations: {}
 }
 
 // list of [board, bot, expectedBoard, expectedBot] test cases

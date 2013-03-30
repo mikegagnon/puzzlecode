@@ -57,8 +57,6 @@ function tryMove(board, bot, x, y) {
 // updates the bot state
 function moveBot(board, bot) {
 
-  bot.animations = {}
-
   var prevX = bot.cellX
   var prevY = bot.cellY
 
@@ -93,8 +91,6 @@ function moveBot(board, bot) {
 
     bot.cellX = destX
     bot.cellY = destY
-
-
 
     // did the bot pickup a coin?
     var matchingCoins = _(board.coins)
@@ -158,17 +154,19 @@ function step(bots) {
   for (var i = 0; i < numBots; i++) {
     var bot = bots[i]
 
+    bot.animations = {}
+
     // make sure this bot hasn't finished
     if ("done" in bot.program) {
       continue
     } 
-
+    
     var instruction = bot.program.instructions[bot.ip]
+    bot.animations.lineIndex = instruction.lineIndex
 
     // NOTE: executing the instruction may modify the ip
     bot.ip = bot.ip + 1
 
-    bot.animations = {}
     if (instruction.opcode == Opcode.MOVE) {
       moveBot(BOARD, bot)
     } else if (instruction.opcode == Opcode.TURN) {
@@ -181,6 +179,7 @@ function step(bots) {
     // if the bot has reached the end of its program
     if (bot.ip >= bot.program.instructions.length) {
       bot.program.done = true
+      bot.animations.programDone = true
     }
   }
 }
