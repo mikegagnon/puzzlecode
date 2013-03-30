@@ -43,6 +43,7 @@ function assertLazy(func, message) {
 
 function test(bool, func) {
   if (!bool) {
+    alert("Failed test. See console logs for error messages.")
     func()
   }
 }

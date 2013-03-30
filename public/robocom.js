@@ -411,6 +411,7 @@ function assertLazy(func, message) {
 
 function test(bool, func) {
   if (!bool) {
+    alert("Failed test. See console logs for error messages.")
     func()
   }
 }
@@ -801,8 +802,10 @@ function moveBot(board, bot) {
     bot.cellX = destX
     bot.cellY = destY
 
+
+
     // did the bot pickup a coin?
-    var matchingCoins = _(BOARD.coins)
+    var matchingCoins = _(board.coins)
       .filter( function(coin) {
         return coin.x == bot.cellX && coin.y == bot.cellY
       })
@@ -815,13 +818,13 @@ function moveBot(board, bot) {
       var matchingCoin = matchingCoins[0]
 
       // remove the coin from the board
-      BOARD.coins = _(BOARD.coins)
+      board.coins = _(board.coins)
         .filter( function(coin) {
           return !(coin.x == bot.cellX && coin.y == bot.cellY)
         })
         .value()
 
-      BOARD.coinsCollected += 1
+      board.coinsCollected += 1
 
       bot.animations.coin_collect = matchingCoin
     }
@@ -1447,26 +1450,26 @@ for (var i = 0; i < testTryMove.length; i++) {
   var y        = testTryMove[i][3]
   var expected = testTryMove[i][4]
   var result = tryMove(board, bot, x, y)
-  assert(_.isEqual(result, expected),
-    "tryMove '" + testTryMove[i] + "' failed")
+  test(_.isEqual(result, expected), function() {
+    console.log("tryMove '" + testTryMove[i] + "' failed")
+    console.dir(board)
+    console.dir(bot)
+    console.dir(x)
+    console.dir(y)
+    console.dir(expected)
+    console.dir(result)
+  })
 }
 
-// list of [board, bot, expectedBoard, expectedBot] test cases
+/**
+ * TODO: put in own file
+ * test move execution of move instruction
+ *************************************************************************/
 var emptyBoard = {
   num_cols: 4,
   num_rows: 5,
+  coinsCollected: 0
 }
-
-/* 
-  coins : [
-    {x: 1, y: 1}
-  ],
-  coinsCollected : 0,
-  blocks : [
-    {x: 0, y: 0},
-    {x: 3, y: 4}
-  ]
-*/
 
 var bot_2_2_up = {
   cellX: 2,
@@ -1480,9 +1483,7 @@ var bot_0_0_up = {
   facing: Direction.UP
 }
 
-// TESTS TODO:
-// - move being blocked by an object
-// - move that picks up a coin
+// list of [board, bot, expectedBoard, expectedBot] test cases
 var testMoveBot = [
 
   /**
@@ -1605,6 +1606,48 @@ var testMoveBot = [
     })
   ],
 ]
+
+var boardWithCoins = cloneDeep(emptyBoard, {
+  coins : [
+    {x: 1, y: 1},
+    {x: 2, y: 2}
+  ]
+})
+
+/**
+ * moving bot picks up coins
+ *************************************************************************/
+testMoveBot = testMoveBot.concat([
+
+  // TODO: why isn't this test case failing?
+  [ cloneDeep(boardWithCoins),
+    cloneDeep(bot_0_0_up, {
+      cellX: 1,
+      cellY: 2
+    }),
+    cloneDeep(boardWithCoins, {
+      coins: [
+        {x: 2, y: 2}
+      ],
+      coinsCollected: 1
+    }),
+    cloneDeep(bot_0_0_up, {
+      cellX: 1,
+      cellY: 1,
+      animations: {
+        nonTorusMove: true,
+        coin_collect: {x: 1, y: 1}
+      }
+    })
+  ]
+])
+
+var boardWithCoinsBlocks = cloneDeep(boardWithCoins, {
+  blocks : [
+    {x: 3, y: 3},
+    {x: 3, y: 4}
+  ]
+})
 
 for (var i = 0; i < testMoveBot.length; i++) {
   var board    = testMoveBot[i][0]

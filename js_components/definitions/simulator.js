@@ -94,8 +94,10 @@ function moveBot(board, bot) {
     bot.cellX = destX
     bot.cellY = destY
 
+
+
     // did the bot pickup a coin?
-    var matchingCoins = _(BOARD.coins)
+    var matchingCoins = _(board.coins)
       .filter( function(coin) {
         return coin.x == bot.cellX && coin.y == bot.cellY
       })
@@ -108,13 +110,13 @@ function moveBot(board, bot) {
       var matchingCoin = matchingCoins[0]
 
       // remove the coin from the board
-      BOARD.coins = _(BOARD.coins)
+      board.coins = _(board.coins)
         .filter( function(coin) {
           return !(coin.x == bot.cellX && coin.y == bot.cellY)
         })
         .value()
 
-      BOARD.coinsCollected += 1
+      board.coinsCollected += 1
 
       bot.animations.coin_collect = matchingCoin
     }
