@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+// TODO: instead of using arrays use objects e.g. testcase.board
 // list of [board, bot, x, y, expectedResult] test cases
 var board = {blocks : [{x:5,y:5}]}
 var bot = {facing: "any"}
