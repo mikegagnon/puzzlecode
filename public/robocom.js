@@ -433,6 +433,7 @@ function test(bool, func) {
  */
 
 Direction = {
+  NUM_DIRECTIONS: 4,
   UP: 0,
   DOWN: 1,
   LEFT: 2,
@@ -475,7 +476,12 @@ function rotateDirection(oldFacing, rotateDirection) {
   } else {
     // assert false
   }
-}/**
+}
+
+function oppositeDirection(direction) {
+  return rotateLeft(rotateLeft(direction))
+}
+/**
  * Copyright 2013 Michael N. Gagnon
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -688,7 +694,23 @@ function restartSimulation() {
       {x:4, y:1}
     ]
 
+  // TODO: consider having each bot drop a marker where its head is
+
   BOARD.coins = _.clone(BOARD.initCoins)
+
+  // matrix of markers on the board
+  // matrix[x][y][quadrant][botColor] == strength (a float) or undefined
+  BOARD.markers = newMatrix(
+    BOARD.num_cols,
+    BOARD.num_rows,
+    function () {
+      return newMatrix(
+        Direction.NUM_DIRECTIONS,
+        BotColor.NUM_COLORS, undefined)
+    })
+
+  drawInitMarkers(BOARD)
+  console.dir(BOARD.markers)
 
   BOARD.coinsCollected = 0
   drawCoins()
@@ -704,6 +726,7 @@ function restartSimulation() {
       {x:2, y:3},
     ]
   drawBlocks()
+
 
 }
 /**
@@ -722,7 +745,13 @@ function restartSimulation() {
  * limitations under the License.
  */
 
-function Bot(x, y, facing, program) {
+var BotColor = {
+  NUM_COLORS: 2,
+  BLUE: 0,
+  RED: 1
+}
+
+function Bot(x, y, facing, program, botColor) {
 
     this.cellX = x;
     this.cellY = y
@@ -734,6 +763,9 @@ function Bot(x, y, facing, program) {
 
     // the next animation to perform for this bot
     this.animations = {};
+
+    // int from the BotColor enum
+    this.botColor = botColor
 }
 
 function turnBot(bot, direction) {
@@ -761,8 +793,13 @@ function tryMove(board, bot, x, y) {
   return matchingBlocks.length == 0
 }
 
-// executes the 'move' instruciton on the bot
-// updates the bot state
+/**
+ * executes the 'move' instruciton on the bot
+ * updates the bot and board state
+ * When a bot moves, it deposits two markers:
+ *  - at the head in the old cell
+ *  - at the tail in the new cell
+ */
 function moveBot(board, bot) {
 
   var prevX = bot.cellX
@@ -795,10 +832,17 @@ function moveBot(board, bot) {
       destY: bot.cellY + dy
     }
   } else {
-    // TOOD: break this function up into smaller functions
-
+    // TODO: break this function up into smaller functions
+    
+    bot.depositMarker.push({
+      x: bot.cellX,
+      y: bot.cellY,
+      quadrant: bot.facing,
+      botColor: bot.botColor
+    })
     bot.cellX = destX
     bot.cellY = destY
+    
 
     // did the bot pickup a coin?
     var matchingCoins = _(board.coins)
@@ -838,6 +882,13 @@ function moveBot(board, bot) {
       }
     }
 
+    bot.depositMarker.push({
+      x: bot.cellX,
+      y: bot.cellY,
+      quadrant: oppositeDirection(bot.facing),
+      botColor: bot.botColor
+    })
+
   }
 }
 
@@ -855,20 +906,88 @@ function wrapAdd(value, increment, outOfBounds) {
   }
 }
 
+function decayMarker(strength) {
+  strength = strength - 0.01
+  if (strength <= MIN_MARKER_STRENGTH) {
+    return MIN_MARKER_STRENGTH
+  } else {
+    return strength
+  }
+}
+
+/**
+ * marker has following fields: x, y, quadrant, botColor
+ */
+function addMarker(board, marker) {
+  var currentStrength = board.markers[marker.x][marker.y][marker.quadrant][marker.botColor]
+  if (typeof currentStrength === 'undefined') {
+    currentStrength = 0.0
+  }
+
+  currentStrength += INIT_MARKER_STRENGTH
+  if (currentStrength >= MAX_MARKER_STRENGTH) {
+    currentStrength = MAX_MARKER_STRENGTH
+  }
+
+  board.markers[marker.x][marker.y][marker.quadrant][marker.botColor] =
+    currentStrength
+}
+
+/**
+ * Returns a list of marker objects, for markers with defined strength
+ * each marker has following fields: x, y, quadrant, botColor, strength
+ *
+ * set keepUndefined to true to emit every marker, regardless of definition
+ */
+function getMarkers(board, keepUndefined) {
+
+  if (typeof keepUndefined === 'undefined') {
+    keepUndefined = false
+  }
+  var markers = []
+  for (var x = 0; x < board.num_cols; x++) {
+    for (var y = 0; y < board.num_rows; y++) {
+      for (var q = 0; q < Direction.NUM_DIRECTIONS; q++) {
+        for (var c = 0; c < BotColor.NUM_COLORS; c++) {
+          strength = board.markers[x][y][q][c]
+          if (!keepUndefined && typeof strength === 'undefined') {
+            continue
+          }
+          marker = {
+            x: x,
+            y: y,
+            quadrant: q,
+            botColor: c,
+            strength: strength
+          }
+          markers.push(marker)
+        }
+      }
+    }
+  }
+  return markers
+}
+
 // TODO: do a better job separating model from view.
-function step(bots) {
+function step(board) {
+  var bots = board.bots
+
   // TODO: determine for each for javascript
   var numBots = bots.length
   for (var i = 0; i < numBots; i++) {
     var bot = bots[i]
 
+    // collection of animations related to the bot
     bot.animations = {}
+
+    // list of markers that bot has dropped
+    bot.depositMarker = []
 
     // make sure this bot hasn't finished
     if ("done" in bot.program) {
       continue
     } 
-    
+
     var instruction = bot.program.instructions[bot.ip]
     bot.animations.lineIndex = instruction.lineIndex
 
@@ -889,7 +1008,21 @@ function step(bots) {
       bot.program.done = true
       bot.animations.programDone = true
     }
+
+    _(bot.depositMarker).forEach( function (marker) {
+      addMarker(board, marker)
+    })
   }
+
+  console.log("decay: ")
+  console.dir(getMarkers(board))
+  // Decay the strength of each marker on the board
+  _(getMarkers(board)).forEach( function(m) {
+    console.log(m.strength + " -> " + decayMarker(m.strength))
+    board.markers[m.x][m.y][m.quadrant][m.botColor] = decayMarker(m.strength)
+    console.log(board.markers[m.x][m.y][m.quadrant][m.botColor])
+  })
+  console.dir(getMarkers(board))
 }
 
 function cleanUpSimulation() {
@@ -901,7 +1034,8 @@ function initBots(board, prog) {
     Math.floor((board.num_cols - 1) / 2),
     Math.floor((board.num_rows - 1)/ 2),
     Direction.UP,
-    prog)
+    prog,
+    BotColor.BLUE)
 
   return [initBot]  
 }
@@ -924,7 +1058,38 @@ function initBots(board, prog) {
 // return a deep copy of origObj, with newObj merged in
 function cloneDeep(origObj, newObj) {
   return _.assign(_.cloneDeep(origObj), newObj)
-}/**
+}
+
+// yields a new matrix
+// if defaultValue is a function then matrix[x][y] = defaultValue(x, y)
+// else matrix[x][y] = defaultValue
+function newMatrix(xLength, yLength, defaultValue) {
+  return newArray(xLength, function(x) {
+    return newArray(yLength, function(y) {
+      if (typeof defaultValue == "function") {
+        return defaultValue(x, y)
+      } else {
+        return defaultValue
+      }
+    })
+  })
+}
+
+// creates a new matrx of specified length
+// if defaultValue is a function, then array[i] = defaultValue(i)
+// else, array[i] = defaultValue
+function newArray(length, defaultValue) {
+  var a = Array(length)
+  for (var i = 0; i < length; i++) {
+    if (typeof defaultValue == "function") {
+      a[i] = defaultValue(i)
+    } else {
+      a[i] = defaultValue
+    }
+  }
+  return a
+}
+/**
  * Copyright 2013 Michael N. Gagnon
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -944,6 +1109,14 @@ function cloneDeep(origObj, newObj) {
  * Instead of using D3 selectAll, just do D3 select(node) for a given node
  * reference.
  */
+
+// Maps each BotColor to a hue 
+// The hue value (between 0 and 100)
+var BotColorHue = {
+  NUM_COLORS: 2,
+  0: 84,
+  1: 100
+}
 
 function directionToAngle(direction) {
   if (direction == Direction.UP) {
@@ -1193,6 +1366,52 @@ function animateProgram(board) {
   }
 }
 
+function animateMarkers(board) {
+
+  _(getMarkers(board))
+  .groupBy(markerId)
+  // convert markers into colors
+  .map( function(markers) {
+
+    // markers is an array of all marker objects that have the same
+    // x, y, and quadrant values (but different botColor values)
+
+    // But for now there is only one color
+    // TODO: implement multiple bot colors
+    assert(markers.length <= 1, "in animateMarkers, markers.length <= 1")
+
+    if (markers.length == 0) {
+      return null
+    } else {
+      // First normalize the strength by converting it to a value in the range
+      // [0.0, 1.0], where the weakest strength gets mapped to zero
+      // and the strongest strength gets mapped to 1.0
+      var marker = markers[0]
+
+      var strength = marker.strength
+      var strengthNormalized = (strength - MIN_MARKER_STRENGTH) /
+        MAX_MARKER_STRENGTH
+
+      var saturation = Math.floor(strengthNormalized * 100) + "%"
+      var hue = BotColorHue[marker.botColor] + "%"
+      var hsvString = "hsv(" + hue + "," + saturation + ", 100%)"
+      var rgbString = "#" + tinycolor(hsvString).toHex()
+      marker.rgb = rgbString
+
+      return marker
+    }
+
+  })
+  .compact()
+  .forEach( function(marker) {
+    d3.select("#" + markerId(marker)).transition()
+      .attr("fill", marker.rgb)
+      .ease("linear")
+      .duration(ANIMATION_DUR)
+  })
+
+}
+
 // TODO: breakup into smaller functions
 function animate() {
   if (PLAY_STATUS != PlayStatus.PLAYING) {
@@ -1204,7 +1423,7 @@ function animate() {
 
 function stepAndAnimate() {
   // advance the simulation by one "step"
-  step(BOARD.bots)
+  step(BOARD)
 
   animateProgram(BOARD)
 
@@ -1220,7 +1439,7 @@ function stepAndAnimate() {
   animateMoveNonTorus(transition)
   animateMoveTorus(transition, BOARD.bots)
   animateProgramDone(BOARD.bots)
-
+  animateMarkers(BOARD)
 }
 
 function cleanUpVisualization() {
@@ -1228,6 +1447,7 @@ function cleanUpVisualization() {
   d3.selectAll(".coin").remove()
   d3.selectAll(".botClone").remove()
   d3.selectAll(".block").remove()
+  d3.selectAll(".marker").remove()
   d3.selectAll(".xTemplate").remove()
 
   // TODO: turn off line highlighting
@@ -1270,6 +1490,10 @@ function coinId(coin) {
   return "coin_" + coin.x + "_" + coin.y
 }
 
+function markerId(marker) {
+  return "marker_" + marker.x + "_" + marker.y + "_" + marker.quadrant
+}
+
 function drawCoins() {
   VIS.selectAll(".coin")
     .data(BOARD.coins)
@@ -1282,6 +1506,40 @@ function drawCoins() {
     .attr("r", COIN_RADIUS)
     .attr("cx", function(d){ return d.x * CELL_SIZE + CELL_SIZE/2 } )
     .attr("cy", function(d){ return d.y * CELL_SIZE + CELL_SIZE/2} )
+}
+
+function drawInitMarkers(board) {
+
+  var markers = _(getMarkers(board, true)).filter( function (m) {
+    // All bot colors share one graphical element, so we do this filtering
+    return m.botColor == BotColor.BLUE
+  }).value()
+
+  VIS.selectAll(".marker")
+    .data(markers)
+    .enter().append("svg:circle")
+    .attr("class", "marker")
+    .attr("id", markerId)
+    .attr("fill", "white")
+    .attr("r", "5")
+    .attr("cx", function(m) {
+      var x = m.x * CELL_SIZE + CELL_SIZE/2
+      if (m.quadrant == Direction.LEFT) {
+        x -= 8
+      } else if (m.quadrant == Direction.RIGHT) {
+        x += 8
+      }
+      return x
+    })
+    .attr("cy", function(m) {
+      var y = m.y * CELL_SIZE + CELL_SIZE/2
+      if (m.quadrant == Direction.UP) {
+        y -= 8
+      } else if (m.quadrant == Direction.DOWN) {
+        y += 8
+      }
+      return y
+    })
 }
 
 function drawBlocks() {
@@ -1390,6 +1648,10 @@ var CELL_SIZE = 32,
       blocks : []
     }
 
+var MAX_MARKER_STRENGTH = 1.0
+var MIN_MARKER_STRENGTH = 0.0001
+var INIT_MARKER_STRENGTH = 0.35
+
 // map of reserved words (built using fancy lodash style)
 var reservedWords = "move turn left right goto"
 var RESERVED_WORDS = _(reservedWords.split(" "))
@@ -1403,312 +1665,3 @@ var COIN_EXPLODE_RADIUS = 100
 window.onload = windowOnLoad
 createBoard(BOARD)
 drawCells(BOARD)
-/**
- * Copyright 2013 Michael N. Gagnon
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-/**
- * array of [programLine, instructionObject] pairs
- * tests ability to correctly compile instructions and detect errors
- * specific to instructions.
- * 
- * Things that are __not__ tested here:
- *    - tokenization
- *    - comments
- *    - labels
- *    - second phase of goto parsing
- */
-var testInstructions = [
-
-    ["move", new RobocomInstruction(Opcode.MOVE, null)],
-    ["move foo", null],
-    ["move foo bar", null],
-
-    ["turn left", new RobocomInstruction(Opcode.TURN, Direction.LEFT)],
-    ["turn right", new RobocomInstruction(Opcode.TURN, Direction.RIGHT)],
-    ["turn up", null],
-    ["turn down", null],
-    ["turn", null],
-    ["turn 0", null],
-    ["turn 1", null],
-    ["turn left right", null],
-    ["turn left foo", null],
-
-    ["goto foo_1", new RobocomInstruction(Opcode.GOTO, "foo_1")],
-    ["goto foo bar", null],
-    ["goto 1foo", null],
-    ["goto _foo", null],
-    ["goto move", null],
-    ["goto goto", null]
-
-  ]
-
-for (var i = 0; i < testInstructions.length; i++) {
-  var line     = testInstructions[i][0]
-  var expected = testInstructions[i][1]
-  var result = compileLine(line)[0]
-  assert(_.isEqual(result, expected),
-    "compile('" + line + "') != expected")
-}
-/**
- * Copyright 2013 Michael N. Gagnon
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-// TODO: instead of using arrays use objects e.g. testcase.board
-// list of [board, bot, x, y, expectedResult] test cases
-var board = {blocks : [{x:5,y:5}]}
-var bot = {facing: "any"}
-var testTryMove = [
-    [board, bot, 5, 5, false],
-    [board, bot, 5, 6, true],
-    [board, bot, 6, 5, true],
-    [board, bot, 6, 6, true],
-  ]
-
-for (var i = 0; i < testTryMove.length; i++) {
-  var board    = testTryMove[i][0]
-  var bot      = testTryMove[i][1]
-  var x        = testTryMove[i][2]
-  var y        = testTryMove[i][3]
-  var expected = testTryMove[i][4]
-  var result = tryMove(board, bot, x, y)
-  test(_.isEqual(result, expected), function() {
-    console.log("tryMove '" + testTryMove[i] + "' failed")
-    console.dir(board)
-    console.dir(bot)
-    console.dir(x)
-    console.dir(y)
-    console.dir(expected)
-    console.dir(result)
-  })
-}
-
-/**
- * TODO: put in own file
- * test move execution of move instruction
- *************************************************************************/
-var emptyBoard = {
-  num_cols: 4,
-  num_rows: 5,
-  coinsCollected: 0
-}
-
-var bot_2_2_up = {
-  cellX: 2,
-  cellY: 2,
-  facing: Direction.UP,
-  animations: {}
-}
-
-var bot_0_0_up = {
-  cellX: 0,
-  cellY: 0,
-  facing: Direction.UP,
-  animations: {}
-}
-
-// list of [board, bot, expectedBoard, expectedBot] test cases
-var testMoveBot = [
-
-  /**
-   * non-torus moves on an empty board
-   *************************************************************************/
-  // up
-  [ cloneDeep(emptyBoard),
-    cloneDeep(bot_2_2_up),
-    cloneDeep(emptyBoard),
-    cloneDeep(bot_2_2_up, {
-      cellY: 1,
-      animations: {nonTorusMove: true}
-    })
-  ],
-  // down
-  [ cloneDeep(emptyBoard),
-    cloneDeep(bot_2_2_up, {facing: Direction.DOWN} ),
-    cloneDeep(emptyBoard),
-    cloneDeep(bot_2_2_up, {
-      facing: Direction.DOWN,
-      cellY: 3,
-      animations: {nonTorusMove: true}
-    })
-  ],
-  // left
-  [ cloneDeep(emptyBoard),
-    cloneDeep(bot_2_2_up, {facing: Direction.LEFT} ),
-    cloneDeep(emptyBoard),
-    cloneDeep(bot_2_2_up, {
-      facing: Direction.LEFT,
-      cellX: 1,
-      animations: {nonTorusMove: true}
-    })
-  ],
-  // right
-  [ cloneDeep(emptyBoard),
-    cloneDeep(bot_2_2_up, {facing: Direction.RIGHT} ),
-    cloneDeep(emptyBoard),
-    cloneDeep(bot_2_2_up, {
-      facing: Direction.RIGHT,
-      cellX: 3,
-      animations: {nonTorusMove: true}
-    })
-  ],
-
-  /**
-   * __torus__ moves on an empty board
-   *************************************************************************/
-  // up
-  [ cloneDeep(emptyBoard),
-    cloneDeep(bot_0_0_up),
-    cloneDeep(emptyBoard),
-    cloneDeep(bot_0_0_up, {
-      cellY: 4,
-      animations: {torusMove: {
-        prevX: 0,
-        prevY: 0,
-        oobPrevX: 0,
-        oobPrevY: 5,
-        oobNextX: 0,
-        oobNextY: -1
-      }}
-    })
-  ],
-  // down
-  [ cloneDeep(emptyBoard),
-    cloneDeep(bot_0_0_up, {
-      facing: Direction.DOWN,
-      cellY: 4
-    }),
-    cloneDeep(emptyBoard),
-    cloneDeep(bot_0_0_up, {
-      facing: Direction.DOWN,
-      cellY: 0,
-      animations: {torusMove: {
-        prevX: 0,
-        prevY: 4,
-        oobPrevX: 0,
-        oobPrevY: -1,
-        oobNextX: 0,
-        oobNextY: 5
-      }}
-    })
-  ],
-  // left
-  [ cloneDeep(emptyBoard),
-    cloneDeep(bot_0_0_up, {facing: Direction.LEFT} ),
-    cloneDeep(emptyBoard),
-    cloneDeep(bot_0_0_up, {
-      facing: Direction.LEFT,
-      cellX: 3,
-      animations: {torusMove: {
-        prevX: 0,
-        prevY: 0,
-        oobPrevX: 4,
-        oobPrevY: 0,
-        oobNextX: -1,
-        oobNextY: 0
-      }}
-    })
-  ],
-  // right
-  [ cloneDeep(emptyBoard),
-    cloneDeep(bot_0_0_up, {
-      facing: Direction.RIGHT,
-      cellX: 3
-    }),
-    cloneDeep(emptyBoard),
-    cloneDeep(bot_0_0_up, {
-      facing: Direction.RIGHT,
-      cellX: 0,
-      animations: {torusMove: {
-        prevX: 3,
-        prevY: 0,
-        oobPrevX: -1,
-        oobPrevY: 0,
-        oobNextX: 4,
-        oobNextY: 0
-      }}
-    })
-  ],
-]
-
-var boardWithCoins = cloneDeep(emptyBoard, {
-  coins : [
-    {x: 1, y: 1},
-    {x: 2, y: 2}
-  ]
-})
-
-/**
- * moving bot picks up coins
- *************************************************************************/
-testMoveBot = testMoveBot.concat([
-
-  [ cloneDeep(boardWithCoins),
-    cloneDeep(bot_0_0_up, {
-      cellX: 1,
-      cellY: 2
-    }),
-    cloneDeep(boardWithCoins, {
-      coins: [
-        {x: 2, y: 2}
-      ],
-      coinsCollected: 1
-    }),
-    cloneDeep(bot_0_0_up, {
-      cellX: 1,
-      cellY: 1,
-      animations: {
-        nonTorusMove: true,
-        coin_collect: {x: 1, y: 1}
-      }
-    })
-  ]
-])
-
-var boardWithCoinsBlocks = cloneDeep(boardWithCoins, {
-  blocks : [
-    {x: 3, y: 3},
-    {x: 3, y: 4}
-  ]
-})
-
-for (var i = 0; i < testMoveBot.length; i++) {
-  var board    = testMoveBot[i][0]
-  var bot      = testMoveBot[i][1]
-  var expectedBoard = testMoveBot[i][2]
-  var expectedBot = testMoveBot[i][3]
-  moveBot(board, bot)
-  test(_.isEqual([board, bot], [expectedBoard, expectedBot]),
-    function() {
-      console.error("testMoveBot[" + i + "]"),
-      console.dir(board)
-      console.dir(bot)
-      console.dir(expectedBoard)
-      console.dir(expectedBot)
-
-    })
-}

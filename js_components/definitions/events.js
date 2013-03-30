@@ -211,7 +211,23 @@ function restartSimulation() {
       {x:4, y:1}
     ]
 
+  // TODO: consider having each bot drop a marker where its head is
+
   BOARD.coins = _.clone(BOARD.initCoins)
+
+  // matrix of markers on the board
+  // matrix[x][y][quadrant][botColor] == strength (a float) or undefined
+  BOARD.markers = newMatrix(
+    BOARD.num_cols,
+    BOARD.num_rows,
+    function () {
+      return newMatrix(
+        Direction.NUM_DIRECTIONS,
+        BotColor.NUM_COLORS, undefined)
+    })
+
+  drawInitMarkers(BOARD)
+  console.dir(BOARD.markers)
 
   BOARD.coinsCollected = 0
   drawCoins()
@@ -227,5 +243,6 @@ function restartSimulation() {
       {x:2, y:3},
     ]
   drawBlocks()
+
 
 }

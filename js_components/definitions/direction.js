@@ -15,6 +15,7 @@
  */
 
 Direction = {
+  NUM_DIRECTIONS: 4,
   UP: 0,
   DOWN: 1,
   LEFT: 2,
@@ -57,4 +58,8 @@ function rotateDirection(oldFacing, rotateDirection) {
   } else {
     // assert false
   }
+}
+
+function oppositeDirection(direction) {
+  return rotateLeft(rotateLeft(direction))
 }

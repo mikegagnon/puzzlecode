@@ -19,6 +19,14 @@
  * reference.
  */
 
+// Maps each BotColor to a hue 
+// The hue value (between 0 and 100)
+var BotColorHue = {
+  NUM_COLORS: 2,
+  0: 84,
+  1: 100
+}
+
 function directionToAngle(direction) {
   if (direction == Direction.UP) {
     return 0
@@ -267,6 +275,52 @@ function animateProgram(board) {
   }
 }
 
+function animateMarkers(board) {
+
+  _(getMarkers(board))
+  .groupBy(markerId)
+  // convert markers into colors
+  .map( function(markers) {
+
+    // markers is an array of all marker objects that have the same
+    // x, y, and quadrant values (but different botColor values)
+
+    // But for now there is only one color
+    // TODO: implement multiple bot colors
+    assert(markers.length <= 1, "in animateMarkers, markers.length <= 1")
+
+    if (markers.length == 0) {
+      return null
+    } else {
+      // First normalize the strength by converting it to a value in the range
+      // [0.0, 1.0], where the weakest strength gets mapped to zero
+      // and the strongest strength gets mapped to 1.0
+      var marker = markers[0]
+
+      var strength = marker.strength
+      var strengthNormalized = (strength - MIN_MARKER_STRENGTH) /
+        MAX_MARKER_STRENGTH
+
+      var saturation = Math.floor(strengthNormalized * 100) + "%"
+      var hue = BotColorHue[marker.botColor] + "%"
+      var hsvString = "hsv(" + hue + "," + saturation + ", 100%)"
+      var rgbString = "#" + tinycolor(hsvString).toHex()
+      marker.rgb = rgbString
+
+      return marker
+    }
+
+  })
+  .compact()
+  .forEach( function(marker) {
+    d3.select("#" + markerId(marker)).transition()
+      .attr("fill", marker.rgb)
+      .ease("linear")
+      .duration(ANIMATION_DUR)
+  })
+
+}
+
 // TODO: breakup into smaller functions
 function animate() {
   if (PLAY_STATUS != PlayStatus.PLAYING) {
@@ -278,7 +332,7 @@ function animate() {
 
 function stepAndAnimate() {
   // advance the simulation by one "step"
-  step(BOARD.bots)
+  step(BOARD)
 
   animateProgram(BOARD)
 
@@ -294,7 +348,7 @@ function stepAndAnimate() {
   animateMoveNonTorus(transition)
   animateMoveTorus(transition, BOARD.bots)
   animateProgramDone(BOARD.bots)
-
+  animateMarkers(BOARD)
 }
 
 function cleanUpVisualization() {
@@ -302,6 +356,7 @@ function cleanUpVisualization() {
   d3.selectAll(".coin").remove()
   d3.selectAll(".botClone").remove()
   d3.selectAll(".block").remove()
+  d3.selectAll(".marker").remove()
   d3.selectAll(".xTemplate").remove()
 
   // TODO: turn off line highlighting
@@ -344,6 +399,10 @@ function coinId(coin) {
   return "coin_" + coin.x + "_" + coin.y
 }
 
+function markerId(marker) {
+  return "marker_" + marker.x + "_" + marker.y + "_" + marker.quadrant
+}
+
 function drawCoins() {
   VIS.selectAll(".coin")
     .data(BOARD.coins)
@@ -356,6 +415,40 @@ function drawCoins() {
     .attr("r", COIN_RADIUS)
     .attr("cx", function(d){ return d.x * CELL_SIZE + CELL_SIZE/2 } )
     .attr("cy", function(d){ return d.y * CELL_SIZE + CELL_SIZE/2} )
+}
+
+function drawInitMarkers(board) {
+
+  var markers = _(getMarkers(board, true)).filter( function (m) {
+    // All bot colors share one graphical element, so we do this filtering
+    return m.botColor == BotColor.BLUE
+  }).value()
+
+  VIS.selectAll(".marker")
+    .data(markers)
+    .enter().append("svg:circle")
+    .attr("class", "marker")
+    .attr("id", markerId)
+    .attr("fill", "white")
+    .attr("r", "5")
+    .attr("cx", function(m) {
+      var x = m.x * CELL_SIZE + CELL_SIZE/2
+      if (m.quadrant == Direction.LEFT) {
+        x -= 8
+      } else if (m.quadrant == Direction.RIGHT) {
+        x += 8
+      }
+      return x
+    })
+    .attr("cy", function(m) {
+      var y = m.y * CELL_SIZE + CELL_SIZE/2
+      if (m.quadrant == Direction.UP) {
+        y -= 8
+      } else if (m.quadrant == Direction.DOWN) {
+        y += 8
+      }
+      return y
+    })
 }
 
 function drawBlocks() {

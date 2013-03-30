@@ -57,14 +57,16 @@ var bot_2_2_up = {
   cellX: 2,
   cellY: 2,
   facing: Direction.UP,
-  animations: {}
+  animations: {},
+  depositMarker: []
 }
 
 var bot_0_0_up = {
   cellX: 0,
   cellY: 0,
   facing: Direction.UP,
-  animations: {}
+  animations: {},
+  depositMarker: []
 }
 
 // list of [board, bot, expectedBoard, expectedBot] test cases

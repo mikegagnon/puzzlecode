@@ -14,7 +14,13 @@
  * limitations under the License.
  */
 
-function Bot(x, y, facing, program) {
+var BotColor = {
+  NUM_COLORS: 2,
+  BLUE: 0,
+  RED: 1
+}
+
+function Bot(x, y, facing, program, botColor) {
 
     this.cellX = x;
     this.cellY = y
@@ -26,6 +32,9 @@ function Bot(x, y, facing, program) {
 
     // the next animation to perform for this bot
     this.animations = {};
+
+    // int from the BotColor enum
+    this.botColor = botColor
 }
 
 function turnBot(bot, direction) {
@@ -53,8 +62,13 @@ function tryMove(board, bot, x, y) {
   return matchingBlocks.length == 0
 }
 
-// executes the 'move' instruciton on the bot
-// updates the bot state
+/**
+ * executes the 'move' instruciton on the bot
+ * updates the bot and board state
+ * When a bot moves, it deposits two markers:
+ *  - at the head in the old cell
+ *  - at the tail in the new cell
+ */
 function moveBot(board, bot) {
 
   var prevX = bot.cellX
@@ -87,10 +101,17 @@ function moveBot(board, bot) {
       destY: bot.cellY + dy
     }
   } else {
-    // TOOD: break this function up into smaller functions
-
+    // TODO: break this function up into smaller functions
+    
+    bot.depositMarker.push({
+      x: bot.cellX,
+      y: bot.cellY,
+      quadrant: bot.facing,
+      botColor: bot.botColor
+    })
     bot.cellX = destX
     bot.cellY = destY
+    
 
     // did the bot pickup a coin?
     var matchingCoins = _(board.coins)
@@ -130,6 +151,13 @@ function moveBot(board, bot) {
       }
     }
 
+    bot.depositMarker.push({
+      x: bot.cellX,
+      y: bot.cellY,
+      quadrant: oppositeDirection(bot.facing),
+      botColor: bot.botColor
+    })
+
   }
 }
 
@@ -147,20 +175,88 @@ function wrapAdd(value, increment, outOfBounds) {
   }
 }
 
+function decayMarker(strength) {
+  strength = strength - 0.01
+  if (strength <= MIN_MARKER_STRENGTH) {
+    return MIN_MARKER_STRENGTH
+  } else {
+    return strength
+  }
+}
+
+/**
+ * marker has following fields: x, y, quadrant, botColor
+ */
+function addMarker(board, marker) {
+  var currentStrength = board.markers[marker.x][marker.y][marker.quadrant][marker.botColor]
+  if (typeof currentStrength === 'undefined') {
+    currentStrength = 0.0
+  }
+
+  currentStrength += INIT_MARKER_STRENGTH
+  if (currentStrength >= MAX_MARKER_STRENGTH) {
+    currentStrength = MAX_MARKER_STRENGTH
+  }
+
+  board.markers[marker.x][marker.y][marker.quadrant][marker.botColor] =
+    currentStrength
+}
+
+/**
+ * Returns a list of marker objects, for markers with defined strength
+ * each marker has following fields: x, y, quadrant, botColor, strength
+ *
+ * set keepUndefined to true to emit every marker, regardless of definition
+ */
+function getMarkers(board, keepUndefined) {
+
+  if (typeof keepUndefined === 'undefined') {
+    keepUndefined = false
+  }
+  var markers = []
+  for (var x = 0; x < board.num_cols; x++) {
+    for (var y = 0; y < board.num_rows; y++) {
+      for (var q = 0; q < Direction.NUM_DIRECTIONS; q++) {
+        for (var c = 0; c < BotColor.NUM_COLORS; c++) {
+          strength = board.markers[x][y][q][c]
+          if (!keepUndefined && typeof strength === 'undefined') {
+            continue
+          }
+          marker = {
+            x: x,
+            y: y,
+            quadrant: q,
+            botColor: c,
+            strength: strength
+          }
+          markers.push(marker)
+        }
+      }
+    }
+  }
+  return markers
+}
+
 // TODO: do a better job separating model from view.
-function step(bots) {
+function step(board) {
+  var bots = board.bots
+
   // TODO: determine for each for javascript
   var numBots = bots.length
   for (var i = 0; i < numBots; i++) {
     var bot = bots[i]
 
+    // collection of animations related to the bot
     bot.animations = {}
+
+    // list of markers that bot has dropped
+    bot.depositMarker = []
 
     // make sure this bot hasn't finished
     if ("done" in bot.program) {
       continue
     } 
-    
+
     var instruction = bot.program.instructions[bot.ip]
     bot.animations.lineIndex = instruction.lineIndex
 
@@ -181,7 +277,21 @@ function step(bots) {
       bot.program.done = true
       bot.animations.programDone = true
     }
+
+    _(bot.depositMarker).forEach( function (marker) {
+      addMarker(board, marker)
+    })
   }
+
+  console.log("decay: ")
+  console.dir(getMarkers(board))
+  // Decay the strength of each marker on the board
+  _(getMarkers(board)).forEach( function(m) {
+    console.log(m.strength + " -> " + decayMarker(m.strength))
+    board.markers[m.x][m.y][m.quadrant][m.botColor] = decayMarker(m.strength)
+    console.log(board.markers[m.x][m.y][m.quadrant][m.botColor])
+  })
+  console.dir(getMarkers(board))
 }
 
 function cleanUpSimulation() {
@@ -193,7 +303,8 @@ function initBots(board, prog) {
     Math.floor((board.num_cols - 1) / 2),
     Math.floor((board.num_rows - 1)/ 2),
     Direction.UP,
-    prog)
+    prog,
+    BotColor.BLUE)
 
   return [initBot]  
 }
