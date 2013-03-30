@@ -1077,7 +1077,7 @@ function animateProgramDone(bots) {
     .data(doneBots)
     .enter()
     .append("svg:use")
-    .attr("class", "bot")
+    .attr("class", "xTemplate")
     .attr("xlink:href", "#xTemplate")
     .attr("transform", function(bot) {
       var x = bot.cellX * CELL_SIZE
@@ -1228,6 +1228,7 @@ function cleanUpVisualization() {
   d3.selectAll(".coin").remove()
   d3.selectAll(".botClone").remove()
   d3.selectAll(".block").remove()
+  d3.selectAll(".xTemplate").remove()
 
   // TODO: turn off line highlighting
   if ("_activeLine" in CODE_MIRROR_BOX) {
