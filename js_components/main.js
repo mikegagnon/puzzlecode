@@ -80,7 +80,7 @@ var CELL_SIZE = 32,
     }
 
 var MAX_MARKER_STRENGTH = 1.0
-var MIN_MARKER_STRENGTH = 0.0001
+var MIN_MARKER_STRENGTH = 0.00001
 var INIT_MARKER_STRENGTH = 0.35
 
 // map of reserved words (built using fancy lodash style)
