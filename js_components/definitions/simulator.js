@@ -158,8 +158,15 @@ function step(bots) {
   for (var i = 0; i < numBots; i++) {
     var bot = bots[i]
 
+    // make sure this bot hasn't finished
+    if ("done" in bot.program) {
+      continue
+    } 
+
     var instruction = bot.program.instructions[bot.ip]
-    bot.ip = (bot.ip + 1) % bot.program.instructions.length
+
+    // NOTE: executing the instruction may modify the ip
+    bot.ip = bot.ip + 1
 
     bot.animations = {}
     if (instruction.opcode == Opcode.MOVE) {
@@ -170,6 +177,11 @@ function step(bots) {
       executeGoto(bot, instruction.data)
     }
     bot.animations.lineIndex = instruction.lineIndex
+
+    // if the bot has reached the end of its program
+    if (bot.ip >= bot.program.instructions.length) {
+      bot.program.done = true
+    }
   }
 }
 
