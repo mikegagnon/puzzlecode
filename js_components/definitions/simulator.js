@@ -38,7 +38,8 @@ function Bot(x, y, facing, program, botColor) {
 }
 
 function executeTurn(bot, direction) {
-  var oldFacing = bot.facing
+  assert(direction == Direction.LEFT || direction == Direction.RIGHT,
+    "executeTurn: direction == Direction.LEFT || direction == Direction.RIGHT")
   bot.facing = rotateDirection(bot.facing, direction)
   bot.animations.rotate = true
 }

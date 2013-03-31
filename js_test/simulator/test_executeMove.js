@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-var TEST_FILENAME = "js_test/simulator/test_moveBot.js"
+var TEST_FILENAME = "js_test/simulator/test_executeMove.js"
 
 /**
  * test execution of move instruction
@@ -42,7 +42,6 @@ var bot_0_0_up = cloneDeep(botBase, {
   cellY: 0,
 })
 
-// list of [board, bot, expectedBoard, expectedBot] test cases
 var testMoveBot = {
 
   /**
