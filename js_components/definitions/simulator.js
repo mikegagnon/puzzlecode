@@ -85,7 +85,7 @@ function moveBot(board, bot) {
   } else if (bot.facing == Direction.RIGHT) {
     dx = 1
   } else {
-    // assert(false)
+    console.error("this code shoudln't be reachable: moveBot")
   }
 
   xResult = wrapAdd(bot.cellX, dx, board.num_cols)
@@ -109,10 +109,10 @@ function moveBot(board, bot) {
       quadrant: bot.facing,
       botColor: bot.botColor
     })
+
     bot.cellX = destX
     bot.cellY = destY
     
-
     // did the bot pickup a coin?
     var matchingCoins = _(board.coins)
       .filter( function(coin) {

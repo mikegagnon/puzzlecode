@@ -421,7 +421,7 @@ var TEST_FILENAME = undefined
 function test(bool) {
   if (!bool) {
     alert("Failed test. See console logs for error messages.")
-    console.error("Failed test '" + TC_NAME +"'' in " + TEST_FILENAME)
+    console.error("Failed test '" + TC_NAME +"' in " + TEST_FILENAME)
     console.log("Test case:")
     console.dir(TC)
     console.log("Result:")
@@ -1965,39 +1965,71 @@ var boardWithCoins = cloneDeep(emptyBoard, {
  *************************************************************************/
 testMoveBot = _.assign(testMoveBot, {
 
-  /*[ cloneDeep(boardWithCoins),
-    cloneDeep(bot_0_0_up, {
+  "moving bot picks up a coin": {
+    board: cloneDeep(boardWithCoins),
+    bot: cloneDeep(bot_0_0_up, {
       cellX: 1,
       cellY: 2
     }),
-    cloneDeep(boardWithCoins, {
-      coins: [
-        {x: 2, y: 2}
-      ],
-      coinsCollected: 1
-    }),
-    cloneDeep(bot_0_0_up, {
-      cellX: 1,
-      cellY: 1,
-      animations: {
-        nonTorusMove: true,
-        coin_collect: {x: 1, y: 1}
-      },
-      depositMarker: [
-        {x: 1, y: 2, botColor: BotColor.BLUE, quadrant: Direction.UP},
-        {x: 1, y: 1, botColor: BotColor.BLUE, quadrant: Direction.DOWN}
-      ]
-    })
-  ]*/
+    expected: {
+      board: cloneDeep(boardWithCoins, {
+        coins: [
+          {x: 2, y: 2}
+        ],
+        coinsCollected: 1
+      }),
+      bot: cloneDeep(bot_0_0_up, {
+        cellX: 1,
+        cellY: 1,
+        animations: {
+          nonTorusMove: true,
+          coin_collect: {x: 1, y: 1}
+        },
+        depositMarker: [
+          {x: 1, y: 2, botColor: BotColor.BLUE, quadrant: Direction.UP},
+          {x: 1, y: 1, botColor: BotColor.BLUE, quadrant: Direction.DOWN}
+        ]
+      })
+    }
+  }
 })
-/*
+
+
+/**
+ * moving bot bumps into block
+ *************************************************************************/
 var boardWithCoinsBlocks = cloneDeep(boardWithCoins, {
   blocks : [
-    {x: 3, y: 3},
-    {x: 3, y: 4}
+    {x: 3, y: 3}
   ]
 })
-*/
+
+testMoveBot = _.assign(testMoveBot, {
+
+  "moving bot bumps into a block": {
+    board: cloneDeep(boardWithCoinsBlocks),
+    bot: cloneDeep(bot_0_0_up, {
+      cellX: 2,
+      cellY: 3,
+      facing: Direction.RIGHT
+    }),
+    expected: {
+      board: cloneDeep(boardWithCoinsBlocks),
+      bot: cloneDeep(bot_0_0_up, {
+        cellX: 2,
+        cellY: 3,
+        facing: Direction.RIGHT,
+        animations: {
+          failMove: {
+            destX: 3,
+            destY: 3
+          }
+        }
+      })
+    }
+  }
+})
+
 for (TC_NAME in testMoveBot) {
   TC = testMoveBot[TC_NAME]
   var board = cloneDeep(TC.board)

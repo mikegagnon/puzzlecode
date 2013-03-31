@@ -53,7 +53,7 @@ var TEST_FILENAME = undefined
 function test(bool) {
   if (!bool) {
     alert("Failed test. See console logs for error messages.")
-    console.error("Failed test '" + TC_NAME +"'' in " + TEST_FILENAME)
+    console.error("Failed test '" + TC_NAME +"' in " + TEST_FILENAME)
     console.log("Test case:")
     console.dir(TC)
     console.log("Result:")
