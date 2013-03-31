@@ -151,6 +151,7 @@ function animateMoveNonTorus(transition) {
 
 function animateProgramDone(bots) {
 
+
   doneBots = bots.filter( function(bot) {
     return "programDone" in bot.animations
   })
@@ -172,6 +173,9 @@ function animateProgramDone(bots) {
     .delay(ANIMATION_DUR)
     .ease(EASING)
     .duration(ANIMATION_DUR / 2)
+    .each("end", function(){
+      d3.select("#restart").attr("class", "btn btn-primary")
+    })
 
 
 }

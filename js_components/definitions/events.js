@@ -106,6 +106,7 @@ function doResume() {
   PLAY_STATUS = PlayStatus.PLAYING
   pausePlay.innerHTML = 'Pause'
   d3.select("#pauseplay").attr("class", "btn")
+  d3.select("#restart").attr("class", "btn")
   d3.select("#messageBox").text("To edit your program, click 'Reset'")
   CODE_MIRROR_BOX.setOption("theme", DISABLED_CODE_THEME)
 
@@ -199,6 +200,7 @@ function restartSimulation() {
 
   pausePlay.innerHTML = 'Run!'
   d3.select("#messageBox").text("Click the 'Run!' button to run your program")
+  d3.select("#restart").attr("class", "btn")
 
   cleanUpSimulation()
   cleanUpVisualization()
