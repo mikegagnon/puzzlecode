@@ -22,7 +22,7 @@ all: robocom.js
 js=js_components
 dest=public
 robocom_js=$(dest)/robocom.js
-js_test=js_test/*.js
+js_test=js_test/*/*.js
 definitions = $(js)/definitions/*.js
 tmp_file=/tmp/robocom_tmp
 
