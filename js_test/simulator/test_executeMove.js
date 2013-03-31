@@ -296,7 +296,7 @@ for (TC_NAME in testMoveBot) {
   TC = testMoveBot[TC_NAME]
   var board = cloneDeep(TC.board)
   var bot = cloneDeep(TC.bot)
-  moveBot(board, bot)
+  executeMove(board, bot)
   RESULT = {
     board: board,
     bot: bot

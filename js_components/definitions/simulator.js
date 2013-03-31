@@ -37,7 +37,7 @@ function Bot(x, y, facing, program, botColor) {
     this.botColor = botColor
 }
 
-function turnBot(bot, direction) {
+function executeTurn(bot, direction) {
   var oldFacing = bot.facing
   bot.facing = rotateDirection(bot.facing, direction)
   bot.animations.rotate = true
@@ -69,7 +69,7 @@ function tryMove(board, bot, x, y) {
  *  - at the head in the old cell
  *  - at the tail in the new cell
  */
-function moveBot(board, bot) {
+function executeMove(board, bot) {
 
   var prevX = bot.cellX
   var prevY = bot.cellY
@@ -85,7 +85,7 @@ function moveBot(board, bot) {
   } else if (bot.facing == Direction.RIGHT) {
     dx = 1
   } else {
-    console.error("this code shoudln't be reachable: moveBot")
+    console.error("this code shoudln't be reachable: executeMove")
   }
 
   xResult = wrapAdd(bot.cellX, dx, board.num_cols)
@@ -264,9 +264,9 @@ function step(board) {
     bot.ip = bot.ip + 1
 
     if (instruction.opcode == Opcode.MOVE) {
-      moveBot(BOARD, bot)
+      executeMove(BOARD, bot)
     } else if (instruction.opcode == Opcode.TURN) {
-      turnBot(bot, instruction.data)
+      executeTurn(bot, instruction.data)
     } else if (instruction.opcode == Opcode.GOTO) {
       executeGoto(bot, instruction.data)
     }
