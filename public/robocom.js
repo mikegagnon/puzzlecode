@@ -1739,27 +1739,19 @@ for (var i = 0; i < testInstructions.length; i++) {
 var board = {blocks : [{x:5,y:5}]}
 var bot = {facing: "any"}
 var testTryMove = [
-    [board, bot, 5, 5, false],
-    [board, bot, 5, 6, true],
-    [board, bot, 6, 5, true],
-    [board, bot, 6, 6, true],
+    {board: board, bot: bot, x: 5, y: 5, expected: false},
+    {board: board, bot: bot, x: 5, y: 6, expected: true},
+    {board: board, bot: bot, x: 6, y: 5, expected: true},
+    {board: board, bot: bot, x: 6, y: 6, expected: true}
   ]
 
 for (var i = 0; i < testTryMove.length; i++) {
-  var board    = testTryMove[i][0]
-  var bot      = testTryMove[i][1]
-  var x        = testTryMove[i][2]
-  var y        = testTryMove[i][3]
-  var expected = testTryMove[i][4]
-  var result = tryMove(board, bot, x, y)
-  test(_.isEqual(result, expected), function() {
-    console.log("tryMove '" + testTryMove[i] + "' failed")
-    console.dir(board)
-    console.dir(bot)
-    console.dir(x)
-    console.dir(y)
-    console.dir(expected)
-    console.dir(result)
+  var t = testTryMove[i]
+  var result = tryMove(t.board, t.bot, t.x, t.y)
+  test(_.isEqual(result, t.expected), function() {
+    console.log("testTryMove[" + i + "] failed")
+    console.dir(t)
+    console.log("result: " + result)
   })
 }
 
