@@ -44,10 +44,9 @@ function executeTurn(bot, direction) {
   bot.animations.rotate = true
 }
 
-// TODO: handle case where goto goes past end of program
 function executeGoto(bot, nextIp) {
   bot.ip = nextIp
-  // animation?
+  bot.animations.goto = true
 }
 
 // a bot tries to move into cell x,y.
