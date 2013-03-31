@@ -41,10 +41,22 @@ function assertLazy(func, message) {
   }
 }
 
-function test(bool, func) {
+// the index of the current test case
+var TC_I = undefined
+// the current test case
+var TC = undefined
+// the actual result of the tested function
+var RESULT = undefined
+// the filename of the current test
+var TEST_FILENAME = undefined
+
+function test(bool) {
   if (!bool) {
     alert("Failed test. See console logs for error messages.")
-    func()
+    console.error("Failed TC_I=" + TC_I +" in " + TEST_FILENAME)
+    console.log("Test case:")
+    console.dir(TC)
+    console.log("Result:")
+    console.dir(RESULT)
   }
 }
-

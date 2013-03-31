@@ -14,30 +14,10 @@
  * limitations under the License.
  */
 
-// TODO: instead of using arrays use objects e.g. testcase.board
-// list of [board, bot, x, y, expectedResult] test cases
-var board = {blocks : [{x:5,y:5}]}
-var bot = {facing: "any"}
-var testTryMove = [
-    {board: board, bot: bot, x: 5, y: 5, expected: false},
-    {board: board, bot: bot, x: 5, y: 6, expected: true},
-    {board: board, bot: bot, x: 6, y: 5, expected: true},
-    {board: board, bot: bot, x: 6, y: 6, expected: true}
-  ]
-
-for (var i = 0; i < testTryMove.length; i++) {
-  var t = testTryMove[i]
-  var result = tryMove(t.board, t.bot, t.x, t.y)
-  test(_.isEqual(result, t.expected), function() {
-    console.log("testTryMove[" + i + "] failed")
-    console.dir(t)
-    console.log("result: " + result)
-  })
-}
+var TEST_FILENAME = "js_test/simulator/test_moveBot.js"
 
 /**
- * TODO: put in own file
- * test move execution of move instruction
+ * test execution of move instruction
  *************************************************************************/
 var emptyBoard = {
   num_cols: 4,
@@ -263,19 +243,13 @@ var boardWithCoinsBlocks = cloneDeep(boardWithCoins, {
   ]
 })
 
-for (var i = 0; i < testMoveBot.length; i++) {
-  var board    = testMoveBot[i][0]
-  var bot      = testMoveBot[i][1]
-  var expectedBoard = testMoveBot[i][2]
-  var expectedBot = testMoveBot[i][3]
+for (TC_I = 0; TC_I < testMoveBot.length; TC_I++) {
+  TC = testMoveBot[TC_I]
+  var board = TC[0]
+  var bot = TC[1]
+  var expectedBoard = TC[2]
+  var expectedBot = TC[3]
   moveBot(board, bot)
-  test(_.isEqual([board, bot], [expectedBoard, expectedBot]),
-    function() {
-      console.error("testMoveBot[" + i + "]"),
-      console.dir(board)
-      console.dir(bot)
-      console.dir(expectedBoard)
-      console.dir(expectedBot)
-
-    })
+  RESULT = [board, bot]
+  test(_.isEqual([board, bot], [expectedBoard, expectedBot]))
 }

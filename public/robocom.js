@@ -409,13 +409,25 @@ function assertLazy(func, message) {
   }
 }
 
-function test(bool, func) {
+// the index of the current test case
+var TC_I = undefined
+// the current test case
+var TC = undefined
+// the actual result of the tested function
+var RESULT = undefined
+// the filename of the current test
+var TEST_FILENAME = undefined
+
+function test(bool) {
   if (!bool) {
     alert("Failed test. See console logs for error messages.")
-    func()
+    console.error("Failed TC_I=" + TC_I +" in " + TEST_FILENAME)
+    console.log("Test case:")
+    console.dir(TC)
+    console.log("Result:")
+    console.dir(RESULT)
   }
 }
-
 /**
  * Copyright 2013 Michael N. Gagnon
  *
@@ -1734,30 +1746,10 @@ for (var i = 0; i < testInstructions.length; i++) {
  * limitations under the License.
  */
 
-// TODO: instead of using arrays use objects e.g. testcase.board
-// list of [board, bot, x, y, expectedResult] test cases
-var board = {blocks : [{x:5,y:5}]}
-var bot = {facing: "any"}
-var testTryMove = [
-    {board: board, bot: bot, x: 5, y: 5, expected: false},
-    {board: board, bot: bot, x: 5, y: 6, expected: true},
-    {board: board, bot: bot, x: 6, y: 5, expected: true},
-    {board: board, bot: bot, x: 6, y: 6, expected: true}
-  ]
-
-for (var i = 0; i < testTryMove.length; i++) {
-  var t = testTryMove[i]
-  var result = tryMove(t.board, t.bot, t.x, t.y)
-  test(_.isEqual(result, t.expected), function() {
-    console.log("testTryMove[" + i + "] failed")
-    console.dir(t)
-    console.log("result: " + result)
-  })
-}
+var TEST_FILENAME = "js_test/simulator/test_moveBot.js"
 
 /**
- * TODO: put in own file
- * test move execution of move instruction
+ * test execution of move instruction
  *************************************************************************/
 var emptyBoard = {
   num_cols: 4,
@@ -1983,19 +1975,46 @@ var boardWithCoinsBlocks = cloneDeep(boardWithCoins, {
   ]
 })
 
-for (var i = 0; i < testMoveBot.length; i++) {
-  var board    = testMoveBot[i][0]
-  var bot      = testMoveBot[i][1]
-  var expectedBoard = testMoveBot[i][2]
-  var expectedBot = testMoveBot[i][3]
+for (TC_I = 0; TC_I < testMoveBot.length; TC_I++) {
+  TC = testMoveBot[TC_I]
+  var board = TC[0]
+  var bot = TC[1]
+  var expectedBoard = TC[2]
+  var expectedBot = TC[3]
   moveBot(board, bot)
-  test(_.isEqual([board, bot], [expectedBoard, expectedBot]),
-    function() {
-      console.error("testMoveBot[" + i + "]"),
-      console.dir(board)
-      console.dir(bot)
-      console.dir(expectedBoard)
-      console.dir(expectedBot)
-
-    })
+  RESULT = [board, bot]
+  test(_.isEqual([board, bot], [expectedBoard, expectedBot]))
 }
+/**
+ * Copyright 2013 Michael N. Gagnon
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+var TEST_FILENAME = "js_test/simulator/test_tryMove.js"
+
+var board = {blocks : [{x:5,y:5}]}
+var bot = {facing: "any"}
+var testTryMove = [
+    {board: board, bot: bot, x: 5, y: 5, expected: false},
+    {board: board, bot: bot, x: 5, y: 6, expected: true},
+    {board: board, bot: bot, x: 6, y: 5, expected: true},
+    {board: board, bot: bot, x: 6, y: 6, expected: true}
+  ]
+
+for (var TC_I = 0; TC_I < testTryMove.length; TC_I++) {
+  var TC = testTryMove[TC_I]
+  var RESULT = tryMove(TC.board, TC.bot, TC.x, TC.y)
+  test(_.isEqual(RESULT, TC.expected))
+}
+
