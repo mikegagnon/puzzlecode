@@ -283,15 +283,10 @@ function step(board) {
     })
   }
 
-  console.log("decay: ")
-  console.dir(getMarkers(board))
   // Decay the strength of each marker on the board
   _(getMarkers(board)).forEach( function(m) {
-    console.log(m.strength + " -> " + decayMarker(m.strength))
     board.markers[m.x][m.y][m.quadrant][m.botColor] = decayMarker(m.strength)
-    console.log(board.markers[m.x][m.y][m.quadrant][m.botColor])
   })
-  console.dir(getMarkers(board))
 }
 
 function cleanUpSimulation() {

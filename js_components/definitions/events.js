@@ -227,7 +227,6 @@ function restartSimulation() {
     })
 
   drawInitMarkers(BOARD)
-  console.dir(BOARD.markers)
 
   BOARD.coinsCollected = 0
   drawCoins()

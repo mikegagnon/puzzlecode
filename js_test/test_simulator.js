@@ -53,21 +53,22 @@ var emptyBoard = {
   coinsCollected: 0
 }
 
-var bot_2_2_up = {
-  cellX: 2,
-  cellY: 2,
+var botBase = {
   facing: Direction.UP,
   animations: {},
-  depositMarker: []
+  depositMarker: [],
+  botColor: BotColor.BLUE
 }
 
-var bot_0_0_up = {
+var bot_2_2_up = cloneDeep(botBase, {
+  cellX: 2,
+  cellY: 2
+})
+
+var bot_0_0_up = cloneDeep(botBase, {
   cellX: 0,
   cellY: 0,
-  facing: Direction.UP,
-  animations: {},
-  depositMarker: []
-}
+})
 
 // list of [board, bot, expectedBoard, expectedBot] test cases
 var testMoveBot = [
@@ -81,7 +82,11 @@ var testMoveBot = [
     cloneDeep(emptyBoard),
     cloneDeep(bot_2_2_up, {
       cellY: 1,
-      animations: {nonTorusMove: true}
+      animations: {nonTorusMove: true},
+      depositMarker: [
+        {x: 2, y: 2, botColor: BotColor.BLUE, quadrant: Direction.UP},
+        {x: 2, y: 1, botColor: BotColor.BLUE, quadrant: Direction.DOWN}
+      ]
     })
   ],
   // down
@@ -91,7 +96,11 @@ var testMoveBot = [
     cloneDeep(bot_2_2_up, {
       facing: Direction.DOWN,
       cellY: 3,
-      animations: {nonTorusMove: true}
+      animations: {nonTorusMove: true},
+      depositMarker: [
+        {x: 2, y: 2, botColor: BotColor.BLUE, quadrant: Direction.DOWN},
+        {x: 2, y: 3, botColor: BotColor.BLUE, quadrant: Direction.UP}
+      ]
     })
   ],
   // left
@@ -101,7 +110,11 @@ var testMoveBot = [
     cloneDeep(bot_2_2_up, {
       facing: Direction.LEFT,
       cellX: 1,
-      animations: {nonTorusMove: true}
+      animations: {nonTorusMove: true},
+      depositMarker: [
+        {x: 2, y: 2, botColor: BotColor.BLUE, quadrant: Direction.LEFT},
+        {x: 1, y: 2, botColor: BotColor.BLUE, quadrant: Direction.RIGHT}
+      ]
     })
   ],
   // right
@@ -111,7 +124,11 @@ var testMoveBot = [
     cloneDeep(bot_2_2_up, {
       facing: Direction.RIGHT,
       cellX: 3,
-      animations: {nonTorusMove: true}
+      animations: {nonTorusMove: true},
+      depositMarker: [
+        {x: 2, y: 2, botColor: BotColor.BLUE, quadrant: Direction.RIGHT},
+        {x: 3, y: 2, botColor: BotColor.BLUE, quadrant: Direction.LEFT}
+      ]
     })
   ],
 
@@ -131,7 +148,11 @@ var testMoveBot = [
         oobPrevY: 5,
         oobNextX: 0,
         oobNextY: -1
-      }}
+      }},
+      depositMarker: [
+        {x: 0, y: 0, botColor: BotColor.BLUE, quadrant: Direction.UP},
+        {x: 0, y: 4, botColor: BotColor.BLUE, quadrant: Direction.DOWN}
+      ]
     })
   ],
   // down
@@ -151,7 +172,11 @@ var testMoveBot = [
         oobPrevY: -1,
         oobNextX: 0,
         oobNextY: 5
-      }}
+      }},
+      depositMarker: [
+        {x: 0, y: 4, botColor: BotColor.BLUE, quadrant: Direction.DOWN},
+        {x: 0, y: 0, botColor: BotColor.BLUE, quadrant: Direction.UP}
+      ]
     })
   ],
   // left
@@ -168,7 +193,11 @@ var testMoveBot = [
         oobPrevY: 0,
         oobNextX: -1,
         oobNextY: 0
-      }}
+      }},
+      depositMarker: [
+        {x: 0, y: 0, botColor: BotColor.BLUE, quadrant: Direction.LEFT},
+        {x: 3, y: 0, botColor: BotColor.BLUE, quadrant: Direction.RIGHT}
+      ]
     })
   ],
   // right
@@ -188,7 +217,11 @@ var testMoveBot = [
         oobPrevY: 0,
         oobNextX: 4,
         oobNextY: 0
-      }}
+      }},
+      depositMarker: [
+        {x: 3, y: 0, botColor: BotColor.BLUE, quadrant: Direction.RIGHT},
+        {x: 0, y: 0, botColor: BotColor.BLUE, quadrant: Direction.LEFT}
+      ]
     })
   ],
 ]
@@ -222,7 +255,11 @@ testMoveBot = testMoveBot.concat([
       animations: {
         nonTorusMove: true,
         coin_collect: {x: 1, y: 1}
-      }
+      },
+      depositMarker: [
+        {x: 1, y: 2, botColor: BotColor.BLUE, quadrant: Direction.UP},
+        {x: 1, y: 1, botColor: BotColor.BLUE, quadrant: Direction.DOWN}
+      ]
     })
   ]
 ])
