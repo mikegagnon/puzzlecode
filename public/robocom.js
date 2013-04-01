@@ -602,7 +602,14 @@ function doResume() {
   pausePlay.innerHTML = 'Pause'
   d3.select("#pauseplay").attr("class", "btn")
   d3.select("#restart").attr("class", "btn")
-  d3.select("#messageBox").text("To edit your program, click 'Reset'")
+
+  d3.select("#messageBoxDiv")
+    .attr("class", "alert alert-block alert-success")
+  d3.select("#messageBoxHeader")
+    .text("Tip:")
+  d3.select("#messageBox")
+    .text("To edit your program, click 'Reset'")
+
   CODE_MIRROR_BOX.setOption("theme", DISABLED_CODE_THEME)
 
 }
@@ -637,7 +644,14 @@ function doStep() {
   pausePlay.innerHTML = 'Resume'
   d3.select("#pauseplay").attr("class", "btn")
   CODE_MIRROR_BOX.setOption("theme", DISABLED_CODE_THEME)
-  d3.select("#messageBox").text("To edit your program, click 'Reset'")
+
+  d3.select("#messageBoxDiv")
+    .attr("class", "alert alert-block alert-success")
+  d3.select("#messageBoxHeader")
+    .text("Tip:")
+  d3.select("#messageBox")
+    .text("To edit your program, click 'Reset'")
+
   // TODO: clicking "Step" to fast will lead to bad animations
   // TODO: the highlighted instruction is the one that just executed
   // perhaps instead show the next instruction that will execute
@@ -674,11 +688,21 @@ function compile() {
   }
 
   if (program.instructions == null){
+    d3.select("#messageBoxDiv")
+      .attr("class", "alert alert-block alert-error")
+    d3.select("#messageBoxHeader")
+      .text("Error:")
     d3.select("#messageBox").text("ERROR: You must fix the errors  " +
       "before you can run your program.")
   } else {
     // TODO: put this comm functionality in function
-    d3.select("#messageBox").text("Click the 'Run!' button to run your program")
+    d3.select("#messageBox")
+    d3.select("#messageBoxDiv")
+      .attr("class", "alert alert-block alert-success")
+    d3.select("#messageBoxHeader")
+      .text("Tip:")
+    d3.select("#messageBox")
+      .text("Click the 'Run!' button to run your program")
   }
 
   return program
@@ -788,10 +812,9 @@ function executeTurn(bot, direction) {
   bot.animations.rotate = true
 }
 
-// TODO: handle case where goto goes past end of program
 function executeGoto(bot, nextIp) {
   bot.ip = nextIp
-  // animation?
+  bot.animations.goto = true
 }
 
 // a bot tries to move into cell x,y.
