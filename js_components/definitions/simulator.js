@@ -289,10 +289,6 @@ function step(board) {
   })
 }
 
-function cleanUpSimulation() {
-  BOARD.bots = []
-}
-
 function initBots(board, prog) {
   var initBot = new Bot(
     Math.floor((board.num_cols - 1) / 2),

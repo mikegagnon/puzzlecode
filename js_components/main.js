@@ -52,7 +52,6 @@ var CELL_SIZE = 32,
     EASING = INIT_PLAY_SPEED[3],
     NON_BOT_ANIMATION_DUR = PlaySpeed.SLOW[0],
     NON_BOT_CYCLE_DUR = NON_BOT_ANIMATION_DUR,
-    INITIAL_PROGRAM = "move\nmove\nmove\nturn left\nmove\nmove\n",
     CODE_MIRROR_BOX = null,
     pausePlay = null,
     DEBUG = true,
@@ -60,24 +59,38 @@ var CELL_SIZE = 32,
     NORMAL_CODE_THEME = "solarized dark",
     DISABLED_CODE_THEME = "solarized_dim dark"
 
-    /**
-     * TODO: create a cell property, where cell[x][y] yields
-     * a list of objects in that cell. In the mean time, I'll just search
-     * through the bots and coins objects when needed.
-     */
-    BOARD = {
-      num_cols: 9,
-      num_rows: 7,
-      bots : [],
-      // the coins currently on the board (changes throughout a simulation)
-      coins : [],
-      // the coins originally placed on the board (immutable throughout a
-      // simulation)
-      // TODO: assert that each coin is unique
-      initCoins: [],
-      coinsCollected : 0,
-      blocks : []
+var PUZZLE_1 = {
+  num_cols: 9,
+  num_rows: 7,
+  bots : [
+    {
+      botColor: BotColor.BLUE,
+      cellX: 4,
+      cellY: 3,
+      facing: Direction.UP,
+      program: "move\nmove\nmove\nturn left\nmove\nmove\n",
     }
+  ],
+  coins: [
+    {x:0, y:1},
+    {x:1, y:1},
+    {x:2, y:1},
+    {x:3, y:1},
+    {x:4, y:1}
+  ],
+  blocks: [
+    {x:2, y:2},
+    {x:2, y:3},
+  ]
+}
+
+var BOARD = undefined
+
+/**
+ * TODO: create a cell property, where cell[x][y] yields
+ * a list of objects in that cell. In the mean time, I'll just search
+ * through the bots and coins objects when needed.
+ */
 
 var MAX_MARKER_STRENGTH = 1.0
 var MIN_MARKER_STRENGTH = 0.00001
@@ -94,5 +107,4 @@ var COIN_RADIUS = 6
 var COIN_EXPLODE_RADIUS = 100
 
 window.onload = windowOnLoad
-createBoard(BOARD)
-drawCells(BOARD)
+

@@ -337,8 +337,6 @@ function compileRobocom(programText) {
     }
 
     error = error || lineError
-
-
   }
 
   // second pass: finalize GOTO statements
@@ -514,6 +512,7 @@ function oppositeDirection(direction) {
 // These event handlers are registered in main.js and in index.html
 function windowOnLoad() {
 
+
   // Defines a syntax highlighter for the robocom language
   CodeMirror.defineMIME("text/x-robocom", {
     name: "clike",
@@ -540,7 +539,6 @@ function windowOnLoad() {
     .addEventListener("click", restartSimulation);
 
   var settings = {
-    value: INITIAL_PROGRAM,
     gutters: ["note-gutter", "CodeMirror-linenumbers"],
     mode:  "text/x-robocom",
     theme: "solarized dark",
@@ -571,6 +569,9 @@ function windowOnLoad() {
   })
 
   restartSimulation()
+
+  setupCodeMirrorBox(CODE_MIRROR_BOX, BOARD.bots[0])
+
 
   // TODO: where should i put this?
   ANIMATE_INTERVAL = setInterval("animate()", CYCLE_DUR)
@@ -668,6 +669,7 @@ function stepButtonClick() {
 }
 
 // TODO: decouple compile from updating the GUI
+
 function compile() {
   var programText = CODE_MIRROR_BOX.getValue()
   var program = compileRobocom(programText)
@@ -680,8 +682,6 @@ function compile() {
     } else {
       d3.select("#pauseplay").attr("class", "btn btn-primary")
       d3.select("#stepButton").attr("class", "btn")
-      BOARD.bots = initBots(BOARD, program)
-      drawBots()
     }
   } else {
     console.error("I don't expect compile to be called unless board is reset")
@@ -692,7 +692,7 @@ function compile() {
       .attr("class", "alert alert-block alert-error")
     d3.select("#messageBoxHeader")
       .text("Error:")
-    d3.select("#messageBox").text("ERROR: You must fix the errors  " +
+    d3.select("#messageBox").text("You must fix the errors  " +
       "before you can run your program.")
   } else {
     // TODO: put this comm functionality in function
@@ -708,6 +708,58 @@ function compile() {
   return program
 }
 
+// TODO: put in appropriate file
+function loadBoard(boardConfig) {
+  var board = {
+    num_cols: boardConfig.num_cols,
+    num_rows: boardConfig.num_rows,
+    coins: cloneDeep(boardConfig.coins),
+    blocks: cloneDeep(boardConfig.blocks),
+    coinsCollected: 0
+  }
+
+  board.markers = newMatrix(
+    board.num_cols,
+    board.num_rows,
+    function () {
+      return newMatrix(
+        Direction.NUM_DIRECTIONS,
+        BotColor.NUM_COLORS, undefined)
+    })
+
+  board.bots = []
+
+  for (var i = 0; i < boardConfig.bots.length; i++) {
+    var configBot = boardConfig.bots[i]
+    var program = compileRobocom(configBot.program)
+    if (program.instructions == null) {
+      // TODO: handle this error better
+      console.error("Could not compile: " + configBot.program)
+    } else {
+      var bot = {
+        cellX: configBot.cellX,
+        cellY: configBot.cellY,
+        botColor: configBot.botColor,
+        facing: configBot.facing,
+        ip: 0,
+        program: program
+      }
+      console.dir(configBot)
+      console.dir(bot)
+      board.bots.push(bot)
+    }
+  }
+
+  return board
+}
+
+// TODO put in appropriate file
+function setupCodeMirrorBox(cm, bot) {
+  CODE_MIRROR_BOX.setValue(BOARD.bots[0].program.programText)
+  compile()
+}
+
+
 /**
  * - Pauses the simulation
  * - resets the board state
@@ -718,52 +770,23 @@ function restartSimulation() {
   CODE_MIRROR_BOX.setOption("theme", NORMAL_CODE_THEME)
 
   pausePlay.innerHTML = 'Run!'
+  d3.select("#messageBoxDiv")
+    .attr("class", "alert alert-block alert-success")
+  d3.select("#messageBoxHeader")
+    .text("Tip:")
   d3.select("#messageBox").text("Click the 'Run!' button to run your program")
   d3.select("#restart").attr("class", "btn")
 
-  cleanUpSimulation()
   cleanUpVisualization()
 
-  BOARD.initCoins = [
-      {x:0, y:1},
-      {x:1, y:1},
-      {x:2, y:1},
-      {x:3, y:1},
-      {x:4, y:1}
-    ]
+  BOARD = loadBoard(PUZZLE_1)
 
-  // TODO: consider having each bot drop a marker where its head is
-
-  BOARD.coins = _.clone(BOARD.initCoins)
-
-  // matrix of markers on the board
-  // matrix[x][y][quadrant][botColor] == strength (a float) or undefined
-  BOARD.markers = newMatrix(
-    BOARD.num_cols,
-    BOARD.num_rows,
-    function () {
-      return newMatrix(
-        Direction.NUM_DIRECTIONS,
-        BotColor.NUM_COLORS, undefined)
-    })
-
+  drawBoardContainer(BOARD)
+  drawCells(BOARD)
   drawInitMarkers(BOARD)
-
-  BOARD.coinsCollected = 0
   drawCoins()
-
-  var program = compile()
-  if (program.instructions != null) {
-    BOARD.bots = initBots(BOARD, program)
-    drawBots()
-  }
-
-  BOARD.blocks = [
-      {x:2, y:2},
-      {x:2, y:3},
-    ]
+  drawBots()
   drawBlocks()
-
 
 }
 /**
@@ -1055,10 +1078,6 @@ function step(board) {
   _(getMarkers(board)).forEach( function(m) {
     board.markers[m.x][m.y][m.quadrant][m.botColor] = decayMarker(m.strength)
   })
-}
-
-function cleanUpSimulation() {
-  BOARD.bots = []
 }
 
 function initBots(board, prog) {
@@ -1479,6 +1498,7 @@ function stepAndAnimate() {
 }
 
 function cleanUpVisualization() {
+  d3.selectAll(".cell").remove()
   d3.selectAll(".bot").remove()
   d3.selectAll(".coin").remove()
   d3.selectAll(".botClone").remove()
@@ -1493,7 +1513,7 @@ function cleanUpVisualization() {
   }
 }
  
-function createBoard(board) {
+function drawBoardContainer(board) {
   VIS = d3.select("#board")
     .attr("class", "vis")
     .attr("width", board.num_cols * CELL_SIZE)
@@ -1657,7 +1677,6 @@ var CELL_SIZE = 32,
     EASING = INIT_PLAY_SPEED[3],
     NON_BOT_ANIMATION_DUR = PlaySpeed.SLOW[0],
     NON_BOT_CYCLE_DUR = NON_BOT_ANIMATION_DUR,
-    INITIAL_PROGRAM = "move\nmove\nmove\nturn left\nmove\nmove\n",
     CODE_MIRROR_BOX = null,
     pausePlay = null,
     DEBUG = true,
@@ -1665,24 +1684,38 @@ var CELL_SIZE = 32,
     NORMAL_CODE_THEME = "solarized dark",
     DISABLED_CODE_THEME = "solarized_dim dark"
 
-    /**
-     * TODO: create a cell property, where cell[x][y] yields
-     * a list of objects in that cell. In the mean time, I'll just search
-     * through the bots and coins objects when needed.
-     */
-    BOARD = {
-      num_cols: 9,
-      num_rows: 7,
-      bots : [],
-      // the coins currently on the board (changes throughout a simulation)
-      coins : [],
-      // the coins originally placed on the board (immutable throughout a
-      // simulation)
-      // TODO: assert that each coin is unique
-      initCoins: [],
-      coinsCollected : 0,
-      blocks : []
+var PUZZLE_1 = {
+  num_cols: 9,
+  num_rows: 7,
+  bots : [
+    {
+      botColor: BotColor.BLUE,
+      cellX: 4,
+      cellY: 3,
+      facing: Direction.UP,
+      program: "move\nmove\nmove\nturn left\nmove\nmove\n",
     }
+  ],
+  coins: [
+    {x:0, y:1},
+    {x:1, y:1},
+    {x:2, y:1},
+    {x:3, y:1},
+    {x:4, y:1}
+  ],
+  blocks: [
+    {x:2, y:2},
+    {x:2, y:3},
+  ]
+}
+
+var BOARD = undefined
+
+/**
+ * TODO: create a cell property, where cell[x][y] yields
+ * a list of objects in that cell. In the mean time, I'll just search
+ * through the bots and coins objects when needed.
+ */
 
 var MAX_MARKER_STRENGTH = 1.0
 var MIN_MARKER_STRENGTH = 0.00001
@@ -1699,8 +1732,7 @@ var COIN_RADIUS = 6
 var COIN_EXPLODE_RADIUS = 100
 
 window.onload = windowOnLoad
-createBoard(BOARD)
-drawCells(BOARD)
+
 /**
  * Copyright 2013 Michael N. Gagnon
  *

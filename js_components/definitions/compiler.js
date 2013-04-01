@@ -286,8 +286,6 @@ function compileRobocom(programText) {
     }
 
     error = error || lineError
-
-
   }
 
   // second pass: finalize GOTO statements

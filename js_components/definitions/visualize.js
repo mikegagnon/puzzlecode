@@ -356,6 +356,7 @@ function stepAndAnimate() {
 }
 
 function cleanUpVisualization() {
+  d3.selectAll(".cell").remove()
   d3.selectAll(".bot").remove()
   d3.selectAll(".coin").remove()
   d3.selectAll(".botClone").remove()
@@ -370,7 +371,7 @@ function cleanUpVisualization() {
   }
 }
  
-function createBoard(board) {
+function drawBoardContainer(board) {
   VIS = d3.select("#board")
     .attr("class", "vis")
     .attr("width", board.num_cols * CELL_SIZE)
