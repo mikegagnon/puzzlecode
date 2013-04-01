@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>Robocom Web</title>
+    <title>Puzzle Code</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="A Javascript implementaiton of Robocom">
     <meta name="author" content="Michael N. Gagnon">
@@ -42,7 +42,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="brand">Robocom Web</a>
+          <a class="brand">Puzzle Code</a>
           <div class="nav-collapse collapse">
             <ul class="nav">
               <li><a href="http://mikegagnon.com">By Mike Gagnon</a></li>
@@ -55,8 +55,9 @@
 
     <div class="container" id="container">
 
-      <h1>A Javascript implementation of
-        <a href="http://atlantis.cyty.com/robocom/">Robocom</a></h1>
+      <h1>Puzzle Code</h1>
+      <p>A video game inspired by
+        <a href="http://atlantis.cyty.com/robocom/">Robocom</a>.</p>
       
       <p>
         This project is under construction.
@@ -67,7 +68,7 @@
         <a href="mailto:mikegagnon@gmail.com">mikegagnon@gmail.com</a>.
       </p>
 
-      <div>
+      <div style="float: left">
       <svg id="board" xmlns="http://www.w3.org/2000/svg" >
         <defs>
   
@@ -106,41 +107,113 @@
         </defs>
       </svg>
       </div>
-      <script src="lib/jquery.js"></script>
-      <script src="lib/bootstrap.min.js"></script>
-      <script src="lib/d3.min.js"> </script>
-      <script src="lib/codemirror.js"></script>
-      <script src="lib/clike.js"></script>
-      <script src="lib/lodash.js"></script>
-      <script src="lib/tinycolor-min.js"></script>
-      <script src="robocom.js"></script>
-      <p>
-        <div class="btn-group">
-          <button class="btn btn-primary" id="pauseplay">Pause</button>
-          <button class="btn" id="stepButton">Step</button>
-          <button class="btn" id="restart">Reset</button>
-          <a class="btn" id="speedText">Normal</a>
-            <a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
-            <ul class="dropdown-menu">
-              <li><a href="javascript: setSpeed(PlaySpeed.SUPER_SLOW)">Super slow</a></li>
-              <li><a href="javascript: setSpeed(PlaySpeed.SLOW)">Slow</a></li>
-              <li><a href="javascript: setSpeed(PlaySpeed.NORMAL)">Normal</a></li>
-              <li><a href="javascript: setSpeed(PlaySpeed.FAST)">Fast</a></li>
-              <li><a href="javascript: setSpeed(PlaySpeed.SUPER_FAST)">Super fast</a></li>
-            </ul>
+      <div style="overflow: hidden; text-align: center; padding: 60px">
+        <div class="alert">
+          <button type="button" class="close" data-dismiss="alert">&times;</button>
+          <h2><a href="#helpModal" role="button" data-toggle="modal">Help</a></h2>
+ 
+          <!-- Modal -->
+          <div
+            id="helpModal"
+            class="modal hide fade"
+            tabindex="-1"
+            role="dialog"
+            aria-labelledby="helpModalLabel"
+            aria-hidden="true">
+            <div class="modal-header">
+              <h3 id="helpModalLabel">Help for <i>Puzzle Code</i> </h3>
+            </div>
+            <div class="modal-body">
+              <p>
+                Your goal is to collect all the <strong>gold coins</strong>
+                using your <strong>robot</strong>.
+              </p>
+              <p>
+                Tell your robot what to do by writing a
+                <strong>"program"</strong> in the dark text box.
+              </p>
+              <p>
+                To run your program, click the <strong>Run!</strong> button.
+              </p>
+              <p>
+                You can edit your program by clicking the <strong>Reset</strong>
+                button.
+              </p>
+              <p>
+                If you want to run your program, one step at a time, press the
+                <strong>Step</strong> button.
+              </p>
+            </div>
+            <div class="modal-footer">
+              <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+            </div>
+          </div>
+
+
+
         </div>
-      </p>
-      <div id="messageBoxDiv" class="alert alert-block alert-success">
-        <h4 id="messageBoxHeader"></h4>
-        <p id="messageBox"></p>
       </div>
 
-      <div id="codeMirrorEdit">
-      </div>
+
+
+      <!-- begin buttons, message box and code editor -->
+      <div style="clear:both">
+        <p>
+          <div class="btn-group">
+            <button class="btn btn-primary" id="pauseplay">Run!</button>
+            <button class="btn" id="stepButton">Step</button>
+            <button class="btn" id="restart">Reset</button>
+            <a class="btn" id="speedText">Normal</a>
+              <a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
+              <ul class="dropdown-menu">
+                <li><a href="javascript: setSpeed(PlaySpeed.SUPER_SLOW)">Super slow</a></li>
+                <li><a href="javascript: setSpeed(PlaySpeed.SLOW)">Slow</a></li>
+                <li><a href="javascript: setSpeed(PlaySpeed.NORMAL)">Normal</a></li>
+                <li><a href="javascript: setSpeed(PlaySpeed.FAST)">Fast</a></li>
+                <li><a href="javascript: setSpeed(PlaySpeed.SUPER_FAST)">Super fast</a></li>
+              </ul>
+          </div>
+        </p>
+        <div id="messageBoxDiv" class="alert alert-block alert-success">
+          <button type="button" class="close" data-dismiss="alert">&times;</button>
+
+          <h4 id="messageBoxHeader"></h4>
+          <p id="messageBox"></p>
+        </div>
+
+        <div id="codeMirrorEdit">
+        </div>
+      </div><!-- end buttons, message box and code editor -->
 
     </div> <!-- /container -->
-    <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+    <br><br>
 
+
+    <br><br><br><br><br><br><br><br><br><br><br><br><br>
+
+    <script src="lib/jquery.js"></script>
+    <script src="lib/bootstrap.min.js"></script>
+    <script src="lib/d3.min.js"> </script>
+    <script src="lib/codemirror.js"></script>
+    <script src="lib/clike.js"></script>
+    <script src="lib/lodash.js"></script>
+    <script src="lib/tinycolor-min.js"></script>
+    <script src="robocom.js"></script>
+
+<script type="text/javascript">
+    $(function () {
+        $('body').popover({
+            selector: '[data-toggle="popover"]',
+            html: true,
+            trigger: 'manual'
+        });
+
+        $('body').tooltip({
+            selector: 'a[rel="tooltip"], [data-toggle="tooltip"]'
+        });
+    });
+
+</script>
 
   </body>
 </html>
