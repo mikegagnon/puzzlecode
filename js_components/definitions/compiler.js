@@ -135,10 +135,10 @@ function compileTurn(tokens) {
     var direction = tokens[1]
     if (direction == "left") {
       instruction = new RobocomInstruction(Opcode.TURN, Direction.LEFT)
-      comment = newComment("Rotate counter-clockwise 90 degrees")
+      comment = newComment("Rotate to the left ↰")
     } else if (direction == "right") {
       instruction = new RobocomInstruction(Opcode.TURN, Direction.RIGHT)
-      comment = newComment("Rotate clockwise 90 degrees")
+      comment = newComment("Rotate to the right ↱")
     } else {
       instruction = null
       comment = newErrorComment("'" + direction + "' is not a valid direction", "#")
