@@ -14,6 +14,73 @@
  * limitations under the License.
  */
 
+// TODO: what other code should go in this file?
+
+function setBotProgram(board, botIndex, program) {
+  board.bots[botIndex].program = program
+}
+
+/**
+ * Given a "board-configuration object," yields a new board object
+ */
+function loadBoard(boardConfig) {
+  var board = {
+    num_cols: boardConfig.num_cols,
+    num_rows: boardConfig.num_rows,
+    coins: cloneDeep(boardConfig.coins),
+    blocks: cloneDeep(boardConfig.blocks),
+    coinsCollected: 0
+  }
+
+  board.markers = newMatrix(
+    board.num_cols,
+    board.num_rows,
+    function () {
+      return newMatrix(
+        Direction.NUM_DIRECTIONS,
+        BotColor.NUM_COLORS, undefined)
+    })
+
+  board.bots = []
+
+  for (var i = 0; i < boardConfig.bots.length; i++) {
+    var configBot = boardConfig.bots[i]
+    var program = compileRobocom(configBot.program)
+    if (program.instructions == null) {
+      // TODO: handle this error better
+      console.error("Could not compile: " + configBot.program)
+    } else {
+      var bot = {
+        cellX: configBot.cellX,
+        cellY: configBot.cellY,
+        botColor: configBot.botColor,
+        facing: configBot.facing,
+        ip: 0,
+        program: program
+      }
+      console.dir(configBot)
+      console.dir(bot)
+      board.bots.push(bot)
+    }
+  }
+
+  return board
+}/**
+ * Copyright 2013 Michael N. Gagnon
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 /**
  * IDEAS:
  *  - make the text box read-only while the simulation is playing
@@ -51,8 +118,9 @@ function addLineComments(codeMirrorBox, lineComments) {
   }
 }
 
-// Defines a syntax highlighter for the robocom language
-function defineMine() {
+function setupCodeMirrorBox(programText) {
+
+  // Defines a syntax highlighter for the robocom language
   CodeMirror.defineMIME("text/x-robocom", {
   name: "clike",
   keywords: RESERVED_WORDS,
@@ -65,7 +133,43 @@ function defineMine() {
     }
   }
   });
-}/**
+
+  var settings = {
+    gutters: ["note-gutter", "CodeMirror-linenumbers"],
+    mode:  "text/x-robocom",
+    theme: "solarized dark",
+    smartIndent: false,
+    lineNumbers: true,
+  }
+
+  CODE_MIRROR_BOX = CodeMirror(document.getElementById("codeMirrorEdit"),
+    settings)
+
+  cm = CODE_MIRROR_BOX
+
+  //  TODO: put the cursorActivity function in seperate file
+  var line = 0
+  cm.on("cursorActivity", function(cm) {
+    var newLine = cm.getCursor().line
+    if (PLAY_STATUS == PlayStatus.INITAL_STATE_PAUSED) {
+      if (line != newLine) {
+        compile()
+      }
+      line = newLine
+    }
+  })
+
+  // You cannot edit the program, unless it is in the reset state
+  cm.on("beforeChange", function(cm, change) {
+    if (PLAY_STATUS != PlayStatus.INITAL_STATE_PAUSED) {
+      change.cancel()
+    }
+  })
+
+  cm.setValue(programText)
+  compile()
+}
+/**
  * Copyright 2013 Michael N. Gagnon
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -525,13 +629,14 @@ function oppositeDirection(direction) {
 
 // TODO: this code is becoming a mess. Needs good refactoring.
 
-// These event handlers are registered in main.js and in index.html
-function windowOnLoad() {
+/**
+ * Code for the windowOnLoad event
+ *****************************************************************************/
 
-  defineMine()
-
+function registerEventHandlers() {
   pausePlay = document.getElementById("pauseplay")
-  pausePlay.addEventListener("click", togglePausePlay);
+  pausePlay
+    .addEventListener("click", togglePausePlay);
 
   document
     .getElementById("stepButton")
@@ -540,49 +645,28 @@ function windowOnLoad() {
   document
     .getElementById("restart")
     .addEventListener("click", restartSimulation);
+}
 
-  var settings = {
-    gutters: ["note-gutter", "CodeMirror-linenumbers"],
-    mode:  "text/x-robocom",
-    theme: "solarized dark",
-    smartIndent: false,
-    lineNumbers: true,
-  }
+// These event handlers are registered in main.js and in index.html
+function windowOnLoad() {
 
-  CODE_MIRROR_BOX = CodeMirror(document.getElementById("codeMirrorEdit"),
-    settings)
+  registerEventHandlers()
 
-  //  TODO: put the cursorActivity function in seperate file
-  var line = 0
-  CODE_MIRROR_BOX.on("cursorActivity", function(cm) {
-    var newLine = cm.getCursor().line
-    if (PLAY_STATUS == PlayStatus.INITAL_STATE_PAUSED) {
-      if (line != newLine) {
-        compile()
-      }
-      line = newLine
-    }
-  })
-
-  // You cannot edit the program, unless it is in the reset state
-  CODE_MIRROR_BOX.on("beforeChange", function(cm, change) {
-    if (PLAY_STATUS != PlayStatus.INITAL_STATE_PAUSED) {
-      change.cancel()
-    }
-  })
-
-  // BOOKMARK TODO: Setup program compilation for a particular puzzle
+    // BOOKMARK TODO: Setup program compilation for a particular puzzle
   var programText = PUZZLE_1.bots[0].program
-  setupCodeMirrorBox(CODE_MIRROR_BOX, programText)
+
+  setupCodeMirrorBox(programText)
 
   restartSimulation()
-
-
 
   // TODO: where should i put this?
   ANIMATE_INTERVAL = setInterval("animate()", CYCLE_DUR)
   nonBotAnimateInterval = setInterval("nonBotAnimate()", NON_BOT_CYCLE_DUR)
 }
+
+/**
+ * Code for the speed drop down menu
+ *****************************************************************************/
 
 function setSpeed(speed) {
   var speedText = document.getElementById("speedText")
@@ -595,8 +679,10 @@ function setSpeed(speed) {
   ANIMATE_INTERVAL = setInterval("animate()", CYCLE_DUR)
 }
 
-// TODO: consider graying out the play button when it's not possible to play it
-// TODO: This doesn't work
+/**
+ * Code for pause / play / resume button
+ *****************************************************************************/
+
 function doPause() {
   PLAY_STATUS = PlayStatus.PAUSED
   pausePlay.innerHTML = 'Resume'
@@ -618,18 +704,18 @@ function doResume() {
     .text("To edit your program, click 'Reset'")
 
   CODE_MIRROR_BOX.setOption("theme", DISABLED_CODE_THEME)
-
 }
 
 function doRun() {
   var program = compile()
+  setBotProgram(BOARD, PROGRAMING_BOT_INDEX, program)
   if (program.instructions != null) {
     doResume()
   }
 }
 
+// handles clicks on the #pauseplay button
 function togglePausePlay() {
-  // TODO: determine is this is threadsafe in JS
   if (PLAY_STATUS == PlayStatus.INITAL_STATE_PAUSED) {
     doRun()
   } else if (PLAY_STATUS == PlayStatus.PAUSED) {
@@ -639,8 +725,13 @@ function togglePausePlay() {
   }
 }
 
+/**
+ * Code for the #stepButton
+ *****************************************************************************/
+
 function doFirstStep() {
   var program = compile()
+  setBotProgram(BOARD, PROGRAMING_BOT_INDEX, program)
   if (program.instructions != null) {
     doStep()
   }
@@ -666,6 +757,7 @@ function doStep() {
   stepAndAnimate()
 }
 
+// handles clicks for the #stepButton
 function stepButtonClick() {
   if (PLAY_STATUS == PlayStatus.INITAL_STATE_PAUSED) {
     doFirstStep()
@@ -674,13 +766,13 @@ function stepButtonClick() {
   }
 }
 
-// TODO: decouple compile from updating the GUI
-
+// TODO: take codeMirrorBox parameter
 function compile() {
   var programText = CODE_MIRROR_BOX.getValue()
   var program = compileRobocom(programText)
   addLineComments(CODE_MIRROR_BOX, program.lineComments)
 
+  // Enable or disable the #pausePlay and #stepButton buttons
   if (PLAY_STATUS == PlayStatus.INITAL_STATE_PAUSED) {
     if (program.instructions == null) {
       d3.select("#pauseplay").attr("class", "btn disabled")
@@ -693,6 +785,7 @@ function compile() {
     console.error("I don't expect compile to be called unless board is reset")
   }
 
+  // Update the messageBox
   if (program.instructions == null){
     d3.select("#messageBoxDiv")
       .attr("class", "alert alert-block alert-error")
@@ -714,57 +807,9 @@ function compile() {
   return program
 }
 
-// TODO: put in appropriate file
-function loadBoard(boardConfig) {
-  var board = {
-    num_cols: boardConfig.num_cols,
-    num_rows: boardConfig.num_rows,
-    coins: cloneDeep(boardConfig.coins),
-    blocks: cloneDeep(boardConfig.blocks),
-    coinsCollected: 0
-  }
-
-  board.markers = newMatrix(
-    board.num_cols,
-    board.num_rows,
-    function () {
-      return newMatrix(
-        Direction.NUM_DIRECTIONS,
-        BotColor.NUM_COLORS, undefined)
-    })
-
-  board.bots = []
-
-  for (var i = 0; i < boardConfig.bots.length; i++) {
-    var configBot = boardConfig.bots[i]
-    var program = compileRobocom(configBot.program)
-    if (program.instructions == null) {
-      // TODO: handle this error better
-      console.error("Could not compile: " + configBot.program)
-    } else {
-      var bot = {
-        cellX: configBot.cellX,
-        cellY: configBot.cellY,
-        botColor: configBot.botColor,
-        facing: configBot.facing,
-        ip: 0,
-        program: program
-      }
-      console.dir(configBot)
-      console.dir(bot)
-      board.bots.push(bot)
-    }
-  }
-
-  return board
-}
-
-// TODO put in appropriate file
-function setupCodeMirrorBox(cm, programText) {
-  cm.setValue(programText)
-  compile()
-}
-
+/**
+ * Code for the #restart button
+ *****************************************************************************/
 
 /**
  * - Pauses the simulation
@@ -786,6 +831,9 @@ function restartSimulation() {
   cleanUpVisualization()
 
   BOARD = loadBoard(PUZZLE_1)
+
+  var program = compile()
+  setBotProgram(BOARD, PROGRAMING_BOT_INDEX, program)
 
   drawBoardContainer(BOARD)
   drawCells(BOARD)
@@ -1716,6 +1764,10 @@ var PUZZLE_1 = {
 }
 
 var BOARD = undefined
+
+// BOARD.bots[PROGRAMING_BOT_INDEX] is the bot currently being programmed
+// by the CodeMirror editor
+var PROGRAMING_BOT_INDEX = 0
 
 /**
  * TODO: create a cell property, where cell[x][y] yields

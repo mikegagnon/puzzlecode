@@ -51,8 +51,9 @@ function addLineComments(codeMirrorBox, lineComments) {
   }
 }
 
-// Defines a syntax highlighter for the robocom language
-function defineMine() {
+function setupCodeMirrorBox(programText) {
+
+  // Defines a syntax highlighter for the robocom language
   CodeMirror.defineMIME("text/x-robocom", {
   name: "clike",
   keywords: RESERVED_WORDS,
@@ -65,4 +66,39 @@ function defineMine() {
     }
   }
   });
+
+  var settings = {
+    gutters: ["note-gutter", "CodeMirror-linenumbers"],
+    mode:  "text/x-robocom",
+    theme: "solarized dark",
+    smartIndent: false,
+    lineNumbers: true,
+  }
+
+  CODE_MIRROR_BOX = CodeMirror(document.getElementById("codeMirrorEdit"),
+    settings)
+
+  cm = CODE_MIRROR_BOX
+
+  //  TODO: put the cursorActivity function in seperate file
+  var line = 0
+  cm.on("cursorActivity", function(cm) {
+    var newLine = cm.getCursor().line
+    if (PLAY_STATUS == PlayStatus.INITAL_STATE_PAUSED) {
+      if (line != newLine) {
+        compile()
+      }
+      line = newLine
+    }
+  })
+
+  // You cannot edit the program, unless it is in the reset state
+  cm.on("beforeChange", function(cm, change) {
+    if (PLAY_STATUS != PlayStatus.INITAL_STATE_PAUSED) {
+      change.cancel()
+    }
+  })
+
+  cm.setValue(programText)
+  compile()
 }

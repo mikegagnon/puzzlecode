@@ -86,6 +86,10 @@ var PUZZLE_1 = {
 
 var BOARD = undefined
 
+// BOARD.bots[PROGRAMING_BOT_INDEX] is the bot currently being programmed
+// by the CodeMirror editor
+var PROGRAMING_BOT_INDEX = 0
+
 /**
  * TODO: create a cell property, where cell[x][y] yields
  * a list of objects in that cell. In the mean time, I'll just search
