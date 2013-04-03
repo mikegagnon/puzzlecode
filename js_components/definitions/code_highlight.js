@@ -42,11 +42,27 @@
 function addLineComments(codeMirrorBox, lineComments) {
   codeMirrorBox.clearGutter("note-gutter")
   for (i in lineComments) {
-      var comment = lineComments[i]
-      codeMirrorBox
-        .setGutterMarker(
-          parseInt(i),
-          "note-gutter",
-          comment)
+    var comment = lineComments[i]
+    codeMirrorBox
+      .setGutterMarker(
+        parseInt(i),
+        "note-gutter",
+        comment)
   }
+}
+
+// Defines a syntax highlighter for the robocom language
+function defineMine() {
+  CodeMirror.defineMIME("text/x-robocom", {
+  name: "clike",
+  keywords: RESERVED_WORDS,
+  blockKeywords: {},
+  atoms: {},
+  hooks: {
+    "@": function(stream) {
+      stream.eatWhile(/[\w\$_]/);
+      return "meta";
+    }
+  }
+  });
 }

@@ -42,13 +42,29 @@
 function addLineComments(codeMirrorBox, lineComments) {
   codeMirrorBox.clearGutter("note-gutter")
   for (i in lineComments) {
-      var comment = lineComments[i]
-      codeMirrorBox
-        .setGutterMarker(
-          parseInt(i),
-          "note-gutter",
-          comment)
+    var comment = lineComments[i]
+    codeMirrorBox
+      .setGutterMarker(
+        parseInt(i),
+        "note-gutter",
+        comment)
   }
+}
+
+// Defines a syntax highlighter for the robocom language
+function defineMine() {
+  CodeMirror.defineMIME("text/x-robocom", {
+  name: "clike",
+  keywords: RESERVED_WORDS,
+  blockKeywords: {},
+  atoms: {},
+  hooks: {
+    "@": function(stream) {
+      stream.eatWhile(/[\w\$_]/);
+      return "meta";
+    }
+  }
+  });
 }/**
  * Copyright 2013 Michael N. Gagnon
  *
@@ -512,20 +528,7 @@ function oppositeDirection(direction) {
 // These event handlers are registered in main.js and in index.html
 function windowOnLoad() {
 
-
-  // Defines a syntax highlighter for the robocom language
-  CodeMirror.defineMIME("text/x-robocom", {
-    name: "clike",
-    keywords: RESERVED_WORDS,
-    blockKeywords: {},
-    atoms: {},
-    hooks: {
-      "@": function(stream) {
-        stream.eatWhile(/[\w\$_]/);
-        return "meta";
-      }
-    }
-  });
+  defineMine()
 
   pausePlay = document.getElementById("pauseplay")
   pausePlay.addEventListener("click", togglePausePlay);
@@ -568,9 +571,12 @@ function windowOnLoad() {
     }
   })
 
+  // BOOKMARK TODO: Setup program compilation for a particular puzzle
+  var programText = PUZZLE_1.bots[0].program
+  setupCodeMirrorBox(CODE_MIRROR_BOX, programText)
+
   restartSimulation()
 
-  setupCodeMirrorBox(CODE_MIRROR_BOX, BOARD.bots[0])
 
 
   // TODO: where should i put this?
@@ -754,8 +760,8 @@ function loadBoard(boardConfig) {
 }
 
 // TODO put in appropriate file
-function setupCodeMirrorBox(cm, bot) {
-  CODE_MIRROR_BOX.setValue(BOARD.bots[0].program.programText)
+function setupCodeMirrorBox(cm, programText) {
+  cm.setValue(programText)
   compile()
 }
 
