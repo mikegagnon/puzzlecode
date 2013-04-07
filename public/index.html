@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <title>Puzzle Code</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="A Javascript implementaiton of Robocom">
+    <meta name="description" content="A programming game for non programmers">
     <meta name="author" content="Michael N. Gagnon">
 
     <!-- Le styles -->
@@ -24,6 +24,10 @@
       a.errorLink:hover{color: Gold}
       body .modal {
         color: #444;
+        text-align: left;
+      }
+      .level-select {
+        width: 170px;
         text-align: left;
       }
     </style>
@@ -49,7 +53,7 @@
           <a class="brand">Puzzle Code</a>
           <div class="nav-collapse collapse">
             <ul class="nav">
-              <li><a href="https://github.com/mikegagnon/robocom_web/blob/master/README.md">About</a></li>
+              <li><a href="https://github.com/mikegagnon/puzzlecode/blob/master/README.md">About</a></li>
               <li><a href="http://mikegagnon.com">By Mike Gagnon</a></li>
             </ul>
           </div><!--/.nav-collapse -->
@@ -67,9 +71,8 @@
             <li>
 
               <div class="btn-group">
-                <a class="btn dropdown-toggle"
-                   data-toggle="dropdown" href="#"
-                   style="width: 170px; text-align:left;">
+                <a class="btn dropdown-toggle level-select"
+                   data-toggle="dropdown" href="#">
                   <i class="icon-ok"></i> World 1: Move &amp; Turn
                   <span class="caret" style="float:right"></span>
                 </a>
@@ -84,9 +87,8 @@
             <li>
 
               <div class="btn-group">
-                <a class="btn dropdown-toggle"
-                   data-toggle="dropdown" href="#"
-                   style="width: 170px; text-align:left;">
+                <a class="btn dropdown-toggle level-select"
+                   data-toggle="dropdown" href="#">
                   <i class="icon-ok"></i> World 2: Goto
                   <span class="caret" style="float:right"></span>
                 </a>
@@ -101,9 +103,8 @@
             <li>
       
               <div class="btn-group">
-                <a class="btn dropdown-toggle"
-                   data-toggle="dropdown" href="#"
-                   style="width: 170px; text-align:left;">
+                <a class="btn dropdown-toggle level-select"
+                   data-toggle="dropdown" href="#">
                   <i class="icon-minus"></i> World 3: Look
                   <span class="caret" style="float:right"></span>
                 </a>
