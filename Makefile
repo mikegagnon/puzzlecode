@@ -14,29 +14,29 @@
 # limitations under the License.
 #
 
-# Compiles robocom.js from its constituent components
+# Compiles puzzlecode.js from its constituent components
 # TODO: minify the js
 
-all: robocom.js
+all: puzzlecode.js
 
 js=js_components
 dest=public
-robocom_js=$(dest)/robocom.js
+puzzlecode_js=$(dest)/puzzlecode.js
 js_test=js_test/*/*.js
 definitions = $(js)/definitions/*.js
-tmp_file=/tmp/robocom_tmp
+tmp_file=/tmp/puzzlecode_tmp
 
-# compiles a special version of robocom.js that also runs a bunch of js tests
+# compiles a special version of puzzlecode.js that also runs a bunch of js tests
 # to run the tests, just open public/index.html. If there are no alerts,
 # everything passed
-test: robocom.js
-	@cat $(robocom_js) $(js_test) > $(tmp_file)
-	@mv $(tmp_file) $(robocom_js)
-	@echo created test version of $(robocom_js)
+test: puzzlecode.js
+	@cat $(puzzlecode_js) $(js_test) > $(tmp_file)
+	@mv $(tmp_file) $(puzzlecode_js)
+	@echo created test version of $(puzzlecode_js)
 
-robocom.js: \
+puzzlecode.js: \
 	$(definitions) \
 	$(js)/main.js
-	@cat $(definitions) $(js)/main.js > $(robocom_js)
-	@echo created $(robocom_js)
+	@cat $(definitions) $(js)/main.js > $(puzzlecode_js)
+	@echo created $(puzzlecode_js)
 	
