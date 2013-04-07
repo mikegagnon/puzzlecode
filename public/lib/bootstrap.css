@@ -3156,6 +3156,10 @@ table th[class*="span"],
 
 .collapse.in {
   height: auto;
+  /**
+   * from http://stackoverflow.com/questions/11926028/bootstrap-dropdown-in-collapse
+   */
+  overflow: visible;
 }
 
 .close {
