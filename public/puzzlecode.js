@@ -652,16 +652,11 @@ function windowOnLoad() {
 
   registerEventHandlers()
 
-    // BOOKMARK TODO: Setup program compilation for a particular puzzle
-  var programText = PUZZLE_1.bots[0].program
-
-  setupCodeMirrorBox(programText)
-
-  restartSimulation()
-
   // TODO: where should i put this?
   ANIMATE_INTERVAL = setInterval("animate()", CYCLE_DUR)
   nonBotAnimateInterval = setInterval("nonBotAnimate()", NON_BOT_CYCLE_DUR)
+
+  loadCampaign(PUZZLE_CAMPAIGN, PUZZLE_CAMPAIGN_STATE)
 }
 
 /**
@@ -844,6 +839,93 @@ function restartSimulation() {
 
 }
 /**
+ * Copyright 2013 Michael N. Gagnon
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+var OnVictory = {
+  UNLOCK_NEXT_LEVEL: 0,
+  UNLOCK_NEXT_WORLD: 1
+}/**
+ * Copyright 2013 Michael N. Gagnon
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+function loadWorldMenu(campaign, state) {
+
+  // Add the visible worlds to the world menu
+  var prevWorldId = "menuworldtemplate"
+  for (var i = 0; i < state.visible_worlds.length; i++) {
+    var visible_world = state.visible_worlds[i]
+    var world = campaign[visible_world.index]
+    var worldName = "World " + (visible_world.index + 1) + ": " + world.name
+    addWorldToMenu(
+      world.id,
+      prevWorldId,
+      worldName,
+      visible_world.completed)
+    prevWorldId = world.id
+  }
+
+  // Add the visible levels to the world menu
+  for (var i = 0; i < state.visible_levels.length; i++) {
+    var visible_level = state.visible_levels[i]
+    var world = campaign[visible_level.world_index]
+    var level = world.levels[visible_level.level_index]
+    var world = campaign[visible_level.world_index]
+    var levelName = "Level "
+      + (visible_level.world_index + 1)
+      + "-"
+      + (visible_level.level_index + 1)
+      + ": " + level.name
+    addLevelToMenu(
+      world.id,
+      level.id,
+      levelName,
+      visible_level.completed)
+  }
+}
+
+function loadLevel(campaign, state) {
+  var world_i = state.current_level.world_index
+  var level_i = state.current_level.level_index
+  var level = campaign[world_i].levels[level_i]
+
+  // BOOKMARK TODO: Setup program compilation for a particular puzzle
+  var programText = level.bots[level.programming_bot_index].program
+  
+  PROGRAMMING_BOT_INDEX = level.programming_bot_index
+
+  setupCodeMirrorBox(programText)
+  restartSimulation()
+}
+
+function loadCampaign(campaign, state) {
+  loadWorldMenu(campaign, state)
+  loadLevel(campaign, state)
+}/**
  * Copyright 2013 Michael N. Gagnon
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -1693,6 +1775,102 @@ function drawBots() {
  * limitations under the License.
  */
 
+var WinCondition = {
+  COLLECT_COINS: 0
+}/**
+ * Copyright 2013 Michael N. Gagnon
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+  <li id="menuworldtemplate" style="display: none;">
+    <div class="btn-group">
+      <a class="btn dropdown-toggle level-select"
+         data-toggle="dropdown" href="#">
+      </a>
+      <ul class="dropdown-menu">
+      </ul>
+    </div>   
+  </li>
+**/
+
+function getCompletedClass(completed) {
+  if (completed) {
+    return "icon-ok"
+  } else {
+    return "icon-minus"
+  }
+}
+
+/**
+ * worldId: the id for the newly created world menu object (do not include '#')
+ * text: the name of the world, e.g. "World 1: Move &amp; Turn"
+ * insertAfter: insert this menu after this menu object. Should be an id,
+ *    without the '#'.
+ * completed: true iff world is completed, false otherwise
+ */
+function addWorldToMenu(worldId, insertAfter, text, completed) {
+
+  var completedClass = getCompletedClass(completed)
+
+  $("#menuworldtemplate")
+    .clone()
+    .attr("id", worldId)
+    /**
+     * the style attr is 'display: none'
+     * by deleting it, we make the element visible
+     */
+    .removeAttr("style")
+    // TODO: change to append
+    .insertAfter("#" + insertAfter)
+
+  $("#" + worldId)
+    .find(".level-select")
+    .append('<i class="' + completedClass + '"></i> '
+      + text
+      + '<span class="caret world-menu-caret"></span>')
+}
+
+function addLevelToMenu(worldId, levelId, text, completed) {
+  var completedClass = getCompletedClass(completed)
+
+  $("#" + worldId)
+    .find(".dropdown-menu")
+    .append('<li id="' + levelId + '">'
+      + '<a tabindex="-1" href="#">'
+      + '<i class="' + completedClass + '"></i> '
+      + text
+      + '</a>'
+      + '</li>')
+}
+
+/**
+ * Copyright 2013 Michael N. Gagnon
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 /**
  * Holds all top-level variables, function invocations etc.
  */
@@ -1739,8 +1917,24 @@ var CELL_SIZE = 32,
     DISABLED_CODE_THEME = "solarized_dim dark"
 
 var PUZZLE_1 = {
+  id: "puzzle1",
+  name: "Collect the coins",
+  description: "Collect all the coins on the board.",
+  hint: "tbd",
+  win_conditions: [
+    {type: WinCondition.COLLECT_COINS}
+  ],
+  constraints: [],
+  on_victory: [
+    {type: OnVictory.UNLOCK_NEXT_LEVEL},
+    {type: OnVictory.UNLOCK_NEXT_WORLD}
+  ],
+  solutions: [
+    "move\nmove\nturn left\nmove\nmove\nmove\nmove\nmove\n",
+  ],
   num_cols: 9,
   num_rows: 7,
+  programming_bot_index: 0,
   bots : [
     {
       botColor: BotColor.BLUE,
@@ -1760,6 +1954,45 @@ var PUZZLE_1 = {
   blocks: [
     {x:2, y:2},
     {x:2, y:3},
+  ]
+}
+
+var PUZZLE_2 = PUZZLE_1
+
+var WORLD_1 = {
+  id: "world1",
+  name: "Move &amp; Turn",
+  levels: [
+    PUZZLE_1,
+    PUZZLE_2
+  ]
+}
+
+var WORLD_2 = WORLD_1
+
+// simply a list of all worlds
+// This data structure is intended to be 100% immutable
+var PUZZLE_CAMPAIGN = [
+  WORLD_1,
+  WORLD_2]
+
+var PUZZLE_CAMPAIGN_STATE = {
+  current_level: {
+    world_index: 0,
+    level_index: 0
+  },
+  visible_worlds: [
+    {
+      index: 0,
+      completed: false
+    }
+  ],
+  visible_levels: [
+    {
+      world_index: 0,
+      level_index: 0,
+      completed: false
+    }
   ]
 }
 
@@ -1790,4 +2023,542 @@ var COIN_RADIUS = 6
 var COIN_EXPLODE_RADIUS = 100
 
 window.onload = windowOnLoad
+
+/**
+ * Copyright 2013 Michael N. Gagnon
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * array of [programLine, instructionObject] pairs
+ * tests ability to correctly compile instructions and detect errors
+ * specific to instructions.
+ * 
+ * Things that are __not__ tested here:
+ *    - tokenization
+ *    - comments
+ *    - labels
+ *    - second phase of goto parsing
+ */
+var testInstructions = [
+
+    ["move", new RobocomInstruction(Opcode.MOVE, null)],
+    ["move foo", null],
+    ["move foo bar", null],
+
+    ["turn left", new RobocomInstruction(Opcode.TURN, Direction.LEFT)],
+    ["turn right", new RobocomInstruction(Opcode.TURN, Direction.RIGHT)],
+    ["turn up", null],
+    ["turn down", null],
+    ["turn", null],
+    ["turn 0", null],
+    ["turn 1", null],
+    ["turn left right", null],
+    ["turn left foo", null],
+
+    ["goto foo_1", new RobocomInstruction(Opcode.GOTO, "foo_1")],
+    ["goto foo bar", null],
+    ["goto 1foo", null],
+    ["goto _foo", null],
+    ["goto move", null],
+    ["goto goto", null]
+
+  ]
+
+for (var i = 0; i < testInstructions.length; i++) {
+  var line     = testInstructions[i][0]
+  var expected = testInstructions[i][1]
+  var result = compileLine(line)[0]
+  assert(_.isEqual(result, expected),
+    "compile('" + line + "') != expected")
+}
+/**
+ * Copyright 2013 Michael N. Gagnon
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+var TEST_FILENAME = "js_test/simulator/test_executeMove.js"
+
+/**
+ * test execution of move instruction
+ *************************************************************************/
+var emptyBoard = {
+  num_cols: 4,
+  num_rows: 5,
+  coinsCollected: 0
+}
+
+var botBase = {
+  facing: Direction.UP,
+  animations: {},
+  depositMarker: [],
+  botColor: BotColor.BLUE
+}
+
+var bot_2_2_up = cloneDeep(botBase, {
+  cellX: 2,
+  cellY: 2
+})
+
+var bot_0_0_up = cloneDeep(botBase, {
+  cellX: 0,
+  cellY: 0,
+})
+
+var testMoveBot = {
+
+  /**
+   * non-torus moves on an empty board:
+   *************************************************************************/
+  "non-torus moves on an empty board: move up": {
+    board: cloneDeep(emptyBoard),
+    bot: cloneDeep(bot_2_2_up),
+    expected: {
+      board: cloneDeep(emptyBoard),
+      bot: cloneDeep(bot_2_2_up, {
+        cellY: 1,
+        animations: {nonTorusMove: true},
+        depositMarker: [
+          {x: 2, y: 2, botColor: BotColor.BLUE, quadrant: Direction.UP},
+          {x: 2, y: 1, botColor: BotColor.BLUE, quadrant: Direction.DOWN}
+        ]
+      })
+    }
+  },
+  "non-torus moves on an empty board: move down": {
+    board: cloneDeep(emptyBoard),
+    bot: cloneDeep(bot_2_2_up, {facing: Direction.DOWN} ),
+    expected: {
+      board: cloneDeep(emptyBoard),
+      bot: cloneDeep(bot_2_2_up, {
+        facing: Direction.DOWN,
+        cellY: 3,
+        animations: {nonTorusMove: true},
+        depositMarker: [
+          {x: 2, y: 2, botColor: BotColor.BLUE, quadrant: Direction.DOWN},
+          {x: 2, y: 3, botColor: BotColor.BLUE, quadrant: Direction.UP}
+        ]
+      })
+    }
+  },
+  "non-torus moves on an empty board: move left": {
+    board: cloneDeep(emptyBoard),
+    bot: cloneDeep(bot_2_2_up, {facing: Direction.LEFT} ),
+    expected: {
+      board: cloneDeep(emptyBoard),
+      bot: cloneDeep(bot_2_2_up, {
+        facing: Direction.LEFT,
+        cellX: 1,
+        animations: {nonTorusMove: true},
+        depositMarker: [
+          {x: 2, y: 2, botColor: BotColor.BLUE, quadrant: Direction.LEFT},
+          {x: 1, y: 2, botColor: BotColor.BLUE, quadrant: Direction.RIGHT}
+        ]
+      })
+    }
+  },
+  "non-torus moves on an empty board: move right": {
+    board: cloneDeep(emptyBoard),
+    bot: cloneDeep(bot_2_2_up, {facing: Direction.RIGHT} ),
+    expected: {
+      board: cloneDeep(emptyBoard),
+      bot: cloneDeep(bot_2_2_up, {
+        facing: Direction.RIGHT,
+        cellX: 3,
+        animations: {nonTorusMove: true},
+        depositMarker: [
+          {x: 2, y: 2, botColor: BotColor.BLUE, quadrant: Direction.RIGHT},
+          {x: 3, y: 2, botColor: BotColor.BLUE, quadrant: Direction.LEFT}
+        ]
+      })
+    }
+  },
+
+  /**
+   * __torus__ moves on an empty board
+   *************************************************************************/
+  "torus moves on an empty board: move up": {
+    board: cloneDeep(emptyBoard),
+    bot: cloneDeep(bot_0_0_up),
+    expected: {
+      board: cloneDeep(emptyBoard),
+      bot: cloneDeep(bot_0_0_up, {
+        cellY: 4,
+        animations: {torusMove: {
+          prevX: 0,
+          prevY: 0,
+          oobPrevX: 0,
+          oobPrevY: 5,
+          oobNextX: 0,
+          oobNextY: -1
+        }},
+        depositMarker: [
+          {x: 0, y: 0, botColor: BotColor.BLUE, quadrant: Direction.UP},
+          {x: 0, y: 4, botColor: BotColor.BLUE, quadrant: Direction.DOWN}
+        ]
+      })
+    }
+  },
+
+  "torus moves on an empty board: move down": {
+    board: cloneDeep(emptyBoard),
+    bot: cloneDeep(bot_0_0_up, {
+      facing: Direction.DOWN,
+      cellY: 4
+    }),
+    expected: {
+      board: cloneDeep(emptyBoard),
+      bot: cloneDeep(bot_0_0_up, {
+        facing: Direction.DOWN,
+        cellY: 0,
+        animations: {torusMove: {
+          prevX: 0,
+          prevY: 4,
+          oobPrevX: 0,
+          oobPrevY: -1,
+          oobNextX: 0,
+          oobNextY: 5
+        }},
+        depositMarker: [
+          {x: 0, y: 4, botColor: BotColor.BLUE, quadrant: Direction.DOWN},
+          {x: 0, y: 0, botColor: BotColor.BLUE, quadrant: Direction.UP}
+        ]
+      })
+    }
+  },
+  "torus moves on an empty board: move left": {
+    board: cloneDeep(emptyBoard),
+    bot: cloneDeep(bot_0_0_up, {facing: Direction.LEFT} ),
+    expected: {
+      board: cloneDeep(emptyBoard),
+      bot: cloneDeep(bot_0_0_up, {
+        facing: Direction.LEFT,
+        cellX: 3,
+        animations: {torusMove: {
+          prevX: 0,
+          prevY: 0,
+          oobPrevX: 4,
+          oobPrevY: 0,
+          oobNextX: -1,
+          oobNextY: 0
+        }},
+        depositMarker: [
+          {x: 0, y: 0, botColor: BotColor.BLUE, quadrant: Direction.LEFT},
+          {x: 3, y: 0, botColor: BotColor.BLUE, quadrant: Direction.RIGHT}
+        ]
+      })
+    }
+  },
+  "torus moves on an empty board: move right": {
+    board: cloneDeep(emptyBoard),
+    bot: cloneDeep(bot_0_0_up, {
+      facing: Direction.RIGHT,
+      cellX: 3
+    }),
+    expected: {
+      board: cloneDeep(emptyBoard),
+      bot: cloneDeep(bot_0_0_up, {
+        facing: Direction.RIGHT,
+        cellX: 0,
+        animations: {torusMove: {
+          prevX: 3,
+          prevY: 0,
+          oobPrevX: -1,
+          oobPrevY: 0,
+          oobNextX: 4,
+          oobNextY: 0
+        }},
+        depositMarker: [
+          {x: 3, y: 0, botColor: BotColor.BLUE, quadrant: Direction.RIGHT},
+          {x: 0, y: 0, botColor: BotColor.BLUE, quadrant: Direction.LEFT}
+        ]
+      })
+    }
+  },
+}
+
+var boardWithCoins = cloneDeep(emptyBoard, {
+  coins : [
+    {x: 1, y: 1},
+    {x: 2, y: 2}
+  ]
+})
+
+/**
+ * moving bot picks up coins
+ *************************************************************************/
+testMoveBot = _.assign(testMoveBot, {
+
+  "moving bot picks up a coin": {
+    board: cloneDeep(boardWithCoins),
+    bot: cloneDeep(bot_0_0_up, {
+      cellX: 1,
+      cellY: 2
+    }),
+    expected: {
+      board: cloneDeep(boardWithCoins, {
+        coins: [
+          {x: 2, y: 2}
+        ],
+        coinsCollected: 1
+      }),
+      bot: cloneDeep(bot_0_0_up, {
+        cellX: 1,
+        cellY: 1,
+        animations: {
+          nonTorusMove: true,
+          coin_collect: {x: 1, y: 1}
+        },
+        depositMarker: [
+          {x: 1, y: 2, botColor: BotColor.BLUE, quadrant: Direction.UP},
+          {x: 1, y: 1, botColor: BotColor.BLUE, quadrant: Direction.DOWN}
+        ]
+      })
+    }
+  }
+})
+
+
+/**
+ * moving bot bumps into block
+ *************************************************************************/
+var boardWithCoinsBlocks = cloneDeep(boardWithCoins, {
+  blocks : [
+    {x: 3, y: 3}
+  ]
+})
+
+testMoveBot = _.assign(testMoveBot, {
+
+  "moving bot bumps into a block": {
+    board: cloneDeep(boardWithCoinsBlocks),
+    bot: cloneDeep(bot_0_0_up, {
+      cellX: 2,
+      cellY: 3,
+      facing: Direction.RIGHT
+    }),
+    expected: {
+      board: cloneDeep(boardWithCoinsBlocks),
+      bot: cloneDeep(bot_0_0_up, {
+        cellX: 2,
+        cellY: 3,
+        facing: Direction.RIGHT,
+        animations: {
+          failMove: {
+            destX: 3,
+            destY: 3
+          }
+        }
+      })
+    }
+  }
+})
+
+for (TC_NAME in testMoveBot) {
+  TC = testMoveBot[TC_NAME]
+  var board = cloneDeep(TC.board)
+  var bot = cloneDeep(TC.bot)
+  executeMove(board, bot)
+  RESULT = {
+    board: board,
+    bot: bot
+  }
+  test(_.isEqual(RESULT, TC.expected))
+}
+/**
+ * Copyright 2013 Michael N. Gagnon
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+var TEST_FILENAME = "js_test/simulator/test_executeTurn.js"
+
+/**
+ * test execution of move instruction
+ *************************************************************************/
+
+
+var botBase = {
+  animations: {},
+}
+
+var testExecuteTurn = {
+  "facing up, turn left": {
+    bot: cloneDeep(botBase, {
+      facing: Direction.UP,
+    }),
+    turnDirection: Direction.LEFT,
+    expected: cloneDeep(botBase, {
+      facing: Direction.LEFT,
+      animations: {
+        rotate: true
+      }
+    }),
+  },
+  "facing up, turn right": {
+    bot: cloneDeep(botBase, {
+      facing: Direction.UP,
+    }),
+    turnDirection: Direction.RIGHT,
+    expected: cloneDeep(botBase, {
+      facing: Direction.RIGHT,
+      animations: {
+        rotate: true
+      }
+    }),
+  },
+
+    "facing right, turn left": {
+    bot: cloneDeep(botBase, {
+      facing: Direction.RIGHT,
+    }),
+    turnDirection: Direction.LEFT,
+    expected: cloneDeep(botBase, {
+      facing: Direction.UP,
+      animations: {
+        rotate: true
+      }
+    }),
+  },
+  "facing right, turn right": {
+    bot: cloneDeep(botBase, {
+      facing: Direction.RIGHT,
+    }),
+    turnDirection: Direction.RIGHT,
+    expected: cloneDeep(botBase, {
+      facing: Direction.DOWN,
+      animations: {
+        rotate: true
+      }
+    }),
+  },
+
+    "facing down, turn left": {
+    bot: cloneDeep(botBase, {
+      facing: Direction.DOWN,
+    }),
+    turnDirection: Direction.LEFT,
+    expected: cloneDeep(botBase, {
+      facing: Direction.RIGHT,
+      animations: {
+        rotate: true
+      }
+    }),
+  },
+  "facing down, turn right": {
+    bot: cloneDeep(botBase, {
+      facing: Direction.DOWN,
+    }),
+    turnDirection: Direction.RIGHT,
+    expected: cloneDeep(botBase, {
+      facing: Direction.LEFT,
+      animations: {
+        rotate: true
+      }
+    }),
+  },
+
+    "facing left, turn left": {
+    bot: cloneDeep(botBase, {
+      facing: Direction.LEFT,
+    }),
+    turnDirection: Direction.LEFT,
+    expected: cloneDeep(botBase, {
+      facing: Direction.DOWN,
+      animations: {
+        rotate: true
+      }
+    }),
+  },
+  "facing left, turn right": {
+    bot: cloneDeep(botBase, {
+      facing: Direction.LEFT,
+    }),
+    turnDirection: Direction.RIGHT,
+    expected: cloneDeep(botBase, {
+      facing: Direction.UP,
+      animations: {
+        rotate: true
+      }
+    }),
+  },
+}
+
+for (TC_NAME in testExecuteTurn) {
+  TC = testExecuteTurn[TC_NAME]
+  var bot = cloneDeep(TC.bot)
+  executeTurn(bot, TC.turnDirection)
+  RESULT = bot
+  test(_.isEqual(RESULT, TC.expected))
+}
+/**
+ * Copyright 2013 Michael N. Gagnon
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+var TEST_FILENAME = "js_test/simulator/test_tryMove.js"
+
+var board = {blocks : [{x:5,y:5}]}
+var bot = {facing: "any"}
+var testTryMove = {
+  "move blocked": {board: board, bot: bot, x: 5, y: 5, expected: false},
+  "move succeed #1": {board: board, bot: bot, x: 5, y: 6, expected: true},
+  "move succeed #2": {board: board, bot: bot, x: 6, y: 5, expected: true},
+  "move succeed #3": {board: board, bot: bot, x: 6, y: 6, expected: true}
+}
+
+for (TC_NAME in testTryMove) {
+  var TC = testTryMove[TC_NAME]
+  var RESULT = tryMove(TC.board, TC.bot, TC.x, TC.y)
+  test(_.isEqual(RESULT, TC.expected))
+}
+
+/*for (var TC_I = 0; TC_I < testTryMove.length; TC_I++) {
+  var TC = testTryMove[TC_I]
+  var RESULT = tryMove(TC.board, TC.bot, TC.x, TC.y)
+  test(_.isEqual(RESULT, TC.expected))
+}*/
 

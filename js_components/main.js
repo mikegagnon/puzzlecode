@@ -60,8 +60,24 @@ var CELL_SIZE = 32,
     DISABLED_CODE_THEME = "solarized_dim dark"
 
 var PUZZLE_1 = {
+  id: "puzzle1",
+  name: "Collect the coins",
+  description: "Collect all the coins on the board.",
+  hint: "tbd",
+  win_conditions: [
+    {type: WinCondition.COLLECT_COINS}
+  ],
+  constraints: [],
+  on_victory: [
+    {type: OnVictory.UNLOCK_NEXT_LEVEL},
+    {type: OnVictory.UNLOCK_NEXT_WORLD}
+  ],
+  solutions: [
+    "move\nmove\nturn left\nmove\nmove\nmove\nmove\nmove\n",
+  ],
   num_cols: 9,
   num_rows: 7,
+  programming_bot_index: 0,
   bots : [
     {
       botColor: BotColor.BLUE,
@@ -81,6 +97,45 @@ var PUZZLE_1 = {
   blocks: [
     {x:2, y:2},
     {x:2, y:3},
+  ]
+}
+
+var PUZZLE_2 = PUZZLE_1
+
+var WORLD_1 = {
+  id: "world1",
+  name: "Move &amp; Turn",
+  levels: [
+    PUZZLE_1,
+    PUZZLE_2
+  ]
+}
+
+var WORLD_2 = WORLD_1
+
+// simply a list of all worlds
+// This data structure is intended to be 100% immutable
+var PUZZLE_CAMPAIGN = [
+  WORLD_1,
+  WORLD_2]
+
+var PUZZLE_CAMPAIGN_STATE = {
+  current_level: {
+    world_index: 0,
+    level_index: 0
+  },
+  visible_worlds: [
+    {
+      index: 0,
+      completed: false
+    }
+  ],
+  visible_levels: [
+    {
+      world_index: 0,
+      level_index: 0,
+      completed: false
+    }
   ]
 }
 

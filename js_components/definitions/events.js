@@ -39,16 +39,11 @@ function windowOnLoad() {
 
   registerEventHandlers()
 
-    // BOOKMARK TODO: Setup program compilation for a particular puzzle
-  var programText = PUZZLE_1.bots[0].program
-
-  setupCodeMirrorBox(programText)
-
-  restartSimulation()
-
   // TODO: where should i put this?
   ANIMATE_INTERVAL = setInterval("animate()", CYCLE_DUR)
   nonBotAnimateInterval = setInterval("nonBotAnimate()", NON_BOT_CYCLE_DUR)
+
+  loadCampaign(PUZZLE_CAMPAIGN, PUZZLE_CAMPAIGN_STATE)
 }
 
 /**
