@@ -2050,7 +2050,7 @@ function setupLevelSelect(state) {
   var visibleWorlds = _.keys(state.visibility)
   if (visibleWorlds.length == 1 &&
     _.keys(state.visibility[visibleWorlds[0]]).length == 1) {
-    //$("#accordionLevelSelect").attr("style", "display: none;")
+    $("#accordionLevelSelect").attr("style", "display: none;")
   } else {
     $("#accordionLevelSelect").removeAttr("style")
   } 
@@ -2132,8 +2132,6 @@ function getLevelNameHtml(world_index, level_index, name, completed) {
   return '<i class="' + completedClass + '"></i> ' + levelName
 }
 
-// TODO: BUG: addLevelToMenu keeps getting called even when the level
-// has already been added
 function addLevelToMenu(campaign, state, world_index, level_index) {
 
   var completed = state.visibility[world_index][level_index]
