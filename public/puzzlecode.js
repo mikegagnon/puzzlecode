@@ -63,7 +63,9 @@ function setupVictoryModal(campaign, state) {
       var next_world_index = world_index + 1
 
       // if the next_level currently not accessible, then add it to the modal
-      if (!isLevelAccessible(state, next_world_index, 0)) {    
+      if (!isLevelAccessible(state, next_world_index, 0)) {
+        numAnnouncements += 1
+
         var next_world_name = campaign[next_world_index].name
         var next_level_name = campaign[next_world_index].levels[0].name
 
@@ -96,7 +98,6 @@ function setupVictoryModal(campaign, state) {
  */
 function loadBoard(campaign, state) {
   var lev = state.current_level
-  console.dir(lev)
   var boardConfig = campaign[lev.world_index].levels[lev.level_index]
 
   var board = {
@@ -958,7 +959,6 @@ var OnVictory = {
 function loadWorldMenu(campaign, state) {
 
   for (world_index in state.visibility) {
-    console.log("world_index = " + world_index)
     addWorldToMenu(
       campaign,
       state,
@@ -993,6 +993,8 @@ function loadLevel(campaign, state) {
 // show or hide the level menu, depending on whether or not multiple
 // levels can be played
 function setupLevelSelect(state) {
+
+  console.log("setupLevelSelect")
 
   var visibleWorlds = _.keys(state.visibility)
   if (visibleWorlds.length == 1 &&
@@ -1812,7 +1814,9 @@ function animateVictory(board, state) {
 
   setTimeout(function(){
     doPause()
+    console.log("checking victory")
     if (board.num_victory_announcements > 0) {
+      console.log("victory")
       $("#victoryModal").modal('show')
       setupLevelSelect(state)
     }
@@ -1823,8 +1827,10 @@ function animateVictory(board, state) {
 function animateLevelMenu(board, campaign, state) {
 
   if ("addWorld" in board.animations) {
+    console.log("addWorld")
     for (var i = 0; i < board.animations.addWorld.length; i++) {
       var world_index = board.animations.addWorld[i]
+      console.log(world_index)
       addWorldToMenu(campaign, state, world_index)      
     }
   }
@@ -1833,8 +1839,6 @@ function animateLevelMenu(board, campaign, state) {
     for (var i = 0; i < board.animations.addLevel.length; i++) {
       var world_index = board.animations.addLevel[i].world_index
       var level_index = board.animations.addLevel[i].level_index
-      console.log("animate")
-      console.dir(board.animations.addWorld[i])
       addLevelToMenu(campaign, state, world_index, level_index)
     }
   }
@@ -2048,8 +2052,6 @@ function getCompletedClass(completed) {
  */
 function addWorldToMenu(campaign, state, world_index) {
 
-  console.log("campaign")
-  console.dir(campaign)
 
   var world = campaign[world_index]
   var worldName = "World " + (parseInt(world_index) + 1) + ": " + world.name
@@ -2080,11 +2082,6 @@ function addWorldToMenu(campaign, state, world_index) {
 }
 
 function addLevelToMenu(campaign, state, world_index, level_index) {
-  console.log("addLevelToMenu")
-  console.dir(campaign)
-  console.dir(state)
-  console.log(world_index)
-  console.log(level_index)
 
   var completed = state.visibility[world_index][level_index]
   var completedClass = getCompletedClass(completed)
@@ -2179,7 +2176,7 @@ var PUZZLE_1 = {
   ],
   constraints: [],
   on_victory: [
-    {type: OnVictory.UNLOCK_NEXT_LEVEL},
+    //{type: OnVictory.UNLOCK_NEXT_LEVEL},
     {type: OnVictory.UNLOCK_NEXT_WORLD},
   ],
   solutions: [

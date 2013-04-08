@@ -29,8 +29,6 @@ function getCompletedClass(completed) {
  */
 function addWorldToMenu(campaign, state, world_index) {
 
-  console.log("campaign")
-  console.dir(campaign)
 
   var world = campaign[world_index]
   var worldName = "World " + (parseInt(world_index) + 1) + ": " + world.name
@@ -61,11 +59,6 @@ function addWorldToMenu(campaign, state, world_index) {
 }
 
 function addLevelToMenu(campaign, state, world_index, level_index) {
-  console.log("addLevelToMenu")
-  console.dir(campaign)
-  console.dir(state)
-  console.log(world_index)
-  console.log(level_index)
 
   var completed = state.visibility[world_index][level_index]
   var completedClass = getCompletedClass(completed)

@@ -70,7 +70,7 @@ var PUZZLE_1 = {
   ],
   constraints: [],
   on_victory: [
-    {type: OnVictory.UNLOCK_NEXT_LEVEL},
+    //{type: OnVictory.UNLOCK_NEXT_LEVEL},
     {type: OnVictory.UNLOCK_NEXT_WORLD},
   ],
   solutions: [

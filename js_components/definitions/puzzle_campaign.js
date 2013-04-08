@@ -17,7 +17,6 @@
 function loadWorldMenu(campaign, state) {
 
   for (world_index in state.visibility) {
-    console.log("world_index = " + world_index)
     addWorldToMenu(
       campaign,
       state,
@@ -52,6 +51,8 @@ function loadLevel(campaign, state) {
 // show or hide the level menu, depending on whether or not multiple
 // levels can be played
 function setupLevelSelect(state) {
+
+  console.log("setupLevelSelect")
 
   var visibleWorlds = _.keys(state.visibility)
   if (visibleWorlds.length == 1 &&

@@ -63,7 +63,9 @@ function setupVictoryModal(campaign, state) {
       var next_world_index = world_index + 1
 
       // if the next_level currently not accessible, then add it to the modal
-      if (!isLevelAccessible(state, next_world_index, 0)) {    
+      if (!isLevelAccessible(state, next_world_index, 0)) {
+        numAnnouncements += 1
+
         var next_world_name = campaign[next_world_index].name
         var next_level_name = campaign[next_world_index].levels[0].name
 
@@ -96,7 +98,6 @@ function setupVictoryModal(campaign, state) {
  */
 function loadBoard(campaign, state) {
   var lev = state.current_level
-  console.dir(lev)
   var boardConfig = campaign[lev.world_index].levels[lev.level_index]
 
   var board = {
