@@ -364,9 +364,7 @@ function animateVictory(board, state) {
 
   setTimeout(function(){
     doPause()
-    console.log("checking victory")
     if (board.num_victory_announcements > 0) {
-      console.log("victory")
       $("#victoryModal").modal('show')
       setupLevelSelect(state)
     }
@@ -377,10 +375,8 @@ function animateVictory(board, state) {
 function animateLevelMenu(board, campaign, state) {
 
   if ("addWorld" in board.animations) {
-    console.log("addWorld")
     for (var i = 0; i < board.animations.addWorld.length; i++) {
       var world_index = board.animations.addWorld[i]
-      console.log(world_index)
       addWorldToMenu(campaign, state, world_index)      
     }
   }

@@ -56,7 +56,7 @@ function setupVictoryModal(campaign, state) {
           + (next_level_index + 1)
           + ': '
           + next_level_name
-          + '</a>.'
+          + '</a>'
           + '</p>'
       }
     } else if (victoryEvent.type == OnVictory.UNLOCK_NEXT_WORLD) {
@@ -80,7 +80,7 @@ function setupVictoryModal(campaign, state) {
           + (next_world_index + 1)
           + '-1 '
           + next_level_name
-          + '</a>.'
+          + '</a>'
           + '</p>'
       }
     } else {

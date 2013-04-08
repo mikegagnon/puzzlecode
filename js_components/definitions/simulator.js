@@ -258,7 +258,7 @@ function updateLevelVisibility(board, campaign, state) {
     if (victoryEvent.type == OnVictory.UNLOCK_NEXT_LEVEL) {
       var next_level_index = parseInt(level_index + 1)  
       // if the level isn't already accessible
-      if (!(next_level_index in state.visibility)) {
+      if (!(next_level_index in state.visibility[world_index])) {
         state.visibility[world_index][next_level_index] = false
         animationAddLevel.push({
           world_index: world_index,

@@ -14,6 +14,19 @@
  * limitations under the License.
  */
 
+// show or hide the level menu, depending on whether or not multiple
+// levels can be played
+function setupLevelSelect(state) {
+
+  var visibleWorlds = _.keys(state.visibility)
+  if (visibleWorlds.length == 1 &&
+    _.keys(state.visibility[visibleWorlds[0]]).length == 1) {
+    $("#accordionLevelSelect").attr("style", "display: none;")
+  } else {
+    $("#accordionLevelSelect").removeAttr("style")
+  } 
+}
+
 function getCompletedClass(completed) {
   if (completed) {
     return "icon-ok"

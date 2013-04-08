@@ -56,7 +56,7 @@ function setupVictoryModal(campaign, state) {
           + (next_level_index + 1)
           + ': '
           + next_level_name
-          + '</a>.'
+          + '</a>'
           + '</p>'
       }
     } else if (victoryEvent.type == OnVictory.UNLOCK_NEXT_WORLD) {
@@ -80,7 +80,7 @@ function setupVictoryModal(campaign, state) {
           + (next_world_index + 1)
           + '-1 '
           + next_level_name
-          + '</a>.'
+          + '</a>'
           + '</p>'
       }
     } else {
@@ -980,27 +980,12 @@ function loadLevel(campaign, state) {
   var level = campaign[world_i].levels[level_i]
 
   var programText = level.bots[level.programming_bot_index].program
+  var programText = level.solutions[0]
 
   PROGRAMMING_BOT_INDEX = level.programming_bot_index
 
   setupCodeMirrorBox(programText)
   restartSimulation()
-}
-
-// show or hide the level menu, depending on whether or not multiple
-// levels can be played
-// TODO: put in visualize.js 
-function setupLevelSelect(state) {
-
-  console.log("setupLevelSelect")
-
-  var visibleWorlds = _.keys(state.visibility)
-  if (visibleWorlds.length == 1 &&
-    _.keys(state.visibility[visibleWorlds[0]]).length == 1) {
-    $("#accordionLevelSelect").attr("style", "display: none;")
-  } else {
-    $("#accordionLevelSelect").removeAttr("style")
-  } 
 }
 
 function loadCampaign(campaign, state) {
@@ -1266,9 +1251,12 @@ function updateLevelVisibility(board, campaign, state) {
   for (var i = 0; i < on_victory.length; i++) {
     var victoryEvent = on_victory[i]
     if (victoryEvent.type == OnVictory.UNLOCK_NEXT_LEVEL) {
+
+
       var next_level_index = parseInt(level_index + 1)  
       // if the level isn't already accessible
-      if (!(next_level_index in state.visibility)) {
+      if (!(next_level_index in state.visibility[world_index])) {
+        console.log("unlock next level")
         state.visibility[world_index][next_level_index] = false
         animationAddLevel.push({
           world_index: world_index,
@@ -1812,9 +1800,7 @@ function animateVictory(board, state) {
 
   setTimeout(function(){
     doPause()
-    console.log("checking victory")
     if (board.num_victory_announcements > 0) {
-      console.log("victory")
       $("#victoryModal").modal('show')
       setupLevelSelect(state)
     }
@@ -1825,10 +1811,8 @@ function animateVictory(board, state) {
 function animateLevelMenu(board, campaign, state) {
 
   if ("addWorld" in board.animations) {
-    console.log("addWorld")
     for (var i = 0; i < board.animations.addWorld.length; i++) {
       var world_index = board.animations.addWorld[i]
-      console.log(world_index)
       addWorldToMenu(campaign, state, world_index)      
     }
   }
@@ -2034,6 +2018,19 @@ var WinCondition = {
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+// show or hide the level menu, depending on whether or not multiple
+// levels can be played
+function setupLevelSelect(state) {
+
+  var visibleWorlds = _.keys(state.visibility)
+  if (visibleWorlds.length == 1 &&
+    _.keys(state.visibility[visibleWorlds[0]]).length == 1) {
+    $("#accordionLevelSelect").attr("style", "display: none;")
+  } else {
+    $("#accordionLevelSelect").removeAttr("style")
+  } 
+}
 
 function getCompletedClass(completed) {
   if (completed) {

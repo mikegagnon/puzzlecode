@@ -38,27 +38,12 @@ function loadLevel(campaign, state) {
   var level = campaign[world_i].levels[level_i]
 
   var programText = level.bots[level.programming_bot_index].program
+  var programText = level.solutions[0]
 
   PROGRAMMING_BOT_INDEX = level.programming_bot_index
 
   setupCodeMirrorBox(programText)
   restartSimulation()
-}
-
-// show or hide the level menu, depending on whether or not multiple
-// levels can be played
-// TODO: put in visualize.js 
-function setupLevelSelect(state) {
-
-  console.log("setupLevelSelect")
-
-  var visibleWorlds = _.keys(state.visibility)
-  if (visibleWorlds.length == 1 &&
-    _.keys(state.visibility[visibleWorlds[0]]).length == 1) {
-    $("#accordionLevelSelect").attr("style", "display: none;")
-  } else {
-    $("#accordionLevelSelect").removeAttr("style")
-  } 
 }
 
 function loadCampaign(campaign, state) {
