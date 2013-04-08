@@ -50,6 +50,7 @@ function loadLevel(campaign, state) {
 
 // show or hide the level menu, depending on whether or not multiple
 // levels can be played
+// TODO: put in visualize.js 
 function setupLevelSelect(state) {
 
   console.log("setupLevelSelect")

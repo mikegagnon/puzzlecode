@@ -58,6 +58,9 @@ function addWorldToMenu(campaign, state, world_index) {
       + '</li>')
 }
 
+
+// TODO: BUG: addLevelToMenu keeps getting called even when the level
+// has already been added
 function addLevelToMenu(campaign, state, world_index, level_index) {
 
   var completed = state.visibility[world_index][level_index]
