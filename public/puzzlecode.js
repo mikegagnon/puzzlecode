@@ -979,10 +979,7 @@ function loadLevel(campaign, state) {
   var level_i = state.current_level.level_index
   var level = campaign[world_i].levels[level_i]
 
-  // BOOKMARK TODO: Setup program compilation for a particular puzzle
   var programText = level.bots[level.programming_bot_index].program
-
-  var programText = level.solutions[0]
 
   PROGRAMMING_BOT_INDEX = level.programming_bot_index
 
@@ -992,6 +989,7 @@ function loadLevel(campaign, state) {
 
 // show or hide the level menu, depending on whether or not multiple
 // levels can be played
+// TODO: put in visualize.js 
 function setupLevelSelect(state) {
 
   console.log("setupLevelSelect")
@@ -2081,6 +2079,9 @@ function addWorldToMenu(campaign, state, world_index) {
       + '</li>')
 }
 
+
+// TODO: BUG: addLevelToMenu keeps getting called even when the level
+// has already been added
 function addLevelToMenu(campaign, state, world_index, level_index) {
 
   var completed = state.visibility[world_index][level_index]

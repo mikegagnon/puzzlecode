@@ -37,10 +37,7 @@ function loadLevel(campaign, state) {
   var level_i = state.current_level.level_index
   var level = campaign[world_i].levels[level_i]
 
-  // BOOKMARK TODO: Setup program compilation for a particular puzzle
   var programText = level.bots[level.programming_bot_index].program
-
-  var programText = level.solutions[0]
 
   PROGRAMMING_BOT_INDEX = level.programming_bot_index
 
