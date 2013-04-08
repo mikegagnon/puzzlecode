@@ -2072,13 +2072,6 @@ function getWorldNameHtml(world_index, name, completed) {
     + ": "
     + name
 
-/*  return '<a class="btn dropdown-toggle level-select"'
-      +       'data-toggle="dropdown" href="#">'
-      +       '<i class="' + completedClass + '"></i> '
-      +       worldName
-      +       '<span class="caret world-menu-caret"></span>'
-      +    '</a>'*/
-
   return '<i class="' + completedClass + '"></i> '
       + worldName
       +  '<span class="caret world-menu-caret"></span>'
@@ -2100,16 +2093,6 @@ function addWorldToMenu(campaign, state, world_index) {
       worldCompleted = false
     }
   }
-
-  /*$("#levelmenu")
-    .append(
-      '<li id="' + world.id + '">'
-      +  '<div class="btn-group">'
-      +     getWorldNameHtml(world_index, world.name, worldCompleted)
-      +    '<ul class="dropdown-menu">'
-      +    '</ul>'
-      +  '</div>'
-      + '</li>')*/
 
   $("#levelmenu")
     .append(
@@ -2146,10 +2129,7 @@ function getLevelNameHtml(world_index, level_index, name, completed) {
     + (parseInt(level_index) + 1)
     + ": " + name
 
-  return '<a tabindex="-1" href="#">'
-      + '<i class="' + completedClass + '"></i> '
-      + levelName
-      + '</a>'
+  return '<i class="' + completedClass + '"></i> ' + levelName
 }
 
 // TODO: BUG: addLevelToMenu keeps getting called even when the level
@@ -2164,7 +2144,9 @@ function addLevelToMenu(campaign, state, world_index, level_index) {
   $("#" + world.id)
     .find(".dropdown-menu")
     .append('<li id="' + level.id + '">'
+      + '<a tabindex="-1" class="level-link" href="#">'
       + getLevelNameHtml(world_index, level_index, level.name, completed)
+      + '</a>'
       + '</li>')
 }
 
@@ -2175,6 +2157,7 @@ function worldMenuCheckLevel(campaign, world_index, level_index) {
   var level = campaign[world_index].levels[level_index]
 
   $("#" + level.id)
+    .find(".level-link")
     .html(getLevelNameHtml(world_index, level_index, level.name, true))
 
 }
@@ -2251,7 +2234,7 @@ var PUZZLE_1 = {
   ],
   constraints: [],
   on_victory: [
-    //{type: OnVictory.UNLOCK_NEXT_LEVEL},
+    {type: OnVictory.UNLOCK_NEXT_LEVEL},
     {type: OnVictory.UNLOCK_NEXT_WORLD},
   ],
   solutions: [
@@ -2291,7 +2274,7 @@ var WORLD_1 = {
   name: "Move &amp; Turn",
   levels: [
     PUZZLE_1,
-    //PUZZLE_2
+    PUZZLE_2
   ]
 }
 

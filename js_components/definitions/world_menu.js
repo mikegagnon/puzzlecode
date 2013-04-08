@@ -100,14 +100,9 @@ function getLevelNameHtml(world_index, level_index, name, completed) {
     + (parseInt(level_index) + 1)
     + ": " + name
 
-  return '<a tabindex="-1" href="#">'
-      + '<i class="' + completedClass + '"></i> '
-      + levelName
-      + '</a>'
+  return '<i class="' + completedClass + '"></i> ' + levelName
 }
 
-// TODO: BUG: addLevelToMenu keeps getting called even when the level
-// has already been added
 function addLevelToMenu(campaign, state, world_index, level_index) {
 
   var completed = state.visibility[world_index][level_index]
@@ -118,7 +113,9 @@ function addLevelToMenu(campaign, state, world_index, level_index) {
   $("#" + world.id)
     .find(".dropdown-menu")
     .append('<li id="' + level.id + '">'
+      + '<a tabindex="-1" class="level-link" href="#">'
       + getLevelNameHtml(world_index, level_index, level.name, completed)
+      + '</a>'
       + '</li>')
 }
 
@@ -129,6 +126,7 @@ function worldMenuCheckLevel(campaign, world_index, level_index) {
   var level = campaign[world_index].levels[level_index]
 
   $("#" + level.id)
+    .find(".level-link")
     .html(getLevelNameHtml(world_index, level_index, level.name, true))
 
 }

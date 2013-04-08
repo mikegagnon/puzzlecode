@@ -70,7 +70,7 @@ var PUZZLE_1 = {
   ],
   constraints: [],
   on_victory: [
-    //{type: OnVictory.UNLOCK_NEXT_LEVEL},
+    {type: OnVictory.UNLOCK_NEXT_LEVEL},
     {type: OnVictory.UNLOCK_NEXT_WORLD},
   ],
   solutions: [
@@ -110,7 +110,7 @@ var WORLD_1 = {
   name: "Move &amp; Turn",
   levels: [
     PUZZLE_1,
-    //PUZZLE_2
+    PUZZLE_2
   ]
 }
 
