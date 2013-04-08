@@ -20,10 +20,64 @@ function setBotProgram(board, botIndex, program) {
   board.bots[botIndex].program = program
 }
 
+// TODO: have links to levels work
+function setupVictoryModal(campaign, state) {
+
+  var world_index = state.current_level.world_index
+  var level_index = state.current_level.level_index
+  var on_victory = campaign[world_index].levels[level_index].on_victory
+  assert(on_victory.length > 0, "setupVictoryModal: on_victory.length > 0")
+
+  var html = ""
+  for (var i = 0; i < on_victory.length; i++) {
+    var victoryEvent = on_victory[i]
+    if (victoryEvent.type == OnVictory.UNLOCK_NEXT_LEVEL) {
+      var next_level_index = level_index + 1
+      var next_level_name = campaign[world_index].levels[next_level_index].name
+      html += '<p>'
+        + '<span class="label label-info victory-label">New level</span> '
+        + 'You unlocked <a href="#">Level '
+        + (world_index + 1)
+        + '-'
+        + (next_level_index + 1)
+        + ': '
+        + next_level_name
+        + '</a>.'
+        + '</p>'
+    } else if (victoryEvent.type == OnVictory.UNLOCK_NEXT_WORLD) {
+      var next_world_index = world_index + 1
+      var next_world_name = campaign[next_world_index].name
+      var next_level_name = campaign[next_world_index].levels[0].name
+
+      html += '<p>'
+        + '<span class="label label-success victory-label">New world</span> '
+        + 'You unlocked World '
+        + (next_world_index + 1)
+        + ': '
+        + next_world_name
+        + ', <a href="#"> '
+        + 'Level '
+        + (next_world_index + 1)
+        + '-1 '
+        + next_level_name
+        + '</a>.'
+        + '</p>'
+    } else {
+      console.error("unknown victoryEvent.type == " + victoryEvent.type)
+    }
+  }
+
+  $("#victoryModalBody").html(html)
+}
+
 /**
  * Given a "board-configuration object," yields a new board object
  */
-function loadBoard(boardConfig) {
+function loadBoard(campaign, state) {
+  var lev = state.current_level
+  console.dir(lev)
+  var boardConfig = campaign[lev.world_index].levels[lev.level_index]
+
   var board = {
     num_cols: boardConfig.num_cols,
     num_rows: boardConfig.num_rows,
@@ -33,6 +87,8 @@ function loadBoard(boardConfig) {
   }
 
   board.on_victory = cloneDeep(boardConfig.on_victory)
+  setupVictoryModal(campaign, state)
+
   board.win_conditions = cloneDeep(boardConfig.win_conditions)
 
   // set to true once victory has been achieved
@@ -67,6 +123,7 @@ function loadBoard(boardConfig) {
       board.bots.push(bot)
     }
   }
+
 
   return board
 }

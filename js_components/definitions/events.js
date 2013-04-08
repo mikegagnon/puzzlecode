@@ -212,7 +212,7 @@ function restartSimulation() {
 
   cleanUpVisualization()
 
-  BOARD = loadBoard(PUZZLE_1)
+  BOARD = loadBoard(PUZZLE_CAMPAIGN, PUZZLE_CAMPAIGN_STATE)
 
   var program = compile()
   setBotProgram(BOARD, PROGRAMING_BOT_INDEX, program)

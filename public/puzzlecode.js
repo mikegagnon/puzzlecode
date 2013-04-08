@@ -20,10 +20,64 @@ function setBotProgram(board, botIndex, program) {
   board.bots[botIndex].program = program
 }
 
+// TODO: have links to levels work
+function setupVictoryModal(campaign, state) {
+  
+  var world_index = state.current_level.world_index
+  var level_index = state.current_level.level_index
+  var on_victory = campaign[world_index].levels[level_index].on_victory
+  assert(on_victory.length > 0, "setupVictoryModal: on_victory.length > 0")
+
+  var html = ""
+  for (var i = 0; i < on_victory.length; i++) {
+    var victoryEvent = on_victory[i]
+    if (victoryEvent.type == OnVictory.UNLOCK_NEXT_LEVEL) {
+      var next_level_index = level_index + 1
+      var next_level_name = campaign[world_index].levels[next_level_index].name
+      html += '<p>'
+        + '<span class="label label-info victory-label">New level</span> '
+        + 'You unlocked <a href="#">Level '
+        + (world_index + 1)
+        + '-'
+        + (next_level_index + 1)
+        + ': '
+        + next_level_name
+        + '</a>.'
+        + '</p>'
+    } else if (victoryEvent.type == OnVictory.UNLOCK_NEXT_WORLD) {
+      var next_world_index = world_index + 1
+      var next_world_name = campaign[next_world_index].name
+      var next_level_name = campaign[next_world_index].levels[0].name
+
+      html += '<p>'
+        + '<span class="label label-success victory-label">New world</span> '
+        + 'You unlocked World '
+        + (next_world_index + 1)
+        + ': '
+        + next_world_name
+        + ', <a href="#"> '
+        + 'Level '
+        + (next_world_index + 1)
+        + '-1 '
+        + next_level_name
+        + '</a>.'
+        + '</p>'
+    } else {
+      console.error("unknown victoryEvent.type == " + victoryEvent.type)
+    }
+  }
+
+  $("#victoryModalBody").html(html)
+}
+
 /**
  * Given a "board-configuration object," yields a new board object
  */
-function loadBoard(boardConfig) {
+function loadBoard(campaign, state) {
+  var lev = state.current_level
+  console.dir(lev)
+  var boardConfig = campaign[lev.world_index].levels[lev.level_index]
+
   var board = {
     num_cols: boardConfig.num_cols,
     num_rows: boardConfig.num_rows,
@@ -33,6 +87,8 @@ function loadBoard(boardConfig) {
   }
 
   board.on_victory = cloneDeep(boardConfig.on_victory)
+  setupVictoryModal(campaign, state)
+
   board.win_conditions = cloneDeep(boardConfig.win_conditions)
 
   // set to true once victory has been achieved
@@ -67,6 +123,7 @@ function loadBoard(boardConfig) {
       board.bots.push(bot)
     }
   }
+
 
   return board
 }/**
@@ -829,7 +886,7 @@ function restartSimulation() {
 
   cleanUpVisualization()
 
-  BOARD = loadBoard(PUZZLE_1)
+  BOARD = loadBoard(PUZZLE_CAMPAIGN, PUZZLE_CAMPAIGN_STATE)
 
   var program = compile()
   setBotProgram(BOARD, PROGRAMING_BOT_INDEX, program)
@@ -928,10 +985,7 @@ function loadLevel(campaign, state) {
   restartSimulation()
 }
 
-function loadCampaign(campaign, state) {
-  loadWorldMenu(campaign, state)
-  loadLevel(campaign, state)
-
+function setupLevelSelect(state) {
   assert(state.visible_levels.length != 0,
     "state.visible_levels.length != 0")
 
@@ -940,8 +994,15 @@ function loadCampaign(campaign, state) {
     $("#accordionLevelSelect").attr("style", "display: none;")
   } else {
     $("#accordionLevelSelect").removeAttr("style")
-  }
-}/**
+  } 
+}
+
+function loadCampaign(campaign, state) {
+  loadWorldMenu(campaign, state)
+  loadLevel(campaign, state)
+  setupLevelSelect(state) 
+}
+/**
  * Copyright 2013 Michael N. Gagnon
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -1672,7 +1733,7 @@ function animateVictory(board) {
         .attr("r", 0)
         .attr("cx", function(){ return Math.floor(board.num_cols / 2) * CELL_SIZE + CELL_SIZE/2} )
         .attr("cy", function(){ return Math.floor(board.num_rows / 2) * CELL_SIZE + CELL_SIZE/2} )
-        .transition(ANIMATION_DUR)
+        .transition()
         .delay(ANIMATION_DUR + ANIMATION_DUR * Math.random())
         .attr("cx", function(){ return randInt(board.num_cols) * CELL_SIZE + CELL_SIZE/2} )
         .attr("cy", function(){ return randInt(board.num_rows) * CELL_SIZE + CELL_SIZE/2} )
@@ -1680,8 +1741,18 @@ function animateVictory(board) {
         .attr("stroke-width", "0")
         .attr("r", board.num_rows * CELL_SIZE * 2 / 3)
         .ease(EASING)
-        .duration(ANIMATION_DUR * 2)
+        .duration(VICTORY_DUR)
     })
+
+  setTimeout(function(){
+    doPause()
+  }, ANIMATION_DUR);
+
+  setTimeout(function(){
+    doPause()
+    $("#victoryModal").modal('show')
+  }, VICTORY_DUR * 2);
+
 }
 
 
@@ -1990,6 +2061,7 @@ var CELL_SIZE = 32,
     INIT_PLAY_SPEED = PlaySpeed.NORMAL,
     ANIMATION_DUR = INIT_PLAY_SPEED[0]
     CYCLE_DUR = INIT_PLAY_SPEED[1],
+    VICTORY_DUR = 600
     EASING = INIT_PLAY_SPEED[3],
     NON_BOT_ANIMATION_DUR = PlaySpeed.SLOW[0],
     NON_BOT_CYCLE_DUR = NON_BOT_ANIMATION_DUR,
@@ -2011,7 +2083,7 @@ var PUZZLE_1 = {
   constraints: [],
   on_victory: [
     {type: OnVictory.UNLOCK_NEXT_LEVEL},
-    {type: OnVictory.UNLOCK_NEXT_WORLD}
+    {type: OnVictory.UNLOCK_NEXT_WORLD},
   ],
   solutions: [
     "move\nmove\nturn left\nmove\nmove\nmove\nmove\n",

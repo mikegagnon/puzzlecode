@@ -49,6 +49,7 @@ var CELL_SIZE = 32,
     INIT_PLAY_SPEED = PlaySpeed.NORMAL,
     ANIMATION_DUR = INIT_PLAY_SPEED[0]
     CYCLE_DUR = INIT_PLAY_SPEED[1],
+    VICTORY_DUR = 600
     EASING = INIT_PLAY_SPEED[3],
     NON_BOT_ANIMATION_DUR = PlaySpeed.SLOW[0],
     NON_BOT_CYCLE_DUR = NON_BOT_ANIMATION_DUR,
@@ -70,7 +71,7 @@ var PUZZLE_1 = {
   constraints: [],
   on_victory: [
     {type: OnVictory.UNLOCK_NEXT_LEVEL},
-    {type: OnVictory.UNLOCK_NEXT_WORLD}
+    {type: OnVictory.UNLOCK_NEXT_WORLD},
   ],
   solutions: [
     "move\nmove\nturn left\nmove\nmove\nmove\nmove\n",

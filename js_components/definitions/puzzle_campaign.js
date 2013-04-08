@@ -65,10 +65,7 @@ function loadLevel(campaign, state) {
   restartSimulation()
 }
 
-function loadCampaign(campaign, state) {
-  loadWorldMenu(campaign, state)
-  loadLevel(campaign, state)
-
+function setupLevelSelect(state) {
   assert(state.visible_levels.length != 0,
     "state.visible_levels.length != 0")
 
@@ -77,6 +74,11 @@ function loadCampaign(campaign, state) {
     $("#accordionLevelSelect").attr("style", "display: none;")
   } else {
     $("#accordionLevelSelect").removeAttr("style")
-  }
+  } 
+}
 
+function loadCampaign(campaign, state) {
+  loadWorldMenu(campaign, state)
+  loadLevel(campaign, state)
+  setupLevelSelect(state) 
 }

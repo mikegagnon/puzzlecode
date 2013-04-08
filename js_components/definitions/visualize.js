@@ -347,7 +347,7 @@ function animateVictory(board) {
         .attr("r", 0)
         .attr("cx", function(){ return Math.floor(board.num_cols / 2) * CELL_SIZE + CELL_SIZE/2} )
         .attr("cy", function(){ return Math.floor(board.num_rows / 2) * CELL_SIZE + CELL_SIZE/2} )
-        .transition(ANIMATION_DUR)
+        .transition()
         .delay(ANIMATION_DUR + ANIMATION_DUR * Math.random())
         .attr("cx", function(){ return randInt(board.num_cols) * CELL_SIZE + CELL_SIZE/2} )
         .attr("cy", function(){ return randInt(board.num_rows) * CELL_SIZE + CELL_SIZE/2} )
@@ -355,8 +355,18 @@ function animateVictory(board) {
         .attr("stroke-width", "0")
         .attr("r", board.num_rows * CELL_SIZE * 2 / 3)
         .ease(EASING)
-        .duration(ANIMATION_DUR * 2)
+        .duration(VICTORY_DUR)
     })
+
+  setTimeout(function(){
+    doPause()
+  }, ANIMATION_DUR);
+
+  setTimeout(function(){
+    doPause()
+    $("#victoryModal").modal('show')
+  }, VICTORY_DUR * 2);
+
 }
 
 
