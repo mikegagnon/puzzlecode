@@ -957,13 +957,10 @@ var OnVictory = {
 
 function loadWorldMenu(campaign, state) {
 
-  // Add the visible worlds to the world menu
-  var prevWorldId = "menuworldtemplate"
-
   for (world_index in state.visibility) {
     var world = campaign[world_index]
-    var worldName = "World " + (world_index + 1) + ": " + world.name
-
+    var worldName = "World " + (parseInt(world_index) + 1) + ": " + world.name
+    console.log(worldName)
     // determine if the world has been completed
     var worldCompleted = true
     for (level_index in state.visibility[world_index]) {
@@ -972,18 +969,19 @@ function loadWorldMenu(campaign, state) {
       }
     }
 
+    console.log(world.id)
+
     addWorldToMenu(
       world.id,
-      prevWorldId,
       worldName,
       worldCompleted)
 
     for (level_index in state.visibility[world_index]) {
       var level = world.levels[level_index]
       var levelName = "Level "
-        + (world_index + 1)
+        + (parseInt(world_index) + 1)
         + "-"
-        + (level_index + 1)
+        + (parseInt(level_index) + 1)
         + ": " + level.name
       addLevelToMenu(
         world.id,
@@ -1012,9 +1010,10 @@ function loadLevel(campaign, state) {
   restartSimulation()
 }
 
+// show or hide the level menu, depending on whether or not multiple
+// levels can be played
 function setupLevelSelect(state) {
 
-  // hide the level menu if only one level is visible
   var visibleWorlds = _.keys(state.visibility)
   if (visibleWorlds.length == 1 &&
     _.keys(state.visibility[visibleWorlds[0]]).length == 1) {
@@ -2005,18 +2004,6 @@ var WinCondition = {
  * limitations under the License.
  */
 
-/**
-  <li id="menuworldtemplate" style="display: none;">
-    <div class="btn-group">
-      <a class="btn dropdown-toggle level-select"
-         data-toggle="dropdown" href="#">
-      </a>
-      <ul class="dropdown-menu">
-      </ul>
-    </div>   
-  </li>
-**/
-
 function getCompletedClass(completed) {
   if (completed) {
     return "icon-ok"
@@ -2028,30 +2015,26 @@ function getCompletedClass(completed) {
 /**
  * worldId: the id for the newly created world menu object (do not include '#')
  * text: the name of the world, e.g. "World 1: Move &amp; Turn"
- * insertAfter: insert this menu after this menu object. Should be an id,
- *    without the '#'.
  * completed: true iff world is completed, false otherwise
  */
-function addWorldToMenu(worldId, insertAfter, text, completed) {
+function addWorldToMenu(worldId, text, completed) {
 
   var completedClass = getCompletedClass(completed)
 
-  $("#menuworldtemplate")
-    .clone()
-    .attr("id", worldId)
-    /**
-     * the style attr is 'display: none'
-     * by deleting it, we make the element visible
-     */
-    .removeAttr("style")
-    // TODO: change to append
-    .insertAfter("#" + insertAfter)
-
-  $("#" + worldId)
-    .find(".level-select")
-    .append('<i class="' + completedClass + '"></i> '
-      + text
-      + '<span class="caret world-menu-caret"></span>')
+  $("#levelmenu")
+    .append(
+      '<li id="' + worldId + '">'
+      +  '<div class="btn-group">'
+      +    '<a class="btn dropdown-toggle level-select"'
+      +       'data-toggle="dropdown" href="#">'
+      +       '<i class="' + completedClass + '"></i> '
+      +       text
+      +       '<span class="caret world-menu-caret"></span>'
+      +    '</a>'
+      +    '<ul class="dropdown-menu">'
+      +    '</ul>'
+      +  '</div>'
+      + '</li>')
 }
 
 function addLevelToMenu(worldId, levelId, text, completed) {
@@ -2171,6 +2154,8 @@ var PUZZLE_1 = {
 }
 
 var PUZZLE_2 = PUZZLE_1
+var PUZZLE_3= PUZZLE_1
+var PUZZLE_4 = PUZZLE_1
 
 var WORLD_1 = {
   id: "world1",
@@ -2181,7 +2166,14 @@ var WORLD_1 = {
   ]
 }
 
-var WORLD_2 = WORLD_1
+var WORLD_2 = {
+  id: "world2",
+  name: "Goto",
+  levels: [
+    PUZZLE_3,
+    PUZZLE_4
+  ]
+}
 
 // simply a list of all worlds
 // This data structure is intended to be 100% immutable
@@ -2200,6 +2192,10 @@ var PUZZLE_CAMPAIGN_STATE = {
   // if all visible levels in a world are completed, then the world is completed
   visibility: {
     0: {
+      0: true,
+      1: false
+    },
+    1: {
       0: false
     }
   }

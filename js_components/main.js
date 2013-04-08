@@ -102,6 +102,8 @@ var PUZZLE_1 = {
 }
 
 var PUZZLE_2 = PUZZLE_1
+var PUZZLE_3= PUZZLE_1
+var PUZZLE_4 = PUZZLE_1
 
 var WORLD_1 = {
   id: "world1",
@@ -112,7 +114,14 @@ var WORLD_1 = {
   ]
 }
 
-var WORLD_2 = WORLD_1
+var WORLD_2 = {
+  id: "world2",
+  name: "Goto",
+  levels: [
+    PUZZLE_3,
+    PUZZLE_4
+  ]
+}
 
 // simply a list of all worlds
 // This data structure is intended to be 100% immutable
@@ -131,6 +140,10 @@ var PUZZLE_CAMPAIGN_STATE = {
   // if all visible levels in a world are completed, then the world is completed
   visibility: {
     0: {
+      0: true,
+      1: false
+    },
+    1: {
       0: false
     }
   }

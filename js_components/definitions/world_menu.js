@@ -14,18 +14,6 @@
  * limitations under the License.
  */
 
-/**
-  <li id="menuworldtemplate" style="display: none;">
-    <div class="btn-group">
-      <a class="btn dropdown-toggle level-select"
-         data-toggle="dropdown" href="#">
-      </a>
-      <ul class="dropdown-menu">
-      </ul>
-    </div>   
-  </li>
-**/
-
 function getCompletedClass(completed) {
   if (completed) {
     return "icon-ok"
@@ -37,30 +25,26 @@ function getCompletedClass(completed) {
 /**
  * worldId: the id for the newly created world menu object (do not include '#')
  * text: the name of the world, e.g. "World 1: Move &amp; Turn"
- * insertAfter: insert this menu after this menu object. Should be an id,
- *    without the '#'.
  * completed: true iff world is completed, false otherwise
  */
-function addWorldToMenu(worldId, insertAfter, text, completed) {
+function addWorldToMenu(worldId, text, completed) {
 
   var completedClass = getCompletedClass(completed)
 
-  $("#menuworldtemplate")
-    .clone()
-    .attr("id", worldId)
-    /**
-     * the style attr is 'display: none'
-     * by deleting it, we make the element visible
-     */
-    .removeAttr("style")
-    // TODO: change to append
-    .insertAfter("#" + insertAfter)
-
-  $("#" + worldId)
-    .find(".level-select")
-    .append('<i class="' + completedClass + '"></i> '
-      + text
-      + '<span class="caret world-menu-caret"></span>')
+  $("#levelmenu")
+    .append(
+      '<li id="' + worldId + '">'
+      +  '<div class="btn-group">'
+      +    '<a class="btn dropdown-toggle level-select"'
+      +       'data-toggle="dropdown" href="#">'
+      +       '<i class="' + completedClass + '"></i> '
+      +       text
+      +       '<span class="caret world-menu-caret"></span>'
+      +    '</a>'
+      +    '<ul class="dropdown-menu">'
+      +    '</ul>'
+      +  '</div>'
+      + '</li>')
 }
 
 function addLevelToMenu(worldId, levelId, text, completed) {
