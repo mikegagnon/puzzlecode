@@ -128,24 +128,12 @@ var PUZZLE_CAMPAIGN_STATE = {
   // if visibility[world_index][level_index] exists, then that level is visible
   // if visibility[world_index][level_index] == true, then that level is completed
   // if visibility[world_index][level_index] == false, then that level is not completed
+  // if all visible levels in a world are completed, then the world is completed
   visibility: {
     0: {
       0: false
     }
   }
-  /*visible_worlds: [
-    {
-      index: 0,
-      completed: false
-    }
-  ],
-  visible_levels: [
-    {
-      world_index: 0,
-      level_index: 0,
-      completed: false
-    }
-  ]*/
 }
 
 var BOARD = undefined

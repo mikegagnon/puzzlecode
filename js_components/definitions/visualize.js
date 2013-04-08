@@ -366,14 +366,7 @@ function animateVictory(board, state) {
     doPause()
     if (board.num_victory_announcements > 0) {
       $("#victoryModal").modal('show')
-
-      // show or hid the level menu, depending on whether or not
-      // several levels are visible
-      if (state.visible_levels.length == 1) {
-        $("#accordionLevelSelect").attr("style", "display: none;")
-      } else {
-        $("#accordionLevelSelect").removeAttr("style")
-      } 
+      setupLevelSelect(state)
     }
   }, VICTORY_DUR * 2);
 
@@ -391,7 +384,7 @@ function animate() {
 
 function stepAndAnimate() {
   // advance the simulation by one "step"
-  step(BOARD)
+  step(BOARD, PUZZLE_CAMPAIGN, PUZZLE_CAMPAIGN_STATE)
 
   animateProgram(BOARD)
 

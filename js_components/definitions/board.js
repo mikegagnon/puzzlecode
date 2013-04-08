@@ -21,17 +21,8 @@ function setBotProgram(board, botIndex, program) {
 }
 
 function isLevelAccessible(state, world_index, level_index) {
-  var matches = _(state.visible_levels)
-    .filter(function(lev) {
-      return lev.world_index == world_index &&
-        lev.level_index == level_index
-    })
-    .value()
-
-  assert(matches.length == 0 || matches.length == 1,
-    "isLevelAccessible: matches.length == 0 || matches.length == 1")
-
-  return matches.length == 1
+  return world_index in state.visibility &&
+    level_index in state.visibility[world_index]
 }
 
 // TODO: have links to levels work

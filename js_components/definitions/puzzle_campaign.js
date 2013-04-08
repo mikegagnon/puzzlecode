@@ -18,34 +18,40 @@ function loadWorldMenu(campaign, state) {
 
   // Add the visible worlds to the world menu
   var prevWorldId = "menuworldtemplate"
-  for (var i = 0; i < state.visible_worlds.length; i++) {
-    var visible_world = state.visible_worlds[i]
-    var world = campaign[visible_world.index]
-    var worldName = "World " + (visible_world.index + 1) + ": " + world.name
+
+  for (world_index in state.visibility) {
+    var world = campaign[world_index]
+    var worldName = "World " + (world_index + 1) + ": " + world.name
+
+    // determine if the world has been completed
+    var worldCompleted = true
+    for (level_index in state.visibility[world_index]) {
+      if (!state.visibility[world_index][level_index]) {
+        worldCompleted = false
+      }
+    }
+
     addWorldToMenu(
       world.id,
       prevWorldId,
       worldName,
-      visible_world.completed)
-    prevWorldId = world.id
-  }
+      worldCompleted)
 
-  // Add the visible levels to the world menu
-  for (var i = 0; i < state.visible_levels.length; i++) {
-    var visible_level = state.visible_levels[i]
-    var world = campaign[visible_level.world_index]
-    var level = world.levels[visible_level.level_index]
-    var world = campaign[visible_level.world_index]
-    var levelName = "Level "
-      + (visible_level.world_index + 1)
-      + "-"
-      + (visible_level.level_index + 1)
-      + ": " + level.name
-    addLevelToMenu(
-      world.id,
-      level.id,
-      levelName,
-      visible_level.completed)
+    for (level_index in state.visibility[world_index]) {
+      var level = world.levels[level_index]
+      var levelName = "Level "
+        + (world_index + 1)
+        + "-"
+        + (level_index + 1)
+        + ": " + level.name
+      addLevelToMenu(
+        world.id,
+        level.id,
+        levelName,
+        state.visibility[world_index][level_index])
+    }
+
+    prevWorldId = world.id
   }
 }
 
@@ -65,12 +71,13 @@ function loadLevel(campaign, state) {
   restartSimulation()
 }
 
+// show or hide the level menu, depending on whether or not multiple
+// levels can be played
 function setupLevelSelect(state) {
-  assert(state.visible_levels.length != 0,
-    "state.visible_levels.length != 0")
 
-  // only show the level selector if there are at least two visible levels
-  if (state.visible_levels.length == 1) {
+  var visibleWorlds = _.keys(state.visibility)
+  if (visibleWorlds.length == 1 &&
+    _.keys(state.visibility[visibleWorlds[0]]).length == 1) {
     $("#accordionLevelSelect").attr("style", "display: none;")
   } else {
     $("#accordionLevelSelect").removeAttr("style")
