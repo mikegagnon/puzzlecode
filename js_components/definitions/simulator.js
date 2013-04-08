@@ -239,7 +239,9 @@ function getMarkers(board, keepUndefined) {
 
 // called upon a victory
 // Updates state.visibility
-function updateLevelVisibility(campaign, state) {
+// TODO: this code muddles view and model
+// also updates board.animations
+function updateLevelVisibility(board, campaign, state) {
 
   var world_index = state.current_level.world_index
   var level_index = state.current_level.level_index
@@ -248,19 +250,46 @@ function updateLevelVisibility(campaign, state) {
 
   state.visibility[world_index][level_index] = true
 
+  var animationAddLevel = []
+  var animationAddWorld = []
+
   for (var i = 0; i < on_victory.length; i++) {
     var victoryEvent = on_victory[i]
     if (victoryEvent.type == OnVictory.UNLOCK_NEXT_LEVEL) {
-      state.visibility[world_index][level_index + 1] = false
-    } else if (victoryEvent.type == OnVictory.UNLOCK_NEXT_WORLD) {
-      if (!(world_index + 1 in state.visibility)) {
-        state.visibility[world_index + 1] = {}
+      var next_level_index = parseInt(level_index + 1)  
+      // if the level isn't already accessible
+      if (!(next_level_index in state.visibility)) {
+        state.visibility[world_index][next_level_index] = false
+        animationAddLevel.push({
+          world_index: world_index,
+          level_index: next_level_index
+        })
       }
-      state.visibility[world_index + 1][0] = false
+    } else if (victoryEvent.type == OnVictory.UNLOCK_NEXT_WORLD) {
+      var next_world_index = parseInt(world_index + 1)  
+      if (!(next_world_index in state.visibility)) {
+        state.visibility[next_world_index] = {}
+        state.visibility[next_world_index][0] = false
+
+        animationAddWorld.push(next_world_index)
+        animationAddLevel.push({
+          world_index: next_world_index,
+          level_index: 0
+        })
+      }
     } else {
       console.error("unknown victoryEvent.type == " + victoryEvent.type)
     }
   }
+
+  if (animationAddWorld.length > 0) {
+    board.animations.addWorld = animationAddWorld
+  }
+
+  if (animationAddLevel.length > 0) {
+    board.animations.addLevel = animationAddLevel
+  }
+
 }
 
 function checkVictory(board, campaign, state) {
@@ -285,7 +314,7 @@ function checkVictory(board, campaign, state) {
   if (win_conditions.length == conditionsMet) {
     board.victory = true
     board.animations.victory = true
-    updateLevelVisibility(campaign, state)
+    updateLevelVisibility(board, campaign, state)
   }
 }
 

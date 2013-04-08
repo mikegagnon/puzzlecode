@@ -27,18 +27,31 @@ function getCompletedClass(completed) {
  * text: the name of the world, e.g. "World 1: Move &amp; Turn"
  * completed: true iff world is completed, false otherwise
  */
-function addWorldToMenu(worldId, text, completed) {
+function addWorldToMenu(campaign, state, world_index) {
 
-  var completedClass = getCompletedClass(completed)
+  console.log("campaign")
+  console.dir(campaign)
+
+  var world = campaign[world_index]
+  var worldName = "World " + (parseInt(world_index) + 1) + ": " + world.name
+  // determine if the world has been completed
+  var worldCompleted = true
+  for (level_index in state.visibility[world_index]) {
+    if (!state.visibility[world_index][level_index]) {
+      worldCompleted = false
+    }
+  }
+
+  var completedClass = getCompletedClass(worldCompleted)
 
   $("#levelmenu")
     .append(
-      '<li id="' + worldId + '">'
+      '<li id="' + world.id + '">'
       +  '<div class="btn-group">'
       +    '<a class="btn dropdown-toggle level-select"'
       +       'data-toggle="dropdown" href="#">'
       +       '<i class="' + completedClass + '"></i> '
-      +       text
+      +       worldName
       +       '<span class="caret world-menu-caret"></span>'
       +    '</a>'
       +    '<ul class="dropdown-menu">'
@@ -47,15 +60,30 @@ function addWorldToMenu(worldId, text, completed) {
       + '</li>')
 }
 
-function addLevelToMenu(worldId, levelId, text, completed) {
+function addLevelToMenu(campaign, state, world_index, level_index) {
+  console.log("addLevelToMenu")
+  console.dir(campaign)
+  console.dir(state)
+  console.log(world_index)
+  console.log(level_index)
+
+  var completed = state.visibility[world_index][level_index]
   var completedClass = getCompletedClass(completed)
 
-  $("#" + worldId)
+  var world = campaign[world_index]
+  var level = world.levels[level_index]
+  var levelName = "Level "
+    + (parseInt(world_index) + 1)
+    + "-"
+    + (parseInt(level_index) + 1)
+    + ": " + level.name
+
+  $("#" + world.id)
     .find(".dropdown-menu")
-    .append('<li id="' + levelId + '">'
+    .append('<li id="' + level.id + '">'
       + '<a tabindex="-1" href="#">'
       + '<i class="' + completedClass + '"></i> '
-      + text
+      + levelName
       + '</a>'
       + '</li>')
 }

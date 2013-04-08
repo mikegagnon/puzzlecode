@@ -958,39 +958,19 @@ var OnVictory = {
 function loadWorldMenu(campaign, state) {
 
   for (world_index in state.visibility) {
-    var world = campaign[world_index]
-    var worldName = "World " + (parseInt(world_index) + 1) + ": " + world.name
-    console.log(worldName)
-    // determine if the world has been completed
-    var worldCompleted = true
-    for (level_index in state.visibility[world_index]) {
-      if (!state.visibility[world_index][level_index]) {
-        worldCompleted = false
-      }
-    }
-
-    console.log(world.id)
-
+    console.log("world_index = " + world_index)
     addWorldToMenu(
-      world.id,
-      worldName,
-      worldCompleted)
+      campaign,
+      state,
+      world_index)
 
     for (level_index in state.visibility[world_index]) {
-      var level = world.levels[level_index]
-      var levelName = "Level "
-        + (parseInt(world_index) + 1)
-        + "-"
-        + (parseInt(level_index) + 1)
-        + ": " + level.name
       addLevelToMenu(
-        world.id,
-        level.id,
-        levelName,
-        state.visibility[world_index][level_index])
+        campaign,
+        state,
+        world_index,
+        level_index)
     }
-
-    prevWorldId = world.id
   }
 }
 
@@ -1269,7 +1249,9 @@ function getMarkers(board, keepUndefined) {
 
 // called upon a victory
 // Updates state.visibility
-function updateLevelVisibility(campaign, state) {
+// TODO: this code muddles view and model
+// also updates board.animations
+function updateLevelVisibility(board, campaign, state) {
 
   var world_index = state.current_level.world_index
   var level_index = state.current_level.level_index
@@ -1278,19 +1260,46 @@ function updateLevelVisibility(campaign, state) {
 
   state.visibility[world_index][level_index] = true
 
+  var animationAddLevel = []
+  var animationAddWorld = []
+
   for (var i = 0; i < on_victory.length; i++) {
     var victoryEvent = on_victory[i]
     if (victoryEvent.type == OnVictory.UNLOCK_NEXT_LEVEL) {
-      state.visibility[world_index][level_index + 1] = false
-    } else if (victoryEvent.type == OnVictory.UNLOCK_NEXT_WORLD) {
-      if (!(world_index + 1 in state.visibility)) {
-        state.visibility[world_index + 1] = {}
+      var next_level_index = parseInt(level_index + 1)  
+      // if the level isn't already accessible
+      if (!(next_level_index in state.visibility)) {
+        state.visibility[world_index][next_level_index] = false
+        animationAddLevel.push({
+          world_index: world_index,
+          level_index: next_level_index
+        })
       }
-      state.visibility[world_index + 1][0] = false
+    } else if (victoryEvent.type == OnVictory.UNLOCK_NEXT_WORLD) {
+      var next_world_index = parseInt(world_index + 1)  
+      if (!(next_world_index in state.visibility)) {
+        state.visibility[next_world_index] = {}
+        state.visibility[next_world_index][0] = false
+
+        animationAddWorld.push(next_world_index)
+        animationAddLevel.push({
+          world_index: next_world_index,
+          level_index: 0
+        })
+      }
     } else {
       console.error("unknown victoryEvent.type == " + victoryEvent.type)
     }
   }
+
+  if (animationAddWorld.length > 0) {
+    board.animations.addWorld = animationAddWorld
+  }
+
+  if (animationAddLevel.length > 0) {
+    board.animations.addLevel = animationAddLevel
+  }
+
 }
 
 function checkVictory(board, campaign, state) {
@@ -1315,7 +1324,7 @@ function checkVictory(board, campaign, state) {
   if (win_conditions.length == conditionsMet) {
     board.victory = true
     board.animations.victory = true
-    updateLevelVisibility(campaign, state)
+    updateLevelVisibility(board, campaign, state)
   }
 }
 
@@ -1811,6 +1820,25 @@ function animateVictory(board, state) {
 
 }
 
+function animateLevelMenu(board, campaign, state) {
+
+  if ("addWorld" in board.animations) {
+    for (var i = 0; i < board.animations.addWorld.length; i++) {
+      var world_index = board.animations.addWorld[i]
+      addWorldToMenu(campaign, state, world_index)      
+    }
+  }
+
+  if ("addLevel" in board.animations) {
+    for (var i = 0; i < board.animations.addLevel.length; i++) {
+      var world_index = board.animations.addLevel[i].world_index
+      var level_index = board.animations.addLevel[i].level_index
+      console.log("animate")
+      console.dir(board.animations.addWorld[i])
+      addLevelToMenu(campaign, state, world_index, level_index)
+    }
+  }
+}
 
 // TODO: breakup into smaller functions
 function animate() {
@@ -1841,6 +1869,7 @@ function stepAndAnimate() {
   animateProgramDone(BOARD.bots)
   animateMarkers(BOARD)
   animateVictory(BOARD, PUZZLE_CAMPAIGN_STATE)
+  animateLevelMenu(BOARD, PUZZLE_CAMPAIGN, PUZZLE_CAMPAIGN_STATE)
 }
 
 function cleanUpVisualization() {
@@ -2017,18 +2046,31 @@ function getCompletedClass(completed) {
  * text: the name of the world, e.g. "World 1: Move &amp; Turn"
  * completed: true iff world is completed, false otherwise
  */
-function addWorldToMenu(worldId, text, completed) {
+function addWorldToMenu(campaign, state, world_index) {
 
-  var completedClass = getCompletedClass(completed)
+  console.log("campaign")
+  console.dir(campaign)
+
+  var world = campaign[world_index]
+  var worldName = "World " + (parseInt(world_index) + 1) + ": " + world.name
+  // determine if the world has been completed
+  var worldCompleted = true
+  for (level_index in state.visibility[world_index]) {
+    if (!state.visibility[world_index][level_index]) {
+      worldCompleted = false
+    }
+  }
+
+  var completedClass = getCompletedClass(worldCompleted)
 
   $("#levelmenu")
     .append(
-      '<li id="' + worldId + '">'
+      '<li id="' + world.id + '">'
       +  '<div class="btn-group">'
       +    '<a class="btn dropdown-toggle level-select"'
       +       'data-toggle="dropdown" href="#">'
       +       '<i class="' + completedClass + '"></i> '
-      +       text
+      +       worldName
       +       '<span class="caret world-menu-caret"></span>'
       +    '</a>'
       +    '<ul class="dropdown-menu">'
@@ -2037,15 +2079,30 @@ function addWorldToMenu(worldId, text, completed) {
       + '</li>')
 }
 
-function addLevelToMenu(worldId, levelId, text, completed) {
+function addLevelToMenu(campaign, state, world_index, level_index) {
+  console.log("addLevelToMenu")
+  console.dir(campaign)
+  console.dir(state)
+  console.log(world_index)
+  console.log(level_index)
+
+  var completed = state.visibility[world_index][level_index]
   var completedClass = getCompletedClass(completed)
 
-  $("#" + worldId)
+  var world = campaign[world_index]
+  var level = world.levels[level_index]
+  var levelName = "Level "
+    + (parseInt(world_index) + 1)
+    + "-"
+    + (parseInt(level_index) + 1)
+    + ": " + level.name
+
+  $("#" + world.id)
     .find(".dropdown-menu")
-    .append('<li id="' + levelId + '">'
+    .append('<li id="' + level.id + '">'
       + '<a tabindex="-1" href="#">'
       + '<i class="' + completedClass + '"></i> '
-      + text
+      + levelName
       + '</a>'
       + '</li>')
 }
@@ -2192,11 +2249,7 @@ var PUZZLE_CAMPAIGN_STATE = {
   // if all visible levels in a world are completed, then the world is completed
   visibility: {
     0: {
-      0: true,
-      1: false
-    },
-    1: {
-      0: false
+      0: false,
     }
   }
 }

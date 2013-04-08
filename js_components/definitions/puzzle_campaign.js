@@ -17,39 +17,19 @@
 function loadWorldMenu(campaign, state) {
 
   for (world_index in state.visibility) {
-    var world = campaign[world_index]
-    var worldName = "World " + (parseInt(world_index) + 1) + ": " + world.name
-    console.log(worldName)
-    // determine if the world has been completed
-    var worldCompleted = true
-    for (level_index in state.visibility[world_index]) {
-      if (!state.visibility[world_index][level_index]) {
-        worldCompleted = false
-      }
-    }
-
-    console.log(world.id)
-
+    console.log("world_index = " + world_index)
     addWorldToMenu(
-      world.id,
-      worldName,
-      worldCompleted)
+      campaign,
+      state,
+      world_index)
 
     for (level_index in state.visibility[world_index]) {
-      var level = world.levels[level_index]
-      var levelName = "Level "
-        + (parseInt(world_index) + 1)
-        + "-"
-        + (parseInt(level_index) + 1)
-        + ": " + level.name
       addLevelToMenu(
-        world.id,
-        level.id,
-        levelName,
-        state.visibility[world_index][level_index])
+        campaign,
+        state,
+        world_index,
+        level_index)
     }
-
-    prevWorldId = world.id
   }
 }
 

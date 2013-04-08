@@ -372,6 +372,25 @@ function animateVictory(board, state) {
 
 }
 
+function animateLevelMenu(board, campaign, state) {
+
+  if ("addWorld" in board.animations) {
+    for (var i = 0; i < board.animations.addWorld.length; i++) {
+      var world_index = board.animations.addWorld[i]
+      addWorldToMenu(campaign, state, world_index)      
+    }
+  }
+
+  if ("addLevel" in board.animations) {
+    for (var i = 0; i < board.animations.addLevel.length; i++) {
+      var world_index = board.animations.addLevel[i].world_index
+      var level_index = board.animations.addLevel[i].level_index
+      console.log("animate")
+      console.dir(board.animations.addWorld[i])
+      addLevelToMenu(campaign, state, world_index, level_index)
+    }
+  }
+}
 
 // TODO: breakup into smaller functions
 function animate() {
@@ -402,6 +421,7 @@ function stepAndAnimate() {
   animateProgramDone(BOARD.bots)
   animateMarkers(BOARD)
   animateVictory(BOARD, PUZZLE_CAMPAIGN_STATE)
+  animateLevelMenu(BOARD, PUZZLE_CAMPAIGN, PUZZLE_CAMPAIGN_STATE)
 }
 
 function cleanUpVisualization() {

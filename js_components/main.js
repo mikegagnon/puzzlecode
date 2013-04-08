@@ -140,11 +140,7 @@ var PUZZLE_CAMPAIGN_STATE = {
   // if all visible levels in a world are completed, then the world is completed
   visibility: {
     0: {
-      0: true,
-      1: false
-    },
-    1: {
-      0: false
+      0: false,
     }
   }
 }
