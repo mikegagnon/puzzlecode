@@ -20,7 +20,23 @@ function setBotProgram(board, botIndex, program) {
   board.bots[botIndex].program = program
 }
 
+function isLevelAccessible(state, world_index, level_index) {
+  var matches = _(state.visible_levels)
+    .filter(function(lev) {
+      return lev.world_index == world_index &&
+        lev.level_index == level_index
+    })
+    .value()
+
+  assert(matches.length == 0 || matches.length == 1,
+    "isLevelAccessible: matches.length == 0 || matches.length == 1")
+
+  return matches.length == 1
+}
+
 // TODO: have links to levels work
+// returns the number of announcements in the modal
+// TODO: this should really go in visualize.js
 function setupVictoryModal(campaign, state) {
 
   var world_index = state.current_level.world_index
@@ -29,45 +45,59 @@ function setupVictoryModal(campaign, state) {
   assert(on_victory.length > 0, "setupVictoryModal: on_victory.length > 0")
 
   var html = ""
+
+  var numAnnouncements = 0
+
   for (var i = 0; i < on_victory.length; i++) {
     var victoryEvent = on_victory[i]
     if (victoryEvent.type == OnVictory.UNLOCK_NEXT_LEVEL) {
       var next_level_index = level_index + 1
-      var next_level_name = campaign[world_index].levels[next_level_index].name
-      html += '<p>'
-        + '<span class="label label-info victory-label">New level</span> '
-        + 'You unlocked <a href="#">Level '
-        + (world_index + 1)
-        + '-'
-        + (next_level_index + 1)
-        + ': '
-        + next_level_name
-        + '</a>.'
-        + '</p>'
+
+      // if the next_level currently not accessible, then add it to the modal
+      if (!isLevelAccessible(state, world_index, next_level_index)) {
+        numAnnouncements += 1
+        var next_level_name = campaign[world_index].levels[next_level_index].name
+        html += '<p>'
+          + '<span class="label label-info victory-label">New level</span> '
+          + 'You unlocked <a href="#">Level '
+          + (world_index + 1)
+          + '-'
+          + (next_level_index + 1)
+          + ': '
+          + next_level_name
+          + '</a>.'
+          + '</p>'
+      }
     } else if (victoryEvent.type == OnVictory.UNLOCK_NEXT_WORLD) {
       var next_world_index = world_index + 1
-      var next_world_name = campaign[next_world_index].name
-      var next_level_name = campaign[next_world_index].levels[0].name
 
-      html += '<p>'
-        + '<span class="label label-success victory-label">New world</span> '
-        + 'You unlocked World '
-        + (next_world_index + 1)
-        + ': '
-        + next_world_name
-        + ', <a href="#"> '
-        + 'Level '
-        + (next_world_index + 1)
-        + '-1 '
-        + next_level_name
-        + '</a>.'
-        + '</p>'
+      // if the next_level currently not accessible, then add it to the modal
+      if (!isLevelAccessible(state, next_world_index, 0)) {    
+        var next_world_name = campaign[next_world_index].name
+        var next_level_name = campaign[next_world_index].levels[0].name
+
+        html += '<p>'
+          + '<span class="label label-success victory-label">New world</span> '
+          + 'You unlocked World '
+          + (next_world_index + 1)
+          + ': '
+          + next_world_name
+          + ', <a href="#"> '
+          + 'Level '
+          + (next_world_index + 1)
+          + '-1 '
+          + next_level_name
+          + '</a>.'
+          + '</p>'
+      }
     } else {
       console.error("unknown victoryEvent.type == " + victoryEvent.type)
     }
   }
 
   $("#victoryModalBody").html(html)
+
+  return numAnnouncements
 }
 
 /**
@@ -87,7 +117,7 @@ function loadBoard(campaign, state) {
   }
 
   board.on_victory = cloneDeep(boardConfig.on_victory)
-  setupVictoryModal(campaign, state)
+  board.num_victory_announcements = setupVictoryModal(campaign, state)
 
   board.win_conditions = cloneDeep(boardConfig.win_conditions)
 

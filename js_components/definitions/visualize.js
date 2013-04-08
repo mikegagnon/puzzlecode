@@ -326,7 +326,7 @@ function randInt(upperBound) {
 } 
 
 // This is kind of hacky
-function animateVictory(board) {
+function animateVictory(board, state) {
   if (!("victory" in board.animations)) {
     return
   }
@@ -364,7 +364,17 @@ function animateVictory(board) {
 
   setTimeout(function(){
     doPause()
-    $("#victoryModal").modal('show')
+    if (board.num_victory_announcements > 0) {
+      $("#victoryModal").modal('show')
+
+      // show or hid the level menu, depending on whether or not
+      // several levels are visible
+      if (state.visible_levels.length == 1) {
+        $("#accordionLevelSelect").attr("style", "display: none;")
+      } else {
+        $("#accordionLevelSelect").removeAttr("style")
+      } 
+    }
   }, VICTORY_DUR * 2);
 
 }
@@ -398,7 +408,7 @@ function stepAndAnimate() {
   animateMoveTorus(transition, BOARD.bots)
   animateProgramDone(BOARD.bots)
   animateMarkers(BOARD)
-  animateVictory(BOARD)
+  animateVictory(BOARD, PUZZLE_CAMPAIGN_STATE)
 }
 
 function cleanUpVisualization() {

@@ -237,6 +237,40 @@ function getMarkers(board, keepUndefined) {
   return markers
 }
 
+function makeLevelAccessible(state, world_index, level_index) {
+  
+}
+
+// called upon a victory
+// Updates state.visible_worlds and state.visible_levels
+function updateVisibleLevels(state) {
+  assert(board.on_victory.length > 0,
+    "updateVisibleLevels: on_victory.length > 0")
+
+  var world_index = state.current_level.world_index
+  var level_index = state.current_level.level_index
+  var on_victory = campaign[world_index].levels[level_index].on_victory
+
+  for (var i = 0; i < on_victory.length; i++) {
+    var victoryEvent = on_victory[i]
+    if (victoryEvent.type == OnVictory.UNLOCK_NEXT_LEVEL) {
+      var next_level_index = level_index + 1
+      // if the next_level currently not accessible, then make it accessible
+      if (!isLevelAccessible(state, world_index, next_level_index)) {
+        makeLevelAccessible(state, world_index, next_level_index)
+      }
+    } else if (victoryEvent.type == OnVictory.UNLOCK_NEXT_WORLD) {
+      var next_world_index = world_index + 1
+      if (!isLevelAccessible(state, next_world_index, 0)) {    
+        makeLevelAccessible(state, next_world_index, 0)
+      }
+    } else {
+      console.error("updateVisibleLevels: unknown victoryEvent.type == "
+        + victoryEvent.type)
+    }
+  }
+}
+
 function checkVictory(board) {
   if (board.victory) {
     return
@@ -259,6 +293,19 @@ function checkVictory(board) {
   if (win_conditions.length == conditionsMet) {
     board.victory = true
     board.animations.victory = true
+    updateVisibleLevels(state)
+  }
+
+  $("#victoryModalBody").html(html)
+
+  return numAnnouncements
+}
+
+
+
+
+
+
   }
 }
 
