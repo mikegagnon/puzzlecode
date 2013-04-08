@@ -1642,6 +1642,7 @@ function randInt(upperBound) {
   return Math.floor(Math.random()*upperBound)
 } 
 
+// This is kind of hacky
 function animateVictory(board) {
   if (!("victory" in board.animations)) {
     return
@@ -1649,36 +1650,30 @@ function animateVictory(board) {
 
   // array of  cell coordinates
   var victoryBalls = _(Array(10))
-    .map(function() {
-      return {
-        x: randInt(board.num_cols),
-        y: randInt(board.num_rows)
-      }
+    .forEach(function() {
+
+      VIS.selectAll("#victoryBall_" + randInt(999999))
+        .data([1])
+        .enter()
+        .append("svg:circle")
+        .attr("class", "victory-ball")
+        .attr("stroke", "limegreen")
+        .attr("stroke-width", "50")
+        .attr("fill", "lime")
+        .attr("opacity", "1.0")
+        .attr("r", 0)
+        .attr("cx", function(){ return Math.floor(board.num_cols / 2) * CELL_SIZE + CELL_SIZE/2} )
+        .attr("cy", function(){ return Math.floor(board.num_rows / 2) * CELL_SIZE + CELL_SIZE/2} )
+        .transition(ANIMATION_DUR)
+        .delay(ANIMATION_DUR + ANIMATION_DUR * Math.random())
+        .attr("cx", function(){ return randInt(board.num_cols) * CELL_SIZE + CELL_SIZE/2} )
+        .attr("cy", function(){ return randInt(board.num_rows) * CELL_SIZE + CELL_SIZE/2} )
+        .attr("opacity", "0.0")
+        .attr("stroke-width", "0")
+        .attr("r", board.num_rows * CELL_SIZE * 2 / 3)
+        .ease(EASING)
+        .duration(ANIMATION_DUR * 2)
     })
-    .value()
-
-  console.dir(victoryBalls)
-
-  VIS.selectAll(".victory-ball")
-    .data(victoryBalls)
-    .enter().append("svg:circle")
-    .attr("class", "victory-ball")
-    //.attr("id", function(coin){ return coinId(coin)} )
-    .attr("stroke", "red")
-    .attr("fill", "pink")
-    .attr("opacity", "1.0")
-    .attr("r", 0)
-    .attr("cx", function(){ return Math.floor(board.num_cols / 2) * CELL_SIZE + CELL_SIZE/2} )
-    .attr("cy", function(){ return Math.floor(board.num_rows / 2) * CELL_SIZE + CELL_SIZE/2} )
-    .transition(ANIMATION_DUR)
-    .delay(ANIMATION_DUR)
-    .attr("cx", function(d){ return d.x * CELL_SIZE + CELL_SIZE/2} )
-    .attr("cy", function(d){ return d.y * CELL_SIZE + CELL_SIZE/2} )
-    .attr("opacity", "0.0")
-    .attr("r", board.num_rows * CELL_SIZE * 2 / 3)
-    .ease(EASING)
-    .duration(ANIMATION_DUR * 2)
-
 }
 
 
