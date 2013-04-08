@@ -64,8 +64,6 @@ function loadBoard(boardConfig) {
         ip: 0,
         program: program
       }
-      console.dir(configBot)
-      console.dir(bot)
       board.bots.push(bot)
     }
   }

@@ -68,4 +68,15 @@ function loadLevel(campaign, state) {
 function loadCampaign(campaign, state) {
   loadWorldMenu(campaign, state)
   loadLevel(campaign, state)
+
+  assert(state.visible_levels.length != 0,
+    "state.visible_levels.length != 0")
+
+  // only show the level selector if there are at least two visible levels
+  if (state.visible_levels.length == 1) {
+    $("#accordionLevelSelect").attr("style", "display: none;")
+  } else {
+    $("#accordionLevelSelect").removeAttr("style")
+  }
+
 }
