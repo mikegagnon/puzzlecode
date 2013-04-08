@@ -2176,8 +2176,8 @@ var PUZZLE_1 = {
   ],
   constraints: [],
   on_victory: [
-    //{type: OnVictory.UNLOCK_NEXT_LEVEL},
-    {type: OnVictory.UNLOCK_NEXT_WORLD},
+    {type: OnVictory.UNLOCK_NEXT_LEVEL},
+    //{type: OnVictory.UNLOCK_NEXT_WORLD},
   ],
   solutions: [
     "move\nmove\nturn left\nmove\nmove\nmove\nmove\n",
@@ -2207,7 +2207,7 @@ var PUZZLE_1 = {
   ]
 }
 
-var PUZZLE_2 = PUZZLE_1
+var PUZZLE_2 = cloneDeep(PUZZLE_1, {name: "Avoid the blocks"})
 var PUZZLE_3= PUZZLE_1
 var PUZZLE_4 = PUZZLE_1
 
