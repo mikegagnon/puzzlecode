@@ -1243,7 +1243,23 @@ function updateLevelVisibility(board, campaign, state) {
   var on_victory = campaign[world_index].levels[level_index].on_victory
   assert(on_victory.length > 0, "setupVictoryModal: on_victory.length > 0")
 
-  state.visibility[world_index][level_index] = true
+  // if this level has been beaten for the first time
+  if (!state.visibility[world_index][level_index]) {
+    state.visibility[world_index][level_index] = true
+    board.animations.checkOffLevel = {
+      world_index: world_index,
+      level_index: level_index
+    }
+
+    // if this world has been beaten for the first time
+    var numLevelsInWorld = campaign[world_index].levels.length
+    // TODO: make it so that you can mark a world as completed in state.visibility
+    if (level_index == numLevelsInWorld - 1) {
+      board.animations.checkOffWorld = {
+        world_index: world_index
+      }
+    }
+  }
 
   var animationAddLevel = []
   var animationAddWorld = []
@@ -1251,12 +1267,9 @@ function updateLevelVisibility(board, campaign, state) {
   for (var i = 0; i < on_victory.length; i++) {
     var victoryEvent = on_victory[i]
     if (victoryEvent.type == OnVictory.UNLOCK_NEXT_LEVEL) {
-
-
       var next_level_index = parseInt(level_index + 1)  
       // if the level isn't already accessible
       if (!(next_level_index in state.visibility[world_index])) {
-        console.log("unlock next level")
         state.visibility[world_index][next_level_index] = false
         animationAddLevel.push({
           world_index: world_index,
@@ -1810,6 +1823,17 @@ function animateVictory(board, state) {
 
 function animateLevelMenu(board, campaign, state) {
 
+  if ("checkOffLevel" in board.animations) {
+    var world_index = board.animations.checkOffLevel.world_index
+    var level_index = board.animations.checkOffLevel.level_index
+    worldMenuCheckLevel(campaign, world_index, level_index)
+  }
+
+  if ("checkOffWorld" in board.animations) {
+    var world_index = board.animations.checkOffWorld.world_index
+    worldMenuCheckWorld(campaign, world_index)
+  }
+
   if ("addWorld" in board.animations) {
     for (var i = 0; i < board.animations.addWorld.length; i++) {
       var world_index = board.animations.addWorld[i]
@@ -2026,7 +2050,7 @@ function setupLevelSelect(state) {
   var visibleWorlds = _.keys(state.visibility)
   if (visibleWorlds.length == 1 &&
     _.keys(state.visibility[visibleWorlds[0]]).length == 1) {
-    $("#accordionLevelSelect").attr("style", "display: none;")
+    //$("#accordionLevelSelect").attr("style", "display: none;")
   } else {
     $("#accordionLevelSelect").removeAttr("style")
   } 
@@ -2040,6 +2064,26 @@ function getCompletedClass(completed) {
   }
 }
 
+function getWorldNameHtml(world_index, name, completed) {
+  var completedClass = getCompletedClass(completed)
+
+  var worldName = "World "
+    + (parseInt(world_index) + 1)
+    + ": "
+    + name
+
+/*  return '<a class="btn dropdown-toggle level-select"'
+      +       'data-toggle="dropdown" href="#">'
+      +       '<i class="' + completedClass + '"></i> '
+      +       worldName
+      +       '<span class="caret world-menu-caret"></span>'
+      +    '</a>'*/
+
+  return '<i class="' + completedClass + '"></i> '
+      + worldName
+      +  '<span class="caret world-menu-caret"></span>'
+}
+
 /**
  * worldId: the id for the newly created world menu object (do not include '#')
  * text: the name of the world, e.g. "World 1: Move &amp; Turn"
@@ -2047,9 +2091,8 @@ function getCompletedClass(completed) {
  */
 function addWorldToMenu(campaign, state, world_index) {
 
-
   var world = campaign[world_index]
-  var worldName = "World " + (parseInt(world_index) + 1) + ": " + world.name
+
   // determine if the world has been completed
   var worldCompleted = true
   for (level_index in state.visibility[world_index]) {
@@ -2058,7 +2101,15 @@ function addWorldToMenu(campaign, state, world_index) {
     }
   }
 
-  var completedClass = getCompletedClass(worldCompleted)
+  /*$("#levelmenu")
+    .append(
+      '<li id="' + world.id + '">'
+      +  '<div class="btn-group">'
+      +     getWorldNameHtml(world_index, world.name, worldCompleted)
+      +    '<ul class="dropdown-menu">'
+      +    '</ul>'
+      +  '</div>'
+      + '</li>')*/
 
   $("#levelmenu")
     .append(
@@ -2066,40 +2117,66 @@ function addWorldToMenu(campaign, state, world_index) {
       +  '<div class="btn-group">'
       +    '<a class="btn dropdown-toggle level-select"'
       +       'data-toggle="dropdown" href="#">'
-      +       '<i class="' + completedClass + '"></i> '
-      +       worldName
-      +       '<span class="caret world-menu-caret"></span>'
+      +       getWorldNameHtml(world_index, world.name, worldCompleted)
       +    '</a>'
       +    '<ul class="dropdown-menu">'
       +    '</ul>'
       +  '</div>'
       + '</li>')
+
 }
 
+/**
+ * Add a check mark to a level
+ */
+function worldMenuCheckWorld(campaign, world_index) {
+  var world = campaign[world_index]
+
+  $("#" + world.id)
+    .find(".btn")
+    .html(getWorldNameHtml(world_index, world.name, true))
+
+}
+
+function getLevelNameHtml(world_index, level_index, name, completed) {
+  var completedClass = getCompletedClass(completed)
+  var levelName = "Level "
+    + (parseInt(world_index) + 1)
+    + "-"
+    + (parseInt(level_index) + 1)
+    + ": " + name
+
+  return '<a tabindex="-1" href="#">'
+      + '<i class="' + completedClass + '"></i> '
+      + levelName
+      + '</a>'
+}
 
 // TODO: BUG: addLevelToMenu keeps getting called even when the level
 // has already been added
 function addLevelToMenu(campaign, state, world_index, level_index) {
 
   var completed = state.visibility[world_index][level_index]
-  var completedClass = getCompletedClass(completed)
 
   var world = campaign[world_index]
   var level = world.levels[level_index]
-  var levelName = "Level "
-    + (parseInt(world_index) + 1)
-    + "-"
-    + (parseInt(level_index) + 1)
-    + ": " + level.name
 
   $("#" + world.id)
     .find(".dropdown-menu")
     .append('<li id="' + level.id + '">'
-      + '<a tabindex="-1" href="#">'
-      + '<i class="' + completedClass + '"></i> '
-      + levelName
-      + '</a>'
+      + getLevelNameHtml(world_index, level_index, level.name, completed)
       + '</li>')
+}
+
+/**
+ * Add a check mark to a level
+ */
+function worldMenuCheckLevel(campaign, world_index, level_index) {
+  var level = campaign[world_index].levels[level_index]
+
+  $("#" + level.id)
+    .html(getLevelNameHtml(world_index, level_index, level.name, true))
+
 }
 
 /**
@@ -2174,8 +2251,8 @@ var PUZZLE_1 = {
   ],
   constraints: [],
   on_victory: [
-    {type: OnVictory.UNLOCK_NEXT_LEVEL},
-    //{type: OnVictory.UNLOCK_NEXT_WORLD},
+    //{type: OnVictory.UNLOCK_NEXT_LEVEL},
+    {type: OnVictory.UNLOCK_NEXT_WORLD},
   ],
   solutions: [
     "move\nmove\nturn left\nmove\nmove\nmove\nmove\n",
@@ -2214,7 +2291,7 @@ var WORLD_1 = {
   name: "Move &amp; Turn",
   levels: [
     PUZZLE_1,
-    PUZZLE_2
+    //PUZZLE_2
   ]
 }
 
@@ -2242,6 +2319,7 @@ var PUZZLE_CAMPAIGN_STATE = {
   // if visibility[world_index][level_index] == true, then that level is completed
   // if visibility[world_index][level_index] == false, then that level is not completed
   // if all visible levels in a world are completed, then the world is completed
+  // TODO: make it so that you can mark a world as completed
   visibility: {
     0: {
       0: false,

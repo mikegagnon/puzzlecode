@@ -21,7 +21,7 @@ function setupLevelSelect(state) {
   var visibleWorlds = _.keys(state.visibility)
   if (visibleWorlds.length == 1 &&
     _.keys(state.visibility[visibleWorlds[0]]).length == 1) {
-    $("#accordionLevelSelect").attr("style", "display: none;")
+    //$("#accordionLevelSelect").attr("style", "display: none;")
   } else {
     $("#accordionLevelSelect").removeAttr("style")
   } 
@@ -35,6 +35,19 @@ function getCompletedClass(completed) {
   }
 }
 
+function getWorldNameHtml(world_index, name, completed) {
+  var completedClass = getCompletedClass(completed)
+
+  var worldName = "World "
+    + (parseInt(world_index) + 1)
+    + ": "
+    + name
+
+  return '<i class="' + completedClass + '"></i> '
+      + worldName
+      +  '<span class="caret world-menu-caret"></span>'
+}
+
 /**
  * worldId: the id for the newly created world menu object (do not include '#')
  * text: the name of the world, e.g. "World 1: Move &amp; Turn"
@@ -42,9 +55,8 @@ function getCompletedClass(completed) {
  */
 function addWorldToMenu(campaign, state, world_index) {
 
-
   var world = campaign[world_index]
-  var worldName = "World " + (parseInt(world_index) + 1) + ": " + world.name
+
   // determine if the world has been completed
   var worldCompleted = true
   for (level_index in state.visibility[world_index]) {
@@ -53,47 +65,71 @@ function addWorldToMenu(campaign, state, world_index) {
     }
   }
 
-  var completedClass = getCompletedClass(worldCompleted)
-
   $("#levelmenu")
     .append(
       '<li id="' + world.id + '">'
       +  '<div class="btn-group">'
       +    '<a class="btn dropdown-toggle level-select"'
       +       'data-toggle="dropdown" href="#">'
-      +       '<i class="' + completedClass + '"></i> '
-      +       worldName
-      +       '<span class="caret world-menu-caret"></span>'
+      +       getWorldNameHtml(world_index, world.name, worldCompleted)
       +    '</a>'
       +    '<ul class="dropdown-menu">'
       +    '</ul>'
       +  '</div>'
       + '</li>')
+
 }
 
+/**
+ * Add a check mark to a level
+ */
+function worldMenuCheckWorld(campaign, world_index) {
+  var world = campaign[world_index]
+
+  $("#" + world.id)
+    .find(".btn")
+    .html(getWorldNameHtml(world_index, world.name, true))
+
+}
+
+function getLevelNameHtml(world_index, level_index, name, completed) {
+  var completedClass = getCompletedClass(completed)
+  var levelName = "Level "
+    + (parseInt(world_index) + 1)
+    + "-"
+    + (parseInt(level_index) + 1)
+    + ": " + name
+
+  return '<a tabindex="-1" href="#">'
+      + '<i class="' + completedClass + '"></i> '
+      + levelName
+      + '</a>'
+}
 
 // TODO: BUG: addLevelToMenu keeps getting called even when the level
 // has already been added
 function addLevelToMenu(campaign, state, world_index, level_index) {
 
   var completed = state.visibility[world_index][level_index]
-  var completedClass = getCompletedClass(completed)
 
   var world = campaign[world_index]
   var level = world.levels[level_index]
-  var levelName = "Level "
-    + (parseInt(world_index) + 1)
-    + "-"
-    + (parseInt(level_index) + 1)
-    + ": " + level.name
 
   $("#" + world.id)
     .find(".dropdown-menu")
     .append('<li id="' + level.id + '">'
-      + '<a tabindex="-1" href="#">'
-      + '<i class="' + completedClass + '"></i> '
-      + levelName
-      + '</a>'
+      + getLevelNameHtml(world_index, level_index, level.name, completed)
       + '</li>')
+}
+
+/**
+ * Add a check mark to a level
+ */
+function worldMenuCheckLevel(campaign, world_index, level_index) {
+  var level = campaign[world_index].levels[level_index]
+
+  $("#" + level.id)
+    .html(getLevelNameHtml(world_index, level_index, level.name, true))
+
 }
 

@@ -374,6 +374,17 @@ function animateVictory(board, state) {
 
 function animateLevelMenu(board, campaign, state) {
 
+  if ("checkOffLevel" in board.animations) {
+    var world_index = board.animations.checkOffLevel.world_index
+    var level_index = board.animations.checkOffLevel.level_index
+    worldMenuCheckLevel(campaign, world_index, level_index)
+  }
+
+  if ("checkOffWorld" in board.animations) {
+    var world_index = board.animations.checkOffWorld.world_index
+    worldMenuCheckWorld(campaign, world_index)
+  }
+
   if ("addWorld" in board.animations) {
     for (var i = 0; i < board.animations.addWorld.length; i++) {
       var world_index = board.animations.addWorld[i]

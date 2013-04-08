@@ -248,7 +248,23 @@ function updateLevelVisibility(board, campaign, state) {
   var on_victory = campaign[world_index].levels[level_index].on_victory
   assert(on_victory.length > 0, "setupVictoryModal: on_victory.length > 0")
 
-  state.visibility[world_index][level_index] = true
+  // if this level has been beaten for the first time
+  if (!state.visibility[world_index][level_index]) {
+    state.visibility[world_index][level_index] = true
+    board.animations.checkOffLevel = {
+      world_index: world_index,
+      level_index: level_index
+    }
+
+    // if this world has been beaten for the first time
+    var numLevelsInWorld = campaign[world_index].levels.length
+    // TODO: make it so that you can mark a world as completed in state.visibility
+    if (level_index == numLevelsInWorld - 1) {
+      board.animations.checkOffWorld = {
+        world_index: world_index
+      }
+    }
+  }
 
   var animationAddLevel = []
   var animationAddWorld = []

@@ -70,8 +70,8 @@ var PUZZLE_1 = {
   ],
   constraints: [],
   on_victory: [
-    {type: OnVictory.UNLOCK_NEXT_LEVEL},
-    //{type: OnVictory.UNLOCK_NEXT_WORLD},
+    //{type: OnVictory.UNLOCK_NEXT_LEVEL},
+    {type: OnVictory.UNLOCK_NEXT_WORLD},
   ],
   solutions: [
     "move\nmove\nturn left\nmove\nmove\nmove\nmove\n",
@@ -110,7 +110,7 @@ var WORLD_1 = {
   name: "Move &amp; Turn",
   levels: [
     PUZZLE_1,
-    PUZZLE_2
+    //PUZZLE_2
   ]
 }
 
@@ -138,6 +138,7 @@ var PUZZLE_CAMPAIGN_STATE = {
   // if visibility[world_index][level_index] == true, then that level is completed
   // if visibility[world_index][level_index] == false, then that level is not completed
   // if all visible levels in a world are completed, then the world is completed
+  // TODO: make it so that you can mark a world as completed
   visibility: {
     0: {
       0: false,
