@@ -56,7 +56,9 @@ function loadLevel(campaign, state) {
 
   // BOOKMARK TODO: Setup program compilation for a particular puzzle
   var programText = level.bots[level.programming_bot_index].program
-  
+
+  var programText = level.solutions[0]
+
   PROGRAMMING_BOT_INDEX = level.programming_bot_index
 
   setupCodeMirrorBox(programText)

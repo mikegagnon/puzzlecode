@@ -32,6 +32,12 @@ function loadBoard(boardConfig) {
     coinsCollected: 0
   }
 
+  board.on_victory = cloneDeep(boardConfig.on_victory)
+  board.win_conditions = cloneDeep(boardConfig.win_conditions)
+
+  // set to true once victory has been achieved
+  board.victory = false
+
   board.markers = newMatrix(
     board.num_cols,
     board.num_rows,

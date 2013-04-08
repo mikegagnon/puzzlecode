@@ -237,8 +237,37 @@ function getMarkers(board, keepUndefined) {
   return markers
 }
 
+function checkVictory(board) {
+  if (board.victory) {
+    return
+  }
+
+  var win_conditions = board.win_conditions
+  var conditionsMet = 0
+
+  for (var i = 0; i < win_conditions.length; i++) {
+    var condition = win_conditions[i]
+    if (condition.type == WinCondition.COLLECT_COINS) {
+      if (board.coins.length == 0) {
+        conditionsMet += 1
+      }
+    } else {
+      console.error("Unsupported condition.type " + condition.type)
+    }
+  }
+
+  if (win_conditions.length == conditionsMet) {
+    board.victory = true
+    board.animations.victory = true
+  }
+}
+
 // TODO: do a better job separating model from view.
 function step(board) {
+
+  // animations associated with the board, but not with any particular bot
+  board.animations = {}
+
   var bots = board.bots
 
   // TODO: determine for each for javascript
@@ -282,6 +311,8 @@ function step(board) {
       addMarker(board, marker)
     })
   }
+
+  checkVictory(board)
 
   // Decay the strength of each marker on the board
   _(getMarkers(board)).forEach( function(m) {

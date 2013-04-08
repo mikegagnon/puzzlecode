@@ -32,6 +32,12 @@ function loadBoard(boardConfig) {
     coinsCollected: 0
   }
 
+  board.on_victory = cloneDeep(boardConfig.on_victory)
+  board.win_conditions = cloneDeep(boardConfig.win_conditions)
+
+  // set to true once victory has been achieved
+  board.victory = false
+
   board.markers = newMatrix(
     board.num_cols,
     board.num_rows,
@@ -915,7 +921,9 @@ function loadLevel(campaign, state) {
 
   // BOOKMARK TODO: Setup program compilation for a particular puzzle
   var programText = level.bots[level.programming_bot_index].program
-  
+
+  var programText = level.solutions[0]
+
   PROGRAMMING_BOT_INDEX = level.programming_bot_index
 
   setupCodeMirrorBox(programText)
@@ -1164,8 +1172,37 @@ function getMarkers(board, keepUndefined) {
   return markers
 }
 
+function checkVictory(board) {
+  if (board.victory) {
+    return
+  }
+
+  var win_conditions = board.win_conditions
+  var conditionsMet = 0
+
+  for (var i = 0; i < win_conditions.length; i++) {
+    var condition = win_conditions[i]
+    if (condition.type == WinCondition.COLLECT_COINS) {
+      if (board.coins.length == 0) {
+        conditionsMet += 1
+      }
+    } else {
+      console.error("Unsupported condition.type " + condition.type)
+    }
+  }
+
+  if (win_conditions.length == conditionsMet) {
+    board.victory = true
+    board.animations.victory = true
+  }
+}
+
 // TODO: do a better job separating model from view.
 function step(board) {
+
+  // animations associated with the board, but not with any particular bot
+  board.animations = {}
+
   var bots = board.bots
 
   // TODO: determine for each for javascript
@@ -1209,6 +1246,8 @@ function step(board) {
       addMarker(board, marker)
     })
   }
+
+  checkVictory(board)
 
   // Decay the strength of each marker on the board
   _(getMarkers(board)).forEach( function(m) {
@@ -1359,11 +1398,6 @@ function animateCoinCollection(coins, bots) {
         .delay(ANIMATION_DUR / 4)
         .ease("cubic")
         .duration(ANIMATION_DUR)
-        .each("end", function() {
-          if (BOARD.coins.length == 0) {
-            alert("You win!")
-          }
-        })
     })
 }
 
@@ -1603,6 +1637,51 @@ function animateMarkers(board) {
 
 }
 
+// upperBound is exclusive
+function randInt(upperBound) {
+  return Math.floor(Math.random()*upperBound)
+} 
+
+function animateVictory(board) {
+  if (!("victory" in board.animations)) {
+    return
+  }
+
+  // array of  cell coordinates
+  var victoryBalls = _(Array(10))
+    .map(function() {
+      return {
+        x: randInt(board.num_cols),
+        y: randInt(board.num_rows)
+      }
+    })
+    .value()
+
+  console.dir(victoryBalls)
+
+  VIS.selectAll(".victory-ball")
+    .data(victoryBalls)
+    .enter().append("svg:circle")
+    .attr("class", "victory-ball")
+    //.attr("id", function(coin){ return coinId(coin)} )
+    .attr("stroke", "red")
+    .attr("fill", "pink")
+    .attr("opacity", "1.0")
+    .attr("r", 0)
+    .attr("cx", function(){ return Math.floor(board.num_cols / 2) * CELL_SIZE + CELL_SIZE/2} )
+    .attr("cy", function(){ return Math.floor(board.num_rows / 2) * CELL_SIZE + CELL_SIZE/2} )
+    .transition(ANIMATION_DUR)
+    .delay(ANIMATION_DUR)
+    .attr("cx", function(d){ return d.x * CELL_SIZE + CELL_SIZE/2} )
+    .attr("cy", function(d){ return d.y * CELL_SIZE + CELL_SIZE/2} )
+    .attr("opacity", "0.0")
+    .attr("r", board.num_rows * CELL_SIZE * 2 / 3)
+    .ease(EASING)
+    .duration(ANIMATION_DUR * 2)
+
+}
+
+
 // TODO: breakup into smaller functions
 function animate() {
   if (PLAY_STATUS != PlayStatus.PLAYING) {
@@ -1631,6 +1710,7 @@ function stepAndAnimate() {
   animateMoveTorus(transition, BOARD.bots)
   animateProgramDone(BOARD.bots)
   animateMarkers(BOARD)
+  animateVictory(BOARD)
 }
 
 function cleanUpVisualization() {
@@ -1640,6 +1720,7 @@ function cleanUpVisualization() {
   d3.selectAll(".botClone").remove()
   d3.selectAll(".block").remove()
   d3.selectAll(".marker").remove()
+  d3.selectAll(".victory-ball").remove()
   d3.selectAll(".xTemplate").remove()
 
   // TODO: turn off line highlighting
@@ -1930,7 +2011,7 @@ var PUZZLE_1 = {
     {type: OnVictory.UNLOCK_NEXT_WORLD}
   ],
   solutions: [
-    "move\nmove\nturn left\nmove\nmove\nmove\nmove\nmove\n",
+    "move\nmove\nturn left\nmove\nmove\nmove\nmove\n",
   ],
   num_cols: 9,
   num_rows: 7,

@@ -73,7 +73,7 @@ var PUZZLE_1 = {
     {type: OnVictory.UNLOCK_NEXT_WORLD}
   ],
   solutions: [
-    "move\nmove\nturn left\nmove\nmove\nmove\nmove\nmove\n",
+    "move\nmove\nturn left\nmove\nmove\nmove\nmove\n",
   ],
   num_cols: 9,
   num_rows: 7,
