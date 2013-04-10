@@ -1804,12 +1804,12 @@ function animateProgram(board) {
     return
   }
 
-  var bot = board.bots[0]
-  if (!("lineIndex" in bot.animations)) {
+  var bot = board.bots[board.visualize.programming_bot_index]
+  if (!(bot.id in board.visualize.step.bot)) {
     return
   }
 
-  var lineNum = bot.animations.lineIndex
+  var lineNum = board.visualize.step.bot[bot.id].lineIndex
 
   // inspired by http://codemirror.net/demo/activeline.html
   var lineHandle = cm.getLineHandle(lineNum);
@@ -2092,18 +2092,15 @@ function cleanUpVisualization() {
 function stepAndAnimate() {
   var board = BOARD
 
-  console.log("stepAndAnimate")
   // advance the simulation by one "step"
   step(board, PUZZLE_CAMPAIGN, PUZZLE_CAMPAIGN_STATE)
 
-  //animateProgram(board)
+  animateProgram(board)
 
   // must pass initCoins for d3 transitions to work. Since the svg-coin
   // elements are never removed from the board (until the simulation ends)
   // the d3 transition must operate on BOARD.initCoins, not BOARD.coins
   //animateCoinCollection(BOARD.initCoins, BOARD.bots)
-
-  //var transition = d3.selectAll(".bot").data(board.bots).transition()
 
   // TODO: consider an alternative design, where instead of passing the board
   // to each animation function pass it only the bots for that animation.
