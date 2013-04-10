@@ -1669,7 +1669,6 @@ function animateMoveNonTorus(board) {
 function animateProgramDone(board) {
 
   visualizeBot(board, "programDone", function(programDone, bot) {
-    console.log("doneskis")
 
     var progDoneId = "programDone_" + botId(bot)
     VIS.selectAll("#" + progDoneId)
@@ -1731,9 +1730,6 @@ function animateMoveTorus(board) {
 
     var cloneBotId = botId(bot) + "_clone"
 
-    console.log("VIS")
-    console.dir(VIS)
-
     // Step 1: clone the bot and slide it out of view
     // TODO: for some reason this works with selectAll but not select
     VIS.selectAll("#" + cloneBotId)
@@ -1784,7 +1780,6 @@ function animateMoveTorus(board) {
       .duration(0)
       // once the bot is on the other side of the screen, move it like normal
       .each("end", function() {
-        console.log("second move")
         d3.select(this).transition() 
           .attr("transform", botTransform)
           .ease(EASING)
@@ -1895,7 +1890,6 @@ function randY(board) {
   return randInt(0, board.num_rows * CELL_SIZE)
 }
 
-// This is kind of hacky
 function animateVictory(board, state) {
 
   if (!("victory" in board.visualize.step.general)) {
@@ -1943,9 +1937,8 @@ function animateVictory(board, state) {
     doPause()
   }, ANIMATION_DUR);
 
+  // TODO: get this to work
   setTimeout(function(){
-    console.log("modal")
-    console.dir(board.num_victory_announcements)
     if (board.num_victory_announcements > 0) {
       $("#victoryModal").modal('show')
       setupLevelSelect(state)
