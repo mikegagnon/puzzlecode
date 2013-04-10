@@ -32,6 +32,9 @@ function loadWorldMenu(campaign, state) {
   }
 }
 
+/**
+ * TODO: what's the difference between loadLevel and loadBoard?
+ */
 function loadLevel(campaign, state) {
   var world_i = state.current_level.world_index
   var level_i = state.current_level.level_index
@@ -39,8 +42,6 @@ function loadLevel(campaign, state) {
 
   var programText = level.bots[level.programming_bot_index].program
   var programText = level.solutions[0]
-
-  PROGRAMMING_BOT_INDEX = level.programming_bot_index
 
   setupCodeMirrorBox(programText)
   restartSimulation()

@@ -93,6 +93,13 @@ function setupVictoryModal(campaign, state) {
   return numAnnouncements
 }
 
+// TODO: implement
+// will return a summary of all victory announcements that should be
+// visualized once the level is beaten
+function getVictoryAnnouncements(campaign, state) {
+  return undefined
+}
+
 /**
  * Given a "board-configuration object," yields a new board object
  */
@@ -108,8 +115,27 @@ function loadBoard(campaign, state) {
     coinsCollected: 0
   }
 
-  board.on_victory = cloneDeep(boardConfig.on_victory)
-  board.num_victory_announcements = setupVictoryModal(campaign, state)
+  // board.on_victory = cloneDeep(boardConfig.on_victory)
+  // board.num_victory_announcements = setupVictoryModal(campaign, state)
+
+  /**
+   * Contains all data that is needed to visualize the board and game state.
+   * How can you tell what data belongs in board.visualize?
+   * Data should appear in board.visualize if, and only if, the data is
+   * ignored in "headless" mode (i.e. non-visualization mode).
+   */
+  board.visualize = {
+
+    // mutable data that persists across simulator steps
+    persist: {},
+
+    // immutable data that is valid for only one simulation step. Every
+    // simulation step begins by erasing the contents of step.
+    step: {}
+  }
+
+  // the index of the bot being programmed by the code editor
+  board.visualize.programming_bot_index = boardConfig.programming_bot_index
 
   board.win_conditions = cloneDeep(boardConfig.win_conditions)
 
@@ -135,6 +161,8 @@ function loadBoard(campaign, state) {
       console.error("Could not compile: " + configBot.program)
     } else {
       var bot = {
+        // bot.id is immutable, and unique only w.r.t. this board
+        id: i,
         cellX: configBot.cellX,
         cellY: configBot.cellY,
         botColor: configBot.botColor,
@@ -146,6 +174,9 @@ function loadBoard(campaign, state) {
     }
   }
 
+  // newly created bots get id == board.next_bot_id
+  // don't need to worry about int overflows on bot ids because JS uses floats
+  board.next_bot_id = boardConfig.bots.length
 
   return board
 }

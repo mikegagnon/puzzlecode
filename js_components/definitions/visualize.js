@@ -41,9 +41,13 @@ function directionToAngle(direction) {
   }
 }
 
-function botTransform(x, y, facing) {
+// Returns an svg translation command to update the bots position on the
+// board and it's direction
+function botTransform(bot) {
+  var x = bot.cellX * CELL_SIZE
+  var y = bot.cellY * CELL_SIZE
   return "translate(" + x + ", " + y + ") " +
-    "rotate(" + directionToAngle(facing) + " 16 16)"
+    "rotate(" + directionToAngle(bot.facing) + " 16 16)"
 }
 
 function nonBotAnimate() {
@@ -131,17 +135,30 @@ function animateRotate(transition) {
   .duration(ANIMATION_DUR)
 }
 
-function animateMoveNonTorus(transition) {
-  transition.filter( function(bot) {
-    return "nonTorusMove" in bot.animations
+/**
+ * For each bot with the specified visualization, execute fn(transition)
+ * where transition is a d3 transition with only that bot selected
+ */
+function transitionBot(board, visualizeKey, fn) {
+  return _(board.bots)
+    .filter(function(bot){
+      return bot.id in board.visualize.step.bot &&
+        visualizeKey in board.visualize.step.bot[bot.id]
+    })
+    .forEach(function(bot){
+      var transition = d3.select("#" + botId(bot)).transition()
+      console.dir(transition)
+      fn(transition)
+    })
+}
+
+function animateMoveNonTorus(board) {
+  transitionBot(board, "nonTorusMove", function(transition) {
+    transition
+      .attr("transform", botTransform)
+      .ease(EASING)
+      .duration(ANIMATION_DUR)
   })
-  .attr("transform", function(bot) {
-    var x = bot.cellX * CELL_SIZE
-    var y = bot.cellY * CELL_SIZE
-    return botTransform(x, y, bot.facing)
-  })
-  .ease(EASING)
-  .duration(ANIMATION_DUR)
 }
 
 function animateProgramDone(bots) {
@@ -409,46 +426,6 @@ function animate() {
     stepAndAnimate()
   }
 }
-
-function stepAndAnimate() {
-  // advance the simulation by one "step"
-  step(BOARD, PUZZLE_CAMPAIGN, PUZZLE_CAMPAIGN_STATE)
-
-  animateProgram(BOARD)
-
-  // must pass initCoins for d3 transitions to work. Since the svg-coin
-  // elements are never removed from the board (until the simulation ends)
-  // the d3 transition must operate on BOARD.initCoins, not BOARD.coins
-  animateCoinCollection(BOARD.initCoins, BOARD.bots)
-
-  var transition = d3.selectAll(".bot").data(BOARD.bots).transition()
-
-  animateFailMove(transition)
-  animateRotate(transition)
-  animateMoveNonTorus(transition)
-  animateMoveTorus(transition, BOARD.bots)
-  animateProgramDone(BOARD.bots)
-  animateMarkers(BOARD)
-  animateVictory(BOARD, PUZZLE_CAMPAIGN_STATE)
-  animateLevelMenu(BOARD, PUZZLE_CAMPAIGN, PUZZLE_CAMPAIGN_STATE)
-}
-
-function cleanUpVisualization() {
-  d3.selectAll(".cell").remove()
-  d3.selectAll(".bot").remove()
-  d3.selectAll(".coin").remove()
-  d3.selectAll(".botClone").remove()
-  d3.selectAll(".block").remove()
-  d3.selectAll(".marker").remove()
-  d3.selectAll(".victory-ball").remove()
-  d3.selectAll(".xTemplate").remove()
-
-  // TODO: turn off line highlighting
-  if ("_activeLine" in CODE_MIRROR_BOX) {
-    CODE_MIRROR_BOX.removeLineClass(
-      CODE_MIRROR_BOX._activeLine, "background", BACK_CLASS);
-  }
-}
  
 function drawBoardContainer(board) {
   VIS = d3.select("#board")
@@ -481,6 +458,10 @@ function drawCells(board) {
 
 function coinId(coin) {
   return "coin_" + coin.x + "_" + coin.y
+}
+
+function botId(bot) {
+  return "bot_" + bot.id
 }
 
 function markerId(marker) {
@@ -552,11 +533,52 @@ function drawBots() {
   VIS.selectAll(".bot")
     .data(BOARD.bots)
     .enter().append("svg:use")
+    .attr("id", botId)
     .attr("class", "bot")
     .attr("xlink:href", "#botTemplate")
-    .attr("transform", function(bot) {
-      var x = bot.cellX * CELL_SIZE
-      var y = bot.cellY * CELL_SIZE
-      return botTransform(x, y, bot.facing)
-    })
+    .attr("transform", botTransform)
+}
+
+function cleanUpVisualization() {
+  d3.selectAll(".cell").remove()
+  d3.selectAll(".bot").remove()
+  d3.selectAll(".coin").remove()
+  d3.selectAll(".botClone").remove()
+  d3.selectAll(".block").remove()
+  d3.selectAll(".marker").remove()
+  d3.selectAll(".victory-ball").remove()
+  d3.selectAll(".xTemplate").remove()
+
+  // TODO: turn off line highlighting
+  if ("_activeLine" in CODE_MIRROR_BOX) {
+    CODE_MIRROR_BOX.removeLineClass(
+      CODE_MIRROR_BOX._activeLine, "background", BACK_CLASS);
+  }
+}
+
+// called periodically by a timer
+function stepAndAnimate() {
+  var board = BOARD
+
+  console.log("stepAndAnimate")
+  // advance the simulation by one "step"
+  step(board, PUZZLE_CAMPAIGN, PUZZLE_CAMPAIGN_STATE)
+
+  //animateProgram(board)
+
+  // must pass initCoins for d3 transitions to work. Since the svg-coin
+  // elements are never removed from the board (until the simulation ends)
+  // the d3 transition must operate on BOARD.initCoins, not BOARD.coins
+  //animateCoinCollection(BOARD.initCoins, BOARD.bots)
+
+  //var transition = d3.selectAll(".bot").data(board.bots).transition()
+
+  //animateFailMove(transition)
+  //animateRotate(transition)
+  animateMoveNonTorus(board)
+  //animateMoveTorus(transition, BOARD.bots)
+  //animateProgramDone(BOARD.bots)
+  //animateMarkers(BOARD)
+  //animateVictory(BOARD, PUZZLE_CAMPAIGN_STATE)
+  //animateLevelMenu(BOARD, PUZZLE_CAMPAIGN, PUZZLE_CAMPAIGN_STATE)
 }

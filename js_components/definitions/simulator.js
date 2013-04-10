@@ -20,33 +20,16 @@ var BotColor = {
   RED: 1
 }
 
-function Bot(x, y, facing, program, botColor) {
-
-    this.cellX = x;
-    this.cellY = y
-    this.facing = facing;
-    // an array of strings, each string is an "instruction"
-    this.program = program;
-    // instruction pointer points to the next instruction to be executed
-    this.ip = 0;
-
-    // the next animation to perform for this bot
-    this.animations = {};
-
-    // int from the BotColor enum
-    this.botColor = botColor
-}
-
-function executeTurn(bot, direction) {
+function executeTurn(result, bot, direction) {
   assert(direction == Direction.LEFT || direction == Direction.RIGHT,
     "executeTurn: direction == Direction.LEFT || direction == Direction.RIGHT")
   bot.facing = rotateDirection(bot.facing, direction)
-  bot.animations.rotate = true
+  result.visualize.rotate = true
 }
 
-function executeGoto(bot, nextIp) {
+function executeGoto(result, bot, nextIp) {
   bot.ip = nextIp
-  bot.animations.goto = true
+  result.visualize.goto = true
 }
 
 // a bot tries to move into cell x,y.
@@ -69,7 +52,7 @@ function tryMove(board, bot, x, y) {
  *  - at the head in the old cell
  *  - at the tail in the new cell
  */
-function executeMove(board, bot) {
+function executeMove(result, board, bot) {
 
   var prevX = bot.cellX
   var prevY = bot.cellY
@@ -96,14 +79,14 @@ function executeMove(board, bot) {
   yTorus = yResult[1]
 
   if (!tryMove(board, bot, destX, destY)) {
-    bot.animations.failMove = {
+    result.visualize.failMove = {
       destX: bot.cellX + dx,
       destY: bot.cellY + dy
     }
   } else {
     // TODO: break this function up into smaller functions
     
-    bot.depositMarker.push({
+    result.depositMarker.push({
       x: bot.cellX,
       y: bot.cellY,
       quadrant: bot.facing,
@@ -135,13 +118,13 @@ function executeMove(board, bot) {
 
       board.coinsCollected += 1
 
-      bot.animations.coin_collect = matchingCoin
+      result.visualize.coin_collect = matchingCoin
     }
 
     if (xTorus != "torus" && yTorus != "torus") {
-      bot.animations.nonTorusMove = true
+      result.visualize.nonTorusMove = true
     } else {
-      bot.animations.torusMove = {
+      result.visualize.torusMove = {
         prevX: prevX,
         prevY: prevY,
         oobPrevX: bot.cellX - dx,
@@ -151,7 +134,7 @@ function executeMove(board, bot) {
       }
     }
 
-    bot.depositMarker.push({
+    result.depositMarker.push({
       x: bot.cellX,
       y: bot.cellY,
       quadrant: oppositeDirection(bot.facing),
@@ -178,6 +161,7 @@ function wrapAdd(value, increment, outOfBounds) {
 function decayMarker(strength) {
   strength = strength - 0.01
   if (strength <= MIN_MARKER_STRENGTH) {
+    // TODO: should this function return undefined instead?
     return MIN_MARKER_STRENGTH
   } else {
     return strength
@@ -239,9 +223,14 @@ function getMarkers(board, keepUndefined) {
 
 // called upon a victory
 // Updates state.visibility
-// TODO: this code muddles view and model
-// also updates board.animations
+// TODO: this code muddles view and model.
+// TODO: reimplement all the visualization stuff in the visualization section
+// of code. Have it compare the previous game state with the new game state. 
 function updateLevelVisibility(board, campaign, state) {
+  console.error("updateLevelVisibility not implemented")
+}
+
+/*function updateLevelVisibility(board, campaign, state) {
 
   var world_index = state.current_level.world_index
   var level_index = state.current_level.level_index
@@ -251,7 +240,7 @@ function updateLevelVisibility(board, campaign, state) {
   // if this level has been beaten for the first time
   if (!state.visibility[world_index][level_index]) {
     state.visibility[world_index][level_index] = true
-    board.animations.checkOffLevel = {
+    board.visualize.step.general.checkOffLevel = {
       world_index: world_index,
       level_index: level_index
     }
@@ -260,7 +249,7 @@ function updateLevelVisibility(board, campaign, state) {
     var numLevelsInWorld = campaign[world_index].levels.length
     // TODO: make it so that you can mark a world as completed in state.visibility
     if (level_index == numLevelsInWorld - 1) {
-      board.animations.checkOffWorld = {
+      board.visualize.step.general.checkOffWorld = {
         world_index: world_index
       }
     }
@@ -299,14 +288,14 @@ function updateLevelVisibility(board, campaign, state) {
   }
 
   if (animationAddWorld.length > 0) {
-    board.animations.addWorld = animationAddWorld
+    board.visualize.step.general.addWorld = animationAddWorld
   }
 
   if (animationAddLevel.length > 0) {
-    board.animations.addLevel = animationAddLevel
+    board.visualize.step.general.addLevel = animationAddLevel
   }
 
-}
+}*/
 
 function checkVictory(board, campaign, state) {
   if (board.victory) {
@@ -329,7 +318,7 @@ function checkVictory(board, campaign, state) {
 
   if (win_conditions.length == conditionsMet) {
     board.victory = true
-    board.animations.victory = true
+    board.visualize.step.general.victory = true
     updateLevelVisibility(board, campaign, state)
   }
 }
@@ -337,52 +326,62 @@ function checkVictory(board, campaign, state) {
 // TODO: do a better job separating model from view.
 function step(board, campaign, state) {
 
-  // animations associated with the board, but not with any particular bot
-  board.animations = {}
+  // TODO: assertLazy that all bot ids are unique
 
-  var bots = board.bots
+  // contains all data needed to visualize this step of the game
+  board.visualize.step = {
 
-  // TODO: determine for each for javascript
-  var numBots = bots.length
-  for (var i = 0; i < numBots; i++) {
-    var bot = bots[i]
+    // visualizations associated with the board, but not any particular bot
+    general: {},
 
-    // collection of animations related to the bot
-    bot.animations = {}
+    // bots[bot.id] == an object containing all visualizations for that bot
+    // e.g. bot[1].lineIndex == the index of the line currently being
+    // executed for that bot with bot.id == 1
+    bot: {}
+  }
 
-    // list of markers that bot has dropped
-    bot.depositMarker = []
+  _(board.bots).forOwn(function(bot) {
 
     // make sure this bot hasn't finished
     if ("done" in bot.program) {
-      continue
+      return
     } 
 
     var instruction = bot.program.instructions[bot.ip]
-    bot.animations.lineIndex = instruction.lineIndex
 
     // NOTE: executing the instruction may modify the ip
     bot.ip = bot.ip + 1
 
-    if (instruction.opcode == Opcode.MOVE) {
-      executeMove(BOARD, bot)
-    } else if (instruction.opcode == Opcode.TURN) {
-      executeTurn(bot, instruction.data)
-    } else if (instruction.opcode == Opcode.GOTO) {
-      executeGoto(bot, instruction.data)
+    // the bot-instruction functions will populate the fields of result
+    var result = {
+      // containins all visualizations for this bot
+      visualize: {},
+      // array of markers deposited by the bot
+      depositMarker: []
     }
-    bot.animations.lineIndex = instruction.lineIndex
+
+    if (instruction.opcode == Opcode.MOVE) {
+      executeMove(result, board, bot)
+    } else if (instruction.opcode == Opcode.TURN) {
+      executeTurn(result, bot, instruction.data)
+    } else if (instruction.opcode == Opcode.GOTO) {
+      executeGoto(result, bot, instruction.data)
+    }
+
+    board.visualize.step.bot[bot.id] = result.visualize
+    board.visualize.step.bot[bot.id].lineIndex = instruction.lineIndex
 
     // if the bot has reached the end of its program
     if (bot.ip >= bot.program.instructions.length) {
       bot.program.done = true
-      bot.animations.programDone = true
+      board.visualize.step.bot[bot.id].programDone = true
     }
 
-    _(bot.depositMarker).forEach( function (marker) {
+    _(result.depositMarker).forEach( function (marker) {
       addMarker(board, marker)
     })
-  }
+
+  })
 
   checkVictory(board, campaign, state)
 
@@ -392,13 +391,3 @@ function step(board, campaign, state) {
   })
 }
 
-function initBots(board, prog) {
-  var initBot = new Bot(
-    Math.floor((board.num_cols - 1) / 2),
-    Math.floor((board.num_rows - 1)/ 2),
-    Direction.UP,
-    prog,
-    BotColor.BLUE)
-
-  return [initBot]  
-}
