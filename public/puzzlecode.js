@@ -1877,10 +1877,23 @@ function animateMarkers(board) {
     })
 }
 
+// lowerBound is inclusive
 // upperBound is exclusive
-function randInt(upperBound) {
-  return Math.floor(Math.random()*upperBound)
+function randInt(lowerBound, upperBound) {
+  assert(upperBound > lowerBound, "randInt: " + upperBound + " > " + lowerBound)
+  var range = upperBound - lowerBound
+  return lowerBound + Math.floor(Math.random() * range)
 } 
+
+// returns a random x-pixel coordinate somehwere on the board
+function randX(board) {
+  return randInt(0, board.num_cols * CELL_SIZE)
+}
+
+// returns a random y-pixel coordinate somehwere on the board
+function randY(board) {
+  return randInt(0, board.num_rows * CELL_SIZE)
+}
 
 // This is kind of hacky
 function animateVictory(board, state) {
@@ -1889,29 +1902,39 @@ function animateVictory(board, state) {
     return
   }
 
-  // array of  cell coordinates
-  var victoryBalls = _(Array(10))
-    .forEach(function() {
+  var NUM_BALLS = 15
+  var centerX = board.num_cols * CELL_SIZE / 2
+  var centerY = board.num_rows * CELL_SIZE / 2
 
-      VIS.selectAll("#victoryBall_" + randInt(999999))
-        .data([1])
+  var maxRadius = board.num_rows * CELL_SIZE * 2 / 3
+  var minRadius = CELL_SIZE * 2
+
+  // array of  cell coordinates
+  var victoryBalls = _.range(NUM_BALLS)
+    .forEach(function(ball_index) {
+
+      var ballId = "victoryBall_" + ball_index
+
+      VIS.selectAll("#" + ballId)
+        .data([ball_index])
         .enter()
         .append("svg:circle")
+        .attr("id", ballId)
         .attr("class", "victory-ball")
         .attr("stroke", "limegreen")
         .attr("stroke-width", "50")
         .attr("fill", "lime")
         .attr("opacity", "1.0")
         .attr("r", 0)
-        .attr("cx", function(){ return Math.floor(board.num_cols / 2) * CELL_SIZE + CELL_SIZE/2} )
-        .attr("cy", function(){ return Math.floor(board.num_rows / 2) * CELL_SIZE + CELL_SIZE/2} )
+        .attr("cx", centerX)
+        .attr("cy", centerY)
         .transition()
-        .delay(ANIMATION_DUR + ANIMATION_DUR * Math.random())
-        .attr("cx", function(){ return randInt(board.num_cols) * CELL_SIZE + CELL_SIZE/2} )
-        .attr("cy", function(){ return randInt(board.num_rows) * CELL_SIZE + CELL_SIZE/2} )
+        .delay(ANIMATION_DUR + VICTORY_DUR * Math.random())
+        .attr("cx", function(){ return randX(board) })
+        .attr("cy", function(){ return randY(board) })
         .attr("opacity", "0.0")
         .attr("stroke-width", "0")
-        .attr("r", board.num_rows * CELL_SIZE * 2 / 3)
+        .attr("r", function() { return randInt(minRadius, maxRadius) })
         .ease(EASING)
         .duration(VICTORY_DUR)
     })
@@ -1921,7 +1944,8 @@ function animateVictory(board, state) {
   }, ANIMATION_DUR);
 
   setTimeout(function(){
-    doPause()
+    console.log("modal")
+    console.dir(board.num_victory_announcements)
     if (board.num_victory_announcements > 0) {
       $("#victoryModal").modal('show')
       setupLevelSelect(state)
@@ -2324,7 +2348,7 @@ var CELL_SIZE = 32,
     INIT_PLAY_SPEED = PlaySpeed.NORMAL,
     ANIMATION_DUR = INIT_PLAY_SPEED[0]
     CYCLE_DUR = INIT_PLAY_SPEED[1],
-    VICTORY_DUR = 600
+    VICTORY_DUR = 400
     EASING = INIT_PLAY_SPEED[3],
     NON_BOT_ANIMATION_DUR = PlaySpeed.SLOW[0],
     NON_BOT_CYCLE_DUR = NON_BOT_ANIMATION_DUR,
