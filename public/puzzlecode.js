@@ -1825,47 +1825,47 @@ function animateProgram(board) {
 function animateMarkers(board) {
 
   _(getMarkers(board))
-  .groupBy(markerId)
-  // convert markers into colors
-  .map( function(markers) {
+    .groupBy(markerId)
+    // convert markers into colors
+    // essentially a flatMap, since the null values that are returned are
+    // "compact"ed
+    .map( function(markers) {
 
-    // markers is an array of all marker objects that have the same
-    // x, y, and quadrant values (but different botColor values)
+      // markers is an array of all marker objects that have the same
+      // x, y, and quadrant values (but different botColor values)
 
-    // But for now there is only one color
-    // TODO: implement multiple bot colors
-    assert(markers.length <= 1, "in animateMarkers, markers.length <= 1")
+      // But for now there is only one color
+      // TODO: implement multiple bot colors
+      assert(markers.length <= 1, "in animateMarkers, markers.length <= 1")
 
-    if (markers.length == 0) {
-      return null
-    } else {
-      // First normalize the strength by converting it to a value in the range
-      // [0.0, 1.0], where the weakest strength gets mapped to zero
-      // and the strongest strength gets mapped to 1.0
-      var marker = markers[0]
+      if (markers.length == 0) {
+        return null
+      } else {
+        // First normalize the strength by converting it to a value in the range
+        // [0.0, 1.0], where the weakest strength gets mapped to zero
+        // and the strongest strength gets mapped to 1.0
+        var marker = markers[0]
 
-      var strength = marker.strength
-      var strengthNormalized = (strength - MIN_MARKER_STRENGTH) /
-        MAX_MARKER_STRENGTH
+        var strength = marker.strength
+        var strengthNormalized = (strength - MIN_MARKER_STRENGTH) /
+          MAX_MARKER_STRENGTH
 
-      var saturation = Math.floor(strengthNormalized * 100) + "%"
-      var hue = BotColorHue[marker.botColor] + "%"
-      var hsvString = "hsv(" + hue + "," + saturation + ", 100%)"
-      var rgbString = "#" + tinycolor(hsvString).toHex()
-      marker.rgb = rgbString
+        var saturation = Math.floor(strengthNormalized * 100) + "%"
+        var hue = BotColorHue[marker.botColor] + "%"
+        var hsvString = "hsv(" + hue + "," + saturation + ", 100%)"
+        var rgbString = "#" + tinycolor(hsvString).toHex()
+        marker.rgb = rgbString
 
-      return marker
-    }
-
-  })
-  .compact()
-  .forEach( function(marker) {
-    d3.select("#" + markerId(marker)).transition()
-      .attr("fill", marker.rgb)
-      .ease("linear")
-      .duration(ANIMATION_DUR)
-  })
-
+        return marker
+      }
+    })
+    .compact()
+    .forEach( function(marker) {
+      d3.select("#" + markerId(marker)).transition()
+        .attr("fill", marker.rgb)
+        .ease("linear")
+        .duration(ANIMATION_DUR)
+    })
 }
 
 // upperBound is exclusive
@@ -2113,7 +2113,7 @@ function stepAndAnimate() {
   animateMoveNonTorus(board)
   animateMoveTorus(board)
   animateProgramDone(board)
-  //animateMarkers(BOARD)
+  animateMarkers(board)
   //animateVictory(BOARD, PUZZLE_CAMPAIGN_STATE)
   //animateLevelMenu(BOARD, PUZZLE_CAMPAIGN, PUZZLE_CAMPAIGN_STATE)
 }
