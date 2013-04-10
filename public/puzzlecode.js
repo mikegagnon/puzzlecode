@@ -1600,8 +1600,6 @@ function animateFailMove(board) {
       .ease(EASING)
       .duration(ANIMATION_DUR / 2)
   })
-
-  
 }
 
 function animateRotate(board) {
@@ -1615,23 +1613,39 @@ function animateRotate(board) {
 
 /**
  * For each bot with the specified visualization, execute:
- *    fn(transition, viz, bot)
+ *    fn(viz, bot)
  * where:
- *   transition is a d3 transition with only that bot selected
  *   viz == board.visualize.step.bot[bot.id][visualizeKey]
  */
-function transitionBot(board, visualizeKey, fn) {
-  return _(board.bots)
+function visualizeBot(board, visualizeKey, fn) {
+  _(board.bots)
     .filter(function(bot){
       return bot.id in board.visualize.step.bot &&
         visualizeKey in board.visualize.step.bot[bot.id]
     })
     .forEach(function(bot){
-      var transition = d3.select("#" + botId(bot)).transition()
       var viz = board.visualize.step.bot[bot.id][visualizeKey]
-      console.dir(transition)
-      fn(transition, viz, bot)
+      fn(viz, bot)
     })
+}
+
+/**
+ * For each bot with the specified visualization, execute:
+ *    fn(transition, viz, bot)
+ * where:
+ *   transition is a d3 transition with only that bot selected
+ *   viz == board.visualize.step.bot[bot.id][visualizeKey]
+ * IMPORTANT NOTE: It seems that there can only be ONE transition on a bot
+ * at a time, due to D3. Even if two transitions produce completely different
+ * effects, it seems that merely selecting the same bot twice causes trouble.
+ * Only use transitionBot if you are sure it is for an exclusive animation of
+ * the bot. You can use visualizeBot() to evade this limitation.
+ */
+function transitionBot(board, visualizeKey, fn) {
+  visualizeBot(board, visualizeKey, function(viz, bot) {
+    var transition = d3.select("#" + botId(bot)).transition()
+    fn(transition, viz, bot)
+  })
 }
 
 function animateMoveNonTorus(board) {
@@ -1643,8 +1657,36 @@ function animateMoveNonTorus(board) {
   })
 }
 
-function animateProgramDone(bots) {
+function animateProgramDone(board) {
 
+  visualizeBot(board, "programDone", function(programDone, bot) {
+    console.log("doneskis")
+
+    var progDoneId = "programDone_" + botId(bot)
+    VIS.selectAll("#" + progDoneId)
+      .data([bot])
+      .enter()
+      .append("svg:use")
+      .attr("id", progDoneId)
+      .attr("class", "xTemplate")
+      .attr("xlink:href", "#xTemplate")
+      .attr("transform", botTransform)
+      .attr("opacity", "0.0")
+    .transition()
+      .attr("opacity", "0.75")
+      .delay(ANIMATION_DUR)
+      .ease(EASING)
+      .duration(ANIMATION_DUR / 2)
+      // TODO: this is a temporary hack that only makes sense when there is
+      // one bot.
+      // Long-term idea: only change restart to primary if this is the bot
+      // that is being programmed on the code editor.
+      .each("end", function(){
+        d3.select("#restart").attr("class", "btn btn-primary")
+      })
+  })
+
+  return
 
   doneBots = bots.filter( function(bot) {
     return "programDone" in bot.animations
@@ -2070,7 +2112,7 @@ function stepAndAnimate() {
   animateRotate(board)
   animateMoveNonTorus(board)
   animateMoveTorus(board)
-  //animateProgramDone(BOARD.bots)
+  animateProgramDone(board)
   //animateMarkers(BOARD)
   //animateVictory(BOARD, PUZZLE_CAMPAIGN_STATE)
   //animateLevelMenu(BOARD, PUZZLE_CAMPAIGN, PUZZLE_CAMPAIGN_STATE)
