@@ -19,6 +19,8 @@
  * reference.
  */
 
+
+
 // Maps each BotColor to a hue 
 // The hue value (between 0 and 100)
 var BotColorHue = {
@@ -55,6 +57,60 @@ function botTransform(bot) {
   return botTransformPixels(x, y, bot.facing)
 }
 
+/**
+ * Returns a lodash collection containing "viz objects" for bots
+ * that have the visualizeKey. A "viz object" is an object like: {
+ *    viz: board.visualize.step.bot[bot.id][visualizeKey] 
+ *    bot: the bot
+ * }
+ */
+function getViz(board, visualizeKey) {
+  return _(board.bots)
+    .filter(function(bot){
+      return bot.id in board.visualize.step.bot &&
+        visualizeKey in board.visualize.step.bot[bot.id]
+    })
+    .map(function(bot) {
+      return {
+        viz: board.visualize.step.bot[bot.id][visualizeKey],
+        bot: bot
+      }
+    })
+}
+
+/**
+ * For each bot with the specified visualization, execute:
+ *    fn(viz, bot)
+ * where:
+ *   viz == board.visualize.step.bot[bot.id][visualizeKey]
+ */
+function visualizeBot(board, visualizeKey, fn) {
+  getViz(board, visualizeKey)
+    .forEach(function(v) {
+      fn(v.viz, v.bot)
+    })
+}
+
+/**
+ * For each bot with the specified visualization, execute:
+ *    fn(transition, viz, bot)
+ * where:
+ *   transition is a d3 transition with only that bot selected
+ *   viz == board.visualize.step.bot[bot.id][visualizeKey]
+ * IMPORTANT NOTE: It seems that there can only be ONE transition on a bot
+ * at a time, due to D3. Even if two transitions produce completely different
+ * effects, it seems that merely selecting the same bot twice causes trouble.
+ * Only use transitionBot if you are sure it is for an exclusive animation of
+ * the bot. You can use visualizeBot() to evade this limitation.
+ */
+function transitionBot(board, visualizeKey, fn) {
+  visualizeBot(board, visualizeKey, function(viz, bot) {
+    var transition = d3.select("#" + botId(bot)).transition()
+    fn(transition, viz, bot)
+  })
+}
+
+
 function nonBotAnimate() {
   // TODO: animate coins rotating or something
   // IDEA: perhaps the reason nonBotAnimate and animateCoinCollection were
@@ -62,7 +118,7 @@ function nonBotAnimate() {
   // but they were using different transition objects.
 }
 
-function animateCoinCollection(coins, bots) {
+function animateCoinCollection(board) {
 
   /**
    * NOTE: I found that animations would interfere with each other on fast
@@ -72,25 +128,14 @@ function animateCoinCollection(coins, bots) {
    * approach elsewhere.
    */
 
-  _(bots)
-    .map( function(b) {
-      if ("coin_collect" in b.animations) {
-        // need to serialize coin objects as strings so they can be used as keys
-        // in the collectedCoins object
-        return b.animations.coin_collect
-      } else {
-        return null
-      }
-    })
-    .compact()
-    .forEach( function(coin) {
-      d3.select("#" + coinId(coin)).transition()
-        .attr("r", COIN_EXPLODE_RADIUS)
-        .attr("opacity", "0.0")
-        .delay(ANIMATION_DUR / 4)
-        .ease("cubic")
-        .duration(ANIMATION_DUR)
-    })
+  visualizeBot(board, "coin_collect", function(coin, bot) {
+    d3.select("#" + coinId(coin)).transition()
+      .attr("r", COIN_EXPLODE_RADIUS)
+      .attr("opacity", "0.0")
+      .delay(ANIMATION_DUR / 4)
+      .ease("cubic")
+      .duration(ANIMATION_DUR)
+  })
 }
 
 function animateFailMove(board) {
@@ -141,42 +186,6 @@ function animateRotate(board) {
   })
 }
 
-/**
- * For each bot with the specified visualization, execute:
- *    fn(viz, bot)
- * where:
- *   viz == board.visualize.step.bot[bot.id][visualizeKey]
- */
-function visualizeBot(board, visualizeKey, fn) {
-  _(board.bots)
-    .filter(function(bot){
-      return bot.id in board.visualize.step.bot &&
-        visualizeKey in board.visualize.step.bot[bot.id]
-    })
-    .forEach(function(bot){
-      var viz = board.visualize.step.bot[bot.id][visualizeKey]
-      fn(viz, bot)
-    })
-}
-
-/**
- * For each bot with the specified visualization, execute:
- *    fn(transition, viz, bot)
- * where:
- *   transition is a d3 transition with only that bot selected
- *   viz == board.visualize.step.bot[bot.id][visualizeKey]
- * IMPORTANT NOTE: It seems that there can only be ONE transition on a bot
- * at a time, due to D3. Even if two transitions produce completely different
- * effects, it seems that merely selecting the same bot twice causes trouble.
- * Only use transitionBot if you are sure it is for an exclusive animation of
- * the bot. You can use visualizeBot() to evade this limitation.
- */
-function transitionBot(board, visualizeKey, fn) {
-  visualizeBot(board, visualizeKey, function(viz, bot) {
-    var transition = d3.select("#" + botId(bot)).transition()
-    fn(transition, viz, bot)
-  })
-}
 
 function animateMoveNonTorus(board) {
   transitionBot(board, "nonTorusMove", function(transition) {
@@ -405,7 +414,8 @@ function randInt(upperBound) {
 
 // This is kind of hacky
 function animateVictory(board, state) {
-  if (!("victory" in board.animations)) {
+
+  if (!("victory" in board.visualize.step.general)) {
     return
   }
 
@@ -627,10 +637,8 @@ function stepAndAnimate() {
 
   animateProgram(board)
 
-  // must pass initCoins for d3 transitions to work. Since the svg-coin
-  // elements are never removed from the board (until the simulation ends)
-  // the d3 transition must operate on BOARD.initCoins, not BOARD.coins
-  //animateCoinCollection(BOARD.initCoins, BOARD.bots)
+  // TODO: delete BOARD.initCoins
+  animateCoinCollection(board)
 
   // TODO: consider an alternative design, where instead of passing the board
   // to each animation function pass it only the bots for that animation.
@@ -641,6 +649,6 @@ function stepAndAnimate() {
   animateMoveTorus(board)
   animateProgramDone(board)
   animateMarkers(board)
-  //animateVictory(BOARD, PUZZLE_CAMPAIGN_STATE)
+  animateVictory(board, PUZZLE_CAMPAIGN_STATE)
   //animateLevelMenu(BOARD, PUZZLE_CAMPAIGN, PUZZLE_CAMPAIGN_STATE)
 }
