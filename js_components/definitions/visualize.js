@@ -136,8 +136,11 @@ function animateRotate(transition) {
 }
 
 /**
- * For each bot with the specified visualization, execute fn(transition)
- * where transition is a d3 transition with only that bot selected
+ * For each bot with the specified visualization, execute:
+ *    fn(transition, viz, bot)
+ * where:
+ *   transition is a d3 transition with only that bot selected
+ *   viz == board.visualize.step.bot[bot.id][visualizeKey]
  */
 function transitionBot(board, visualizeKey, fn) {
   return _(board.bots)
@@ -147,8 +150,9 @@ function transitionBot(board, visualizeKey, fn) {
     })
     .forEach(function(bot){
       var transition = d3.select("#" + botId(bot)).transition()
+      var viz = board.visualize.step.bot[bot.id][visualizeKey]
       console.dir(transition)
-      fn(transition)
+      fn(transition, viz, bot)
     })
 }
 
@@ -192,7 +196,74 @@ function animateProgramDone(bots) {
 
 }
 
-function animateMoveTorus(transition, bots) {
+function animateMoveTorus(board) {
+
+  transitionBot(board, "torusMove", function(transition, torusMove, bot) {
+
+    var cloneBotId = botId(bot) + "_clone"
+
+    console.log("VIS")
+    console.dir(VIS)
+
+    // Step 1: clone the bot and slide it out of view
+    // TODO: for some reason this works with selectAll but not select
+    VIS.selectAll("#" + cloneBotId)
+      .data([bot])
+      .enter()
+      .append("svg:use")
+      // The clone starts at the previous location of the bot
+      .attr("id", cloneBotId)
+      .attr("class", "bot")
+      .attr("xlink:href", "#botTemplate")
+      .attr("transform", function(bot) {
+        return botTransform({
+            cellX: torusMove.prevX,
+            cellY: torusMove.prevY,
+            facing: bot.facing
+          })
+      })
+      .transition()
+      // the clone slides out of view
+      .attr("transform", function(bot) {
+        return botTransform({
+            cellX: torusMove.oobNextX,
+            cellY: torusMove.oobNextY,
+            facing: bot.facing
+          })
+      })
+      .ease(EASING)
+      .duration(ANIMATION_DUR)
+      // garbage collect the bot clone
+      .each("end", function() {
+        d3.select(this).remove()
+      })
+
+
+    // Step 2: move the original bot to the other side of the screen, and
+    // slide it into view
+    transition
+      // First, immediately move the bot to the other side of the board (out
+      // of bounds)
+      .attr("transform", function(bot) {
+        return botTransform({
+          cellX: torusMove.oobPrevX,
+          cellY: torusMove.oobPrevY,
+          facing: bot.facing
+        })
+      })
+      .ease(EASING)
+      .duration(0)
+      // once the bot is on the other side of the screen, move it like normal
+      .each("end", function() {
+        console.log("second move")
+        d3.select(this).transition() 
+          .attr("transform", botTransform)
+          .ease(EASING)
+          .duration(ANIMATION_DUR)
+      })
+  })
+
+  return
 
   /**
    * Replace the svg-bot element with a clone, and move the original bot
@@ -530,6 +601,7 @@ function drawBlocks() {
 }
 
 function drawBots() {
+
   VIS.selectAll(".bot")
     .data(BOARD.bots)
     .enter().append("svg:use")
@@ -576,7 +648,7 @@ function stepAndAnimate() {
   //animateFailMove(transition)
   //animateRotate(transition)
   animateMoveNonTorus(board)
-  //animateMoveTorus(transition, BOARD.bots)
+  animateMoveTorus(board)
   //animateProgramDone(BOARD.bots)
   //animateMarkers(BOARD)
   //animateVictory(BOARD, PUZZLE_CAMPAIGN_STATE)
