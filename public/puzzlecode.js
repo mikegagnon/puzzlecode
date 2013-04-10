@@ -1511,13 +1511,18 @@ function directionToAngle(direction) {
   }
 }
 
-// Returns an svg translation command to update the bots position on the
-// board and it's direction
+// Returns an svg translation command to update the bot's __pixel__ position on
+// the board and it's direction
+function botTransformPixels(x, y, facing) {
+  return "translate(" + x + ", " + y + ") " +
+    "rotate(" + directionToAngle(facing) + " 16 16)"
+}
+
+// Like botTransformPixels, except using __cell__ position instead of __pixel__
 function botTransform(bot) {
   var x = bot.cellX * CELL_SIZE
   var y = bot.cellY * CELL_SIZE
-  return "translate(" + x + ", " + y + ") " +
-    "rotate(" + directionToAngle(bot.facing) + " 16 16)"
+  return botTransformPixels(x, y, bot.facing)
 }
 
 function nonBotAnimate() {
@@ -1558,51 +1563,54 @@ function animateCoinCollection(coins, bots) {
     })
 }
 
-function animateFailMove(transition) {
+function animateFailMove(board) {
+
+  // number of pixels to move the bot forward before stopping
   var MOVE_DEPTH = 6
-  transition
-  .filter( function(bot) {
-    return "failMove" in bot.animations
-  })
-  .attr("transform", function(bot) {
-    var animation = bot.animations.failMove
-    var dx = 0
-    var dy = 0
-    if (bot.cellX != animation.destX) {
-      dx = (animation.destX - bot.cellX) * MOVE_DEPTH
-    }
-    if (bot.cellY != animation.destY) {
-      dy = (animation.destY - bot.cellY) * MOVE_DEPTH
-    }
-    var x = bot.cellX * CELL_SIZE + dx
-    var y = bot.cellY * CELL_SIZE + dy
-    return botTransform(x, y, bot.facing)
-  })
-  .ease("cubic")
-  .duration(ANIMATION_DUR / 2)
-  .each("end", function() {
-    d3.select(this).transition() 
+
+  transitionBot(board, "failMove", function(transition, failMove, bot) {
+    transition
+      // First, move the bot forward MOVE_DEPTH pixels
       .attr("transform", function(bot) {
-        var x = bot.cellX * CELL_SIZE
-        var y = bot.cellY * CELL_SIZE 
-        return botTransform(x, y, bot.facing)
+        // dx == number of pixels bot will move in x direction
+        var dx = 0
+        // similar for dy
+        var dy = 0
+        if (bot.cellX != failMove.destX) {
+          var diff = failMove.destX - bot.cellX
+          assert(diff == 0 || Math.abs(diff) == 1, "X: diff == 0 || diff == 1")
+          dx = diff * MOVE_DEPTH
+        }
+        if (bot.cellY != failMove.destY) {
+          var diff = failMove.destY - bot.cellY
+          assert(diff == 0 || Math.abs(diff) == 1, "Y: diff == 0 || diff == 1")
+          dy = diff * MOVE_DEPTH
+        }
+        var x = bot.cellX * CELL_SIZE + dx
+        var y = bot.cellY * CELL_SIZE + dy
+        return botTransformPixels(x, y, bot.facing)
       })
+      .ease("cubic")
+      .duration(ANIMATION_DUR / 2)
+      .each("end", function() {
+        // now back the bot up to where it was before
+        d3.select(this).transition() 
+          .attr("transform", botTransform)
+      })
+      .ease(EASING)
+      .duration(ANIMATION_DUR / 2)
   })
-  .ease(EASING)
-  .duration(ANIMATION_DUR / 2)
+
+  
 }
 
-function animateRotate(transition) {
-  transition.filter( function(bot) {
-    return "rotate" in bot.animations
+function animateRotate(board) {
+  transitionBot(board, "rotate", function(transition) {
+    transition
+      .attr("transform", botTransform)
+      .ease(EASING)
+      .duration(ANIMATION_DUR)
   })
-  .attr("transform", function(bot) {
-    var x = bot.cellX * CELL_SIZE
-    var y = bot.cellY * CELL_SIZE
-    return botTransform(x, y, bot.facing)
-  })
-  .ease(EASING)
-  .duration(ANIMATION_DUR)
 }
 
 /**
@@ -1732,66 +1740,6 @@ function animateMoveTorus(board) {
           .duration(ANIMATION_DUR)
       })
   })
-
-  return
-
-  /**
-   * Replace the svg-bot element with a clone, and move the original bot
-   * across the screen (out of bounds). Then move both svg elements at the
-   * same time.
-   */
-
-  torusBots = bots.filter( function(bot) {
-    return "torusMove" in bot.animations
-  })
-
-  // create the clone of the bot
-  VIS.selectAll(".botClone")
-    .data(torusBots)
-    .enter().append("svg:use")
-    .attr("class", "bot")
-    .attr("xlink:href", "#botTemplate")
-    .attr("transform", function(bot) {
-      var x = bot.animations.torusMove.prevX * CELL_SIZE
-      var y = bot.animations.torusMove.prevY * CELL_SIZE
-      return botTransform(x, y, bot.facing)
-    })
-    .transition()
-    .attr("transform", function(bot) {
-      var x = bot.animations.torusMove.oobNextX * CELL_SIZE
-      var y = bot.animations.torusMove.oobNextY * CELL_SIZE
-      return botTransform(x, y, bot.facing)
-    })
-    .ease(EASING)
-    .duration(ANIMATION_DUR)
-    .each("end", function() {
-      // garbage collect the bot clones
-      d3.select(this).remove()
-    })
-
-  // instantly move the bot across to the other side of the screen
-  transition.filter( function(bot) {
-      return "torusMove" in bot.animations
-    })
-    .attr("transform", function(bot) {
-      var x = bot.animations.torusMove.oobPrevX * CELL_SIZE
-      var y = bot.animations.torusMove.oobPrevY * CELL_SIZE
-      return botTransform(x, y, bot.facing)
-    })
-    .ease(EASING)
-    .duration(0)
-    .each("end", function() {
-      // once the bot is on the other side of the screen, move it like normal
-      d3.select(this).transition() 
-        .attr("transform", function(bot) {
-          var x = bot.cellX * CELL_SIZE
-
-          var y = bot.cellY * CELL_SIZE
-          return botTransform(x, y, bot.facing)
-        })
-        .ease(EASING)
-        .duration(ANIMATION_DUR)
-    })
 
 }
 
@@ -2115,8 +2063,11 @@ function stepAndAnimate() {
 
   //var transition = d3.selectAll(".bot").data(board.bots).transition()
 
-  //animateFailMove(transition)
-  //animateRotate(transition)
+  // TODO: consider an alternative design, where instead of passing the board
+  // to each animation function pass it only the bots for that animation.
+  // This way you can do board.bots.groupBy(animation) in one pass.
+  animateFailMove(board)
+  animateRotate(board)
   animateMoveNonTorus(board)
   animateMoveTorus(board)
   //animateProgramDone(BOARD.bots)
@@ -2367,9 +2318,23 @@ var PUZZLE_1 = {
     {
       botColor: BotColor.BLUE,
       cellX: 0,
+      cellY: 0,
+      facing: Direction.RIGHT,
+      program: "start: move\nmove\nmove\ngoto start\n",
+    },
+    {
+      botColor: BotColor.BLUE,
+      cellX: 6,
       cellY: 6,
-      facing: Direction.DOWN,
-      program: "start: move\ngoto start\n",
+      facing: Direction.RIGHT,
+      program: "start: move\n turn right\ngoto start\n",
+    },
+    {
+      botColor: BotColor.BLUE,
+      cellX: 4,
+      cellY: 2,
+      facing: Direction.LEFT,
+      program: "start: move\nmove\ngoto start\n",
     },
     
   ],
