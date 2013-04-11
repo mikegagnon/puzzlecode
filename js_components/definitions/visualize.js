@@ -660,7 +660,6 @@ function animateVictoryModalAndMenu(board, campaign, state) {
 
           addWorldToMenu(campaign, state, delta.world_unlock)
         } else if ("level_complete" in delta) {
-          console.dir(delta.level_complete)
           worldMenuCheckLevel(campaign, delta.world_index, delta.level_complete)        
         } else if ("world_complete" in delta) {
           worldMenuCheckWorld(campaign, delta.world_complete)
@@ -670,9 +669,12 @@ function animateVictoryModalAndMenu(board, campaign, state) {
         }
       })
 
-    $("#victoryModalBody").html(html)
-    $("#victoryModal").modal('show')
-    showOrHideLevelMenu(PUZZLE_CAMPAIGN_STATE)
+    if (html != "") {
+      $("#victoryModalBody").html(html)
+      $("#victoryModal").modal('show')
+    }
+
+    showOrHideLevelMenu(state)
   }, VICTORY_DUR * 2)
 
 }
