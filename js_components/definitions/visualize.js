@@ -122,7 +122,18 @@ function animateCoinCollection(board) {
    */
 
   visualizeBot(board, "coin_collect", function(coin, bot) {
-    d3.select("#" + coinId(coin)).transition()
+    // remove the actual coin
+    VIS.select("#" + coinId(coin)).remove()
+
+    var cloneCoinId = coinId(coin) + "_clone"
+
+    var newCoin = VIS.selectAll("#" + cloneCoinId)
+      .data([coin])
+      .enter().append("svg:circle")
+      .attr("id", cloneCoinId)
+
+    drawCoin(newCoin)
+      .transition()
       .attr("r", COIN_EXPLODE_RADIUS)
       .attr("opacity", "0.0")
       .delay(ANIMATION_DUR / 4)
@@ -509,18 +520,32 @@ function markerId(marker) {
   return "marker_" + marker.x + "_" + marker.y + "_" + marker.quadrant
 }
 
-function drawCoins() {
-  VIS.selectAll(".coin")
-    .data(BOARD.coins)
-    .enter().append("svg:circle")
+function drawCoin(d3Element) {
+  return d3Element
     .attr("class", "coin")
-    .attr("id", function(coin){ return coinId(coin)} )
     .attr("stroke", "goldenrod")
     .attr("fill", "gold")
     .attr("opacity", "1.0")
     .attr("r", COIN_RADIUS)
     .attr("cx", function(d){ return d.x * CELL_SIZE + CELL_SIZE/2 } )
     .attr("cy", function(d){ return d.y * CELL_SIZE + CELL_SIZE/2} )
+}
+
+function drawCoins() {
+
+  // first create the coin svg elements
+  VIS.selectAll(".coin")
+    .data(BOARD.coins)
+    .enter().append("svg:circle")
+    .attr("id", function(coin){ return coinId(coin)} )
+
+  // Then draw each coin
+  _(BOARD.coins)
+    .forEach(function(coin) {
+      drawCoin(VIS.selectAll("#" + coinId(coin)))
+    })
+
+
 }
 
 function drawInitMarkers(board) {
