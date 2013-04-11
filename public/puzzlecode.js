@@ -20,79 +20,6 @@ function setBotProgram(board, botIndex, program) {
   board.bots[botIndex].program = program
 }
 
-function isLevelAccessible(state, world_index, level_index) {
-  return world_index in state.visibility &&
-    level_index in state.visibility[world_index]
-}
-
-// TODO: have links to levels work
-// returns the number of announcements in the modal
-// TODO: this should really go in visualize.js
-function setupVictoryModal(campaign, state) {
-
-  var world_index = state.current_level.world_index
-  var level_index = state.current_level.level_index
-  var on_victory = campaign[world_index].levels[level_index].on_victory
-  assert(on_victory.length > 0, "setupVictoryModal: on_victory.length > 0")
-
-  var html = ""
-
-  var numAnnouncements = 0
-
-  for (var i = 0; i < on_victory.length; i++) {
-    var victoryEvent = on_victory[i]
-    if (victoryEvent.type == OnVictory.UNLOCK_NEXT_LEVEL) {
-      var next_level_index = level_index + 1
-
-      // if the next_level currently not accessible, then add it to the modal
-      if (!isLevelAccessible(state, world_index, next_level_index)) {
-        numAnnouncements += 1
-        var next_level_name = campaign[world_index].levels[next_level_index].name
-        html += '<p>'
-          + '<span class="label label-info victory-label">New level</span> '
-          + 'You unlocked <a href="#">Level '
-          + (world_index + 1)
-          + '-'
-          + (next_level_index + 1)
-          + ': '
-          + next_level_name
-          + '</a>'
-          + '</p>'
-      }
-    } else if (victoryEvent.type == OnVictory.UNLOCK_NEXT_WORLD) {
-      var next_world_index = world_index + 1
-
-      // if the next_level currently not accessible, then add it to the modal
-      if (!isLevelAccessible(state, next_world_index, 0)) {
-        numAnnouncements += 1
-
-        var next_world_name = campaign[next_world_index].name
-        var next_level_name = campaign[next_world_index].levels[0].name
-
-        html += '<p>'
-          + '<span class="label label-success victory-label">New world</span> '
-          + 'You unlocked World '
-          + (next_world_index + 1)
-          + ': '
-          + next_world_name
-          + ', <a href="#"> '
-          + 'Level '
-          + (next_world_index + 1)
-          + '-1 '
-          + next_level_name
-          + '</a>'
-          + '</p>'
-      }
-    } else {
-      console.error("unknown victoryEvent.type == " + victoryEvent.type)
-    }
-  }
-
-  $("#victoryModalBody").html(html)
-
-  return numAnnouncements
-}
-
 // TODO: implement
 // will return a summary of all victory announcements that should be
 // visualized once the level is beaten
@@ -179,6 +106,146 @@ function loadBoard(campaign, state) {
   board.next_bot_id = boardConfig.bots.length
 
   return board
+}/**
+ * Copyright 2013 Michael N. Gagnon
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// TODO: what else should go in this file?
+
+// returns true if the specified level is visible
+function isLevelAccessible(state, world_index, level_index) {
+  return world_index in state.visibility &&
+    level_index in state.visibility[world_index]
+}
+
+// returns true iff the specificed level has been completed
+function levelCompleted(state, world_index, level_index) {
+  return isLevelAccessible(state, world_index, level_index) &&
+    state.visibility[world_index][level_index].complete
+}
+
+// a "visibilityObject" comes from board.visibility
+// it is an object, where each key is either an index or "complete"
+// returns the index keys from visibilityObject
+function getVisibilityIndices(visibilityObject) {
+  return _.keys(visibilityObject)
+    .filter(function(key) {
+      key != "complete"
+    })
+}
+
+/**
+ * returns an array of objects like: {
+ *     world_index: number,
+ *     level_index: number
+ *   }
+ * for each level in the campaign
+ */
+function allLevelIndices(campaign) {
+
+  var indices = []
+
+  for (var wi = 0; wi < campaign.length; wi++) {
+    for (var li = 0; li < campaign[wi].levels.length; li++) {
+      indices.push({
+        world_index: wi,
+        level_index: li
+      })
+    }
+  }
+
+  return indices
+}
+
+// make the specified level visible
+function unlockLevel(state, world_index, level_index) {
+  if (!(world_index in state.visibility)) {
+    state.visibility[world_index] = {
+      complete: false
+    }
+  }
+
+  // the level should not already be visible
+  assert(!(level_index in state.visibility[world_index]), 
+    "unlockLevel: !(" + level_index + " in state.visibility["+ world_index +"])")
+
+  state.visibility[world_index][level_index] = {
+    complete: false
+  }
+
+}
+
+/**
+ * called upon a victory to update state.visibility
+ * returns an array of "unlock description" objects, which can have 1 of 2
+ * forms:
+ *
+ * (1) for unlocking a world:
+ *    {
+ *      world_index: number
+ *    }
+ *
+ * (2) for unlocking a level:
+ *    {
+ *      world_index: number,
+ *      level_index: number
+ *    }
+ */
+function updateLevelVisibility(board, campaign, state) {
+
+  var world_index = state.current_level.world_index
+  var level_index = state.current_level.level_index
+
+  // if the level has already been beaten, then there is nothing to update
+  if (state.visibility[world_index][level_index].completed) {
+    return []
+  }
+
+  var unlocked = []
+
+  state.visibility[world_index][level_index].complete = true
+
+  // try the unlock function for each locked level
+  _(allLevelIndices(campaign))
+    .forEach(function(lev) {
+      if (!isLevelAccessible(state, lev.world_index, lev.level_index)) {
+
+        var level = campaign[lev.world_index].levels[lev.level_index]
+        // should this level be unlocked?
+        if (level.unlock(campaign, state)) {
+
+          // if the unlocked level is in a new world
+          if (!(lev.world_index in state.visibility)) {
+            unlocked.push({
+              world_index: lev.world_index
+            })
+          }
+
+          unlockLevel(state, lev.world_index, lev.level_index)
+
+          unlocked.push({
+            world_index: lev.world_index,
+            level_index: lev.level_index
+          })
+
+        }
+      }
+    })
+
+  return unlocked
+
 }/**
  * Copyright 2013 Michael N. Gagnon
  *
@@ -944,12 +1011,7 @@ function restartSimulation() {
   var program = compile()
   setBotProgram(BOARD, PROGRAMING_BOT_INDEX, program)
 
-  drawBoardContainer(BOARD)
-  drawCells(BOARD)
-  drawInitMarkers(BOARD)
-  drawCoins()
-  drawBots()
-  drawBlocks()
+  initializeVisualization(PUZZLE_CAMPAIGN, PUZZLE_CAMPAIGN_STATE, BOARD)
 
 }
 /**
@@ -989,18 +1051,22 @@ var OnVictory = {
 
 function loadWorldMenu(campaign, state) {
 
-  for (world_index in state.visibility) {
+  var worldIndices = getVisibilityIndices(state.visibility)
+
+  for (world_index in worldIndices) {
     addWorldToMenu(
       campaign,
       state,
       world_index)
 
-    for (level_index in state.visibility[world_index]) {
-      addLevelToMenu(
-        campaign,
-        state,
-        world_index,
-        level_index)
+    var levelIndices = getVisibilityIndices(state.visibility[world_index])
+
+    for (level_index in levelIndices) {
+        addLevelToMenu(
+          campaign,
+          state,
+          world_index,
+          level_index)
     }
   }
 }
@@ -1023,7 +1089,7 @@ function loadLevel(campaign, state) {
 function loadCampaign(campaign, state) {
   loadWorldMenu(campaign, state)
   loadLevel(campaign, state)
-  setupLevelSelect(state) 
+  showOrHideLevelMenu(state) 
 }
 /**
  * Copyright 2013 Michael N. Gagnon
@@ -1248,81 +1314,7 @@ function getMarkers(board, keepUndefined) {
   return markers
 }
 
-// called upon a victory
-// Updates state.visibility
-// TODO: this code muddles view and model.
-// TODO: reimplement all the visualization stuff in the visualization section
-// of code. Have it compare the previous game state with the new game state. 
-function updateLevelVisibility(board, campaign, state) {
-  console.error("updateLevelVisibility not implemented")
-}
 
-/*function updateLevelVisibility(board, campaign, state) {
-
-  var world_index = state.current_level.world_index
-  var level_index = state.current_level.level_index
-  var on_victory = campaign[world_index].levels[level_index].on_victory
-  assert(on_victory.length > 0, "setupVictoryModal: on_victory.length > 0")
-
-  // if this level has been beaten for the first time
-  if (!state.visibility[world_index][level_index]) {
-    state.visibility[world_index][level_index] = true
-    board.visualize.step.general.checkOffLevel = {
-      world_index: world_index,
-      level_index: level_index
-    }
-
-    // if this world has been beaten for the first time
-    var numLevelsInWorld = campaign[world_index].levels.length
-    // TODO: make it so that you can mark a world as completed in state.visibility
-    if (level_index == numLevelsInWorld - 1) {
-      board.visualize.step.general.checkOffWorld = {
-        world_index: world_index
-      }
-    }
-  }
-
-  var animationAddLevel = []
-  var animationAddWorld = []
-
-  for (var i = 0; i < on_victory.length; i++) {
-    var victoryEvent = on_victory[i]
-    if (victoryEvent.type == OnVictory.UNLOCK_NEXT_LEVEL) {
-      var next_level_index = parseInt(level_index + 1)  
-      // if the level isn't already accessible
-      if (!(next_level_index in state.visibility[world_index])) {
-        state.visibility[world_index][next_level_index] = false
-        animationAddLevel.push({
-          world_index: world_index,
-          level_index: next_level_index
-        })
-      }
-    } else if (victoryEvent.type == OnVictory.UNLOCK_NEXT_WORLD) {
-      var next_world_index = parseInt(world_index + 1)  
-      if (!(next_world_index in state.visibility)) {
-        state.visibility[next_world_index] = {}
-        state.visibility[next_world_index][0] = false
-
-        animationAddWorld.push(next_world_index)
-        animationAddLevel.push({
-          world_index: next_world_index,
-          level_index: 0
-        })
-      }
-    } else {
-      console.error("unknown victoryEvent.type == " + victoryEvent.type)
-    }
-  }
-
-  if (animationAddWorld.length > 0) {
-    board.visualize.step.general.addWorld = animationAddWorld
-  }
-
-  if (animationAddLevel.length > 0) {
-    board.visualize.step.general.addLevel = animationAddLevel
-  }
-
-}*/
 
 function checkVictory(board, campaign, state) {
   if (board.victory) {
@@ -1346,7 +1338,12 @@ function checkVictory(board, campaign, state) {
   if (win_conditions.length == conditionsMet) {
     board.victory = true
     board.visualize.step.general.victory = true
-    updateLevelVisibility(board, campaign, state)
+
+    var unlocked = updateLevelVisibility(board, campaign, state)
+    if (unlocked.length > 0) {
+      console.dir(unlocked)
+      board.visualize.step.general.unlocked = unlocked
+    }
   }
 }
 
@@ -1890,7 +1887,7 @@ function randY(board) {
   return randInt(0, board.num_rows * CELL_SIZE)
 }
 
-function animateVictory(board, state) {
+function animateVictoryBalls(board, state) {
 
   if (!("victory" in board.visualize.step.general)) {
     return
@@ -1936,15 +1933,6 @@ function animateVictory(board, state) {
   setTimeout(function(){
     doPause()
   }, ANIMATION_DUR);
-
-  // TODO: get this to work
-  setTimeout(function(){
-    if (board.num_victory_announcements > 0) {
-      $("#victoryModal").modal('show')
-      setupLevelSelect(state)
-    }
-  }, VICTORY_DUR * 2);
-
 }
 
 function animateLevelMenu(board, campaign, state) {
@@ -2115,6 +2103,71 @@ function cleanUpVisualization() {
   }
 }
 
+// TODO: have links to levels work
+function animateVictoryModal(board, campaign) {
+
+  if (!("unlocked" in board.visualize.step.general)) {
+    return
+  }
+
+  // (Step 1) First compute the contents of the modal
+  var html = ""
+
+  // TODO: sort announcements some way?
+  _(board.visualize.step.general.unlocked)
+    .forEach(function(unlocked) {
+      // if a level has been unlocked
+      if ("level_index" in unlocked) {
+        var level_name = campaign[unlocked.world_index]
+          .levels[unlocked.level_index].name
+
+        html += '<p>'
+          + '<span class="label label-info victory-label">New level</span> '
+          + 'You unlocked <a href="#">Level '
+          + (unlocked.world_index + 1)
+          + '-'
+          + (unlocked.level_index + 1)
+          + ': '
+          + level_name
+          + '</a>'
+          + '</p>'
+      }
+      // if a world has been unlocked
+      else {
+        var next_world_name = campaign[unlocked.world_index].name
+
+        html += '<p>'
+          + '<span class="label label-success victory-label">New world</span> '
+          + 'You unlocked World '
+          + (unlocked.world_index + 1)
+          + ': '
+          + next_world_name
+          + '</p>'
+
+      }
+    })
+
+  $("#victoryModalBody").html(html)
+
+  // (Step 2) Show the modal
+
+  // wait until after the victoryBalls animation is done
+  setTimeout(function(){
+      $("#victoryModal").modal('show')
+  }, VICTORY_DUR * 2)
+
+}
+
+// assumes board has already been initialized
+function initializeVisualization(campaign, state, board) {
+  drawBoardContainer(board)
+  drawCells(board)
+  drawInitMarkers(board)
+  drawCoins()
+  drawBots()
+  drawBlocks()
+}
+
 // called periodically by a timer
 function stepAndAnimate() {
   var board = BOARD
@@ -2136,7 +2189,11 @@ function stepAndAnimate() {
   animateMoveTorus(board)
   animateProgramDone(board)
   animateMarkers(board)
-  animateVictory(board, PUZZLE_CAMPAIGN_STATE)
+  animateVictoryBalls(board, PUZZLE_CAMPAIGN_STATE)
+  animateVictoryModal(board, PUZZLE_CAMPAIGN)
+
+        // TODO: this doesn't seem to work
+      //showOrHideLevelMenu(state)
   //animateLevelMenu(BOARD, PUZZLE_CAMPAIGN, PUZZLE_CAMPAIGN_STATE)
 }
 /**
@@ -2173,17 +2230,33 @@ var WinCondition = {
  * limitations under the License.
  */
 
+// TODO: consistent jargon for level selector etc as "level menu"
+
 // show or hide the level menu, depending on whether or not multiple
 // levels can be played
-function setupLevelSelect(state) {
+function showOrHideLevelMenu(state) {
 
-  var visibleWorlds = _.keys(state.visibility)
-  if (visibleWorlds.length == 1 &&
-    _.keys(state.visibility[visibleWorlds[0]]).length == 1) {
+  var hide = false
+
+  // list of the indices for the visibile worlds
+  var visibleWorldIndices = getVisibilityIndices(state.visibility)
+
+  // if only one world is visible
+  if (visibleWorldIndices.length == 1) {
+    var world = state.visibility[visibleWorldIndices[0]]
+    // and if only one level is visible in that world
+    if (getVisibilityIndices(world).length == 1) {
+      // then hide the level menu
+      hide = true
+    }
+  }
+
+  if (hide) {
     $("#accordionLevelSelect").attr("style", "display: none;")
   } else {
     $("#accordionLevelSelect").removeAttr("style")
-  } 
+  }
+
 }
 
 function getCompletedClass(completed) {
@@ -2361,10 +2434,18 @@ var PUZZLE_1 = {
     {type: WinCondition.COLLECT_COINS}
   ],
   constraints: [],
-  on_victory: [
+  // TODO: make sure all obsolete on_victory references are dealt with
+  /*on_victory: [
     {type: OnVictory.UNLOCK_NEXT_LEVEL},
     {type: OnVictory.UNLOCK_NEXT_WORLD},
-  ],
+  ],*/
+
+  // what conditions need to be met to unlock this level?
+  // the unlock returns true if this level should be unlocked
+  unlock: function(campaign, state) {
+    return true
+  },
+
   solutions: [
     "move\nmove\nturn left\nmove\nmove\nmove\nmove\n",
   ],
@@ -2400,7 +2481,6 @@ var PUZZLE_1 = {
       facing: Direction.LEFT,
       program: "start: move\nmove\ngoto start\n",
     },
-    
   ],
   coins: [
     {x:0, y:1},
@@ -2415,9 +2495,26 @@ var PUZZLE_1 = {
   ]
 }
 
-var PUZZLE_2 = cloneDeep(PUZZLE_1, {name: "Avoid the blocks"})
-var PUZZLE_3= PUZZLE_1
-var PUZZLE_4 = PUZZLE_1
+var PUZZLE_2 = cloneDeep(PUZZLE_1, {
+  name: "Avoid the blocks",
+  unlock: function(campaign, state) {
+    return levelCompleted(state, 0, 0)
+  }
+})
+
+var PUZZLE_3 = cloneDeep(PUZZLE_1, {
+  name: "Foobar",
+  unlock: function(campaign, state) {
+    return levelCompleted(state, 0, 0)
+  }
+})
+
+var PUZZLE_4 = cloneDeep(PUZZLE_1, {
+  name: "Baz",
+  unlock: function(campaign, state) {
+    return levelCompleted(state, 1, 0)
+  }
+})
 
 var WORLD_1 = {
   id: "world1",
@@ -2439,6 +2536,8 @@ var WORLD_2 = {
 
 // simply a list of all worlds
 // This data structure is intended to be 100% immutable
+// TODO: write a campaign sanity checker that verified that every level
+// is accessible, the campaign is beatable, etc.
 var PUZZLE_CAMPAIGN = [
   WORLD_1,
   WORLD_2]
@@ -2448,15 +2547,24 @@ var PUZZLE_CAMPAIGN_STATE = {
     world_index: 0,
     level_index: 0
   },
-  // if visibility[world_index][level_index] exists, then that level is visible
-  // if visibility[world_index][level_index] == true, then that level is completed
-  // if visibility[world_index][level_index] == false, then that level is not completed
-  // if all visible levels in a world are completed, then the world is completed
-  // TODO: make it so that you can mark a world as completed
+
+  /**
+   * if visibility.complete == true, then the whole campaign has been completed
+   *
+   * if visibility[world_index] exists, then that world is visible
+   * if visibility[world_index].complete == true, then that world is completed
+   *
+   * if visibility[world_index][level_index] exists, then that level is visible
+   * if visibility[world_index][level_index].complete == true, then that level is completed
+   */
   visibility: {
     0: {
-      0: false,
-    }
+      complete: false,
+      0: {
+        complete: false,
+      }
+    },
+    complete: false
   }
 }
 

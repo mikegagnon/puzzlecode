@@ -69,10 +69,18 @@ var PUZZLE_1 = {
     {type: WinCondition.COLLECT_COINS}
   ],
   constraints: [],
-  on_victory: [
+  // TODO: make sure all obsolete on_victory references are dealt with
+  /*on_victory: [
     {type: OnVictory.UNLOCK_NEXT_LEVEL},
     {type: OnVictory.UNLOCK_NEXT_WORLD},
-  ],
+  ],*/
+
+  // what conditions need to be met to unlock this level?
+  // the unlock returns true if this level should be unlocked
+  unlock: function(campaign, state) {
+    return true
+  },
+
   solutions: [
     "move\nmove\nturn left\nmove\nmove\nmove\nmove\n",
   ],
@@ -108,7 +116,6 @@ var PUZZLE_1 = {
       facing: Direction.LEFT,
       program: "start: move\nmove\ngoto start\n",
     },
-    
   ],
   coins: [
     {x:0, y:1},
@@ -123,9 +130,26 @@ var PUZZLE_1 = {
   ]
 }
 
-var PUZZLE_2 = cloneDeep(PUZZLE_1, {name: "Avoid the blocks"})
-var PUZZLE_3= PUZZLE_1
-var PUZZLE_4 = PUZZLE_1
+var PUZZLE_2 = cloneDeep(PUZZLE_1, {
+  name: "Avoid the blocks",
+  unlock: function(campaign, state) {
+    return levelCompleted(state, 0, 0)
+  }
+})
+
+var PUZZLE_3 = cloneDeep(PUZZLE_1, {
+  name: "Foobar",
+  unlock: function(campaign, state) {
+    return levelCompleted(state, 0, 0)
+  }
+})
+
+var PUZZLE_4 = cloneDeep(PUZZLE_1, {
+  name: "Baz",
+  unlock: function(campaign, state) {
+    return levelCompleted(state, 1, 0)
+  }
+})
 
 var WORLD_1 = {
   id: "world1",
@@ -147,6 +171,8 @@ var WORLD_2 = {
 
 // simply a list of all worlds
 // This data structure is intended to be 100% immutable
+// TODO: write a campaign sanity checker that verified that every level
+// is accessible, the campaign is beatable, etc.
 var PUZZLE_CAMPAIGN = [
   WORLD_1,
   WORLD_2]
@@ -156,15 +182,24 @@ var PUZZLE_CAMPAIGN_STATE = {
     world_index: 0,
     level_index: 0
   },
-  // if visibility[world_index][level_index] exists, then that level is visible
-  // if visibility[world_index][level_index] == true, then that level is completed
-  // if visibility[world_index][level_index] == false, then that level is not completed
-  // if all visible levels in a world are completed, then the world is completed
-  // TODO: make it so that you can mark a world as completed
+
+  /**
+   * if visibility.complete == true, then the whole campaign has been completed
+   *
+   * if visibility[world_index] exists, then that world is visible
+   * if visibility[world_index].complete == true, then that world is completed
+   *
+   * if visibility[world_index][level_index] exists, then that level is visible
+   * if visibility[world_index][level_index].complete == true, then that level is completed
+   */
   visibility: {
     0: {
-      0: false,
-    }
+      complete: false,
+      0: {
+        complete: false,
+      }
+    },
+    complete: false
   }
 }
 

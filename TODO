@@ -1,4 +1,7 @@
-- Check off levels / worlds that have been completed
+- Redesign the level unlocker system to make it less linear. I.e. you should
+ be able to unlock world X once you've reached some arbitary state in the
+ campaign
+- Have resume button be highlighted in blue (for accidental clicks on pause)
 
 - Need major work on usability / instructions / walkthroughs.
 -- Idea for button semantics:

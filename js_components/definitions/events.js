@@ -217,11 +217,6 @@ function restartSimulation() {
   var program = compile()
   setBotProgram(BOARD, PROGRAMING_BOT_INDEX, program)
 
-  drawBoardContainer(BOARD)
-  drawCells(BOARD)
-  drawInitMarkers(BOARD)
-  drawCoins()
-  drawBots()
-  drawBlocks()
+  initializeVisualization(PUZZLE_CAMPAIGN, PUZZLE_CAMPAIGN_STATE, BOARD)
 
 }

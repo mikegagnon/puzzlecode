@@ -420,7 +420,7 @@ function randY(board) {
   return randInt(0, board.num_rows * CELL_SIZE)
 }
 
-function animateVictory(board, state) {
+function animateVictoryBalls(board, state) {
 
   if (!("victory" in board.visualize.step.general)) {
     return
@@ -466,15 +466,6 @@ function animateVictory(board, state) {
   setTimeout(function(){
     doPause()
   }, ANIMATION_DUR);
-
-  // TODO: get this to work
-  setTimeout(function(){
-    if (board.num_victory_announcements > 0) {
-      $("#victoryModal").modal('show')
-      setupLevelSelect(state)
-    }
-  }, VICTORY_DUR * 2);
-
 }
 
 function animateLevelMenu(board, campaign, state) {
@@ -645,6 +636,71 @@ function cleanUpVisualization() {
   }
 }
 
+// TODO: have links to levels work
+function animateVictoryModal(board, campaign) {
+
+  if (!("unlocked" in board.visualize.step.general)) {
+    return
+  }
+
+  // (Step 1) First compute the contents of the modal
+  var html = ""
+
+  // TODO: sort announcements some way?
+  _(board.visualize.step.general.unlocked)
+    .forEach(function(unlocked) {
+      // if a level has been unlocked
+      if ("level_index" in unlocked) {
+        var level_name = campaign[unlocked.world_index]
+          .levels[unlocked.level_index].name
+
+        html += '<p>'
+          + '<span class="label label-info victory-label">New level</span> '
+          + 'You unlocked <a href="#">Level '
+          + (unlocked.world_index + 1)
+          + '-'
+          + (unlocked.level_index + 1)
+          + ': '
+          + level_name
+          + '</a>'
+          + '</p>'
+      }
+      // if a world has been unlocked
+      else {
+        var next_world_name = campaign[unlocked.world_index].name
+
+        html += '<p>'
+          + '<span class="label label-success victory-label">New world</span> '
+          + 'You unlocked World '
+          + (unlocked.world_index + 1)
+          + ': '
+          + next_world_name
+          + '</p>'
+
+      }
+    })
+
+  $("#victoryModalBody").html(html)
+
+  // (Step 2) Show the modal
+
+  // wait until after the victoryBalls animation is done
+  setTimeout(function(){
+      $("#victoryModal").modal('show')
+  }, VICTORY_DUR * 2)
+
+}
+
+// assumes board has already been initialized
+function initializeVisualization(campaign, state, board) {
+  drawBoardContainer(board)
+  drawCells(board)
+  drawInitMarkers(board)
+  drawCoins()
+  drawBots()
+  drawBlocks()
+}
+
 // called periodically by a timer
 function stepAndAnimate() {
   var board = BOARD
@@ -666,6 +722,10 @@ function stepAndAnimate() {
   animateMoveTorus(board)
   animateProgramDone(board)
   animateMarkers(board)
-  animateVictory(board, PUZZLE_CAMPAIGN_STATE)
+  animateVictoryBalls(board, PUZZLE_CAMPAIGN_STATE)
+  animateVictoryModal(board, PUZZLE_CAMPAIGN)
+
+        // TODO: this doesn't seem to work
+      //showOrHideLevelMenu(state)
   //animateLevelMenu(BOARD, PUZZLE_CAMPAIGN, PUZZLE_CAMPAIGN_STATE)
 }

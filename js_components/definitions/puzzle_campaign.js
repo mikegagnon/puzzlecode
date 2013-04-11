@@ -16,18 +16,22 @@
 
 function loadWorldMenu(campaign, state) {
 
-  for (world_index in state.visibility) {
+  var worldIndices = getVisibilityIndices(state.visibility)
+
+  for (world_index in worldIndices) {
     addWorldToMenu(
       campaign,
       state,
       world_index)
 
-    for (level_index in state.visibility[world_index]) {
-      addLevelToMenu(
-        campaign,
-        state,
-        world_index,
-        level_index)
+    var levelIndices = getVisibilityIndices(state.visibility[world_index])
+
+    for (level_index in levelIndices) {
+        addLevelToMenu(
+          campaign,
+          state,
+          world_index,
+          level_index)
     }
   }
 }
@@ -50,5 +54,5 @@ function loadLevel(campaign, state) {
 function loadCampaign(campaign, state) {
   loadWorldMenu(campaign, state)
   loadLevel(campaign, state)
-  setupLevelSelect(state) 
+  showOrHideLevelMenu(state) 
 }

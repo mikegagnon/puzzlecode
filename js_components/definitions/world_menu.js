@@ -14,17 +14,33 @@
  * limitations under the License.
  */
 
+// TODO: consistent jargon for level selector etc as "level menu"
+
 // show or hide the level menu, depending on whether or not multiple
 // levels can be played
-function setupLevelSelect(state) {
+function showOrHideLevelMenu(state) {
 
-  var visibleWorlds = _.keys(state.visibility)
-  if (visibleWorlds.length == 1 &&
-    _.keys(state.visibility[visibleWorlds[0]]).length == 1) {
+  var hide = false
+
+  // list of the indices for the visibile worlds
+  var visibleWorldIndices = getVisibilityIndices(state.visibility)
+
+  // if only one world is visible
+  if (visibleWorldIndices.length == 1) {
+    var world = state.visibility[visibleWorldIndices[0]]
+    // and if only one level is visible in that world
+    if (getVisibilityIndices(world).length == 1) {
+      // then hide the level menu
+      hide = true
+    }
+  }
+
+  if (hide) {
     $("#accordionLevelSelect").attr("style", "display: none;")
   } else {
     $("#accordionLevelSelect").removeAttr("style")
-  } 
+  }
+
 }
 
 function getCompletedClass(completed) {

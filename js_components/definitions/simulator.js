@@ -221,81 +221,7 @@ function getMarkers(board, keepUndefined) {
   return markers
 }
 
-// called upon a victory
-// Updates state.visibility
-// TODO: this code muddles view and model.
-// TODO: reimplement all the visualization stuff in the visualization section
-// of code. Have it compare the previous game state with the new game state. 
-function updateLevelVisibility(board, campaign, state) {
-  console.error("updateLevelVisibility not implemented")
-}
 
-/*function updateLevelVisibility(board, campaign, state) {
-
-  var world_index = state.current_level.world_index
-  var level_index = state.current_level.level_index
-  var on_victory = campaign[world_index].levels[level_index].on_victory
-  assert(on_victory.length > 0, "setupVictoryModal: on_victory.length > 0")
-
-  // if this level has been beaten for the first time
-  if (!state.visibility[world_index][level_index]) {
-    state.visibility[world_index][level_index] = true
-    board.visualize.step.general.checkOffLevel = {
-      world_index: world_index,
-      level_index: level_index
-    }
-
-    // if this world has been beaten for the first time
-    var numLevelsInWorld = campaign[world_index].levels.length
-    // TODO: make it so that you can mark a world as completed in state.visibility
-    if (level_index == numLevelsInWorld - 1) {
-      board.visualize.step.general.checkOffWorld = {
-        world_index: world_index
-      }
-    }
-  }
-
-  var animationAddLevel = []
-  var animationAddWorld = []
-
-  for (var i = 0; i < on_victory.length; i++) {
-    var victoryEvent = on_victory[i]
-    if (victoryEvent.type == OnVictory.UNLOCK_NEXT_LEVEL) {
-      var next_level_index = parseInt(level_index + 1)  
-      // if the level isn't already accessible
-      if (!(next_level_index in state.visibility[world_index])) {
-        state.visibility[world_index][next_level_index] = false
-        animationAddLevel.push({
-          world_index: world_index,
-          level_index: next_level_index
-        })
-      }
-    } else if (victoryEvent.type == OnVictory.UNLOCK_NEXT_WORLD) {
-      var next_world_index = parseInt(world_index + 1)  
-      if (!(next_world_index in state.visibility)) {
-        state.visibility[next_world_index] = {}
-        state.visibility[next_world_index][0] = false
-
-        animationAddWorld.push(next_world_index)
-        animationAddLevel.push({
-          world_index: next_world_index,
-          level_index: 0
-        })
-      }
-    } else {
-      console.error("unknown victoryEvent.type == " + victoryEvent.type)
-    }
-  }
-
-  if (animationAddWorld.length > 0) {
-    board.visualize.step.general.addWorld = animationAddWorld
-  }
-
-  if (animationAddLevel.length > 0) {
-    board.visualize.step.general.addLevel = animationAddLevel
-  }
-
-}*/
 
 function checkVictory(board, campaign, state) {
   if (board.victory) {
@@ -319,7 +245,12 @@ function checkVictory(board, campaign, state) {
   if (win_conditions.length == conditionsMet) {
     board.victory = true
     board.visualize.step.general.victory = true
-    updateLevelVisibility(board, campaign, state)
+
+    var unlocked = updateLevelVisibility(board, campaign, state)
+    if (unlocked.length > 0) {
+      console.dir(unlocked)
+      board.visualize.step.general.unlocked = unlocked
+    }
   }
 }
 
