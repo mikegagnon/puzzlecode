@@ -142,7 +142,7 @@ function levelCompleted(state, world_index, level_index) {
 function getVisibilityIndices(visibilityObject) {
   return _.keys(visibilityObject)
     .filter(function(key) {
-      key != "complete"
+      return key != "complete"
     })
 }
 
@@ -1937,6 +1937,8 @@ function animateVictoryBalls(board, state) {
 
 function animateLevelMenu(board, campaign, state) {
 
+  console.log("hai")
+
   if ("checkOffLevel" in board.animations) {
     var world_index = board.animations.checkOffLevel.world_index
     var level_index = board.animations.checkOffLevel.level_index
@@ -2153,7 +2155,8 @@ function animateVictoryModal(board, campaign) {
 
   // wait until after the victoryBalls animation is done
   setTimeout(function(){
-      $("#victoryModal").modal('show')
+    $("#victoryModal").modal('show')
+    showOrHideLevelMenu(PUZZLE_CAMPAIGN_STATE)
   }, VICTORY_DUR * 2)
 
 }
@@ -2191,10 +2194,7 @@ function stepAndAnimate() {
   animateMarkers(board)
   animateVictoryBalls(board, PUZZLE_CAMPAIGN_STATE)
   animateVictoryModal(board, PUZZLE_CAMPAIGN)
-
-        // TODO: this doesn't seem to work
-      //showOrHideLevelMenu(state)
-  //animateLevelMenu(BOARD, PUZZLE_CAMPAIGN, PUZZLE_CAMPAIGN_STATE)
+  animateLevelMenu(BOARD, PUZZLE_CAMPAIGN, PUZZLE_CAMPAIGN_STATE)
 }
 /**
  * Copyright 2013 Michael N. Gagnon
@@ -2234,12 +2234,17 @@ var WinCondition = {
 
 // show or hide the level menu, depending on whether or not multiple
 // levels can be played
+
+// TODO: when reveaing level menu for first, time highlight it somehow
+// until after the user clicks it for the first time
 function showOrHideLevelMenu(state) {
 
   var hide = false
 
   // list of the indices for the visibile worlds
   var visibleWorldIndices = getVisibilityIndices(state.visibility)
+  assert(visibleWorldIndices.length > 0,
+    "showOrHideLevelMenu: visibleWorldIndices.length > 0")
 
   // if only one world is visible
   if (visibleWorldIndices.length == 1) {
@@ -2505,7 +2510,7 @@ var PUZZLE_2 = cloneDeep(PUZZLE_1, {
 var PUZZLE_3 = cloneDeep(PUZZLE_1, {
   name: "Foobar",
   unlock: function(campaign, state) {
-    return levelCompleted(state, 0, 0)
+    return levelCompleted(state, 0, 1)
   }
 })
 

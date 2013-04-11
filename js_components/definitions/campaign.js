@@ -34,7 +34,7 @@ function levelCompleted(state, world_index, level_index) {
 function getVisibilityIndices(visibilityObject) {
   return _.keys(visibilityObject)
     .filter(function(key) {
-      key != "complete"
+      return key != "complete"
     })
 }
 

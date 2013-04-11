@@ -468,35 +468,6 @@ function animateVictoryBalls(board, state) {
   }, ANIMATION_DUR);
 }
 
-function animateLevelMenu(board, campaign, state) {
-
-  if ("checkOffLevel" in board.animations) {
-    var world_index = board.animations.checkOffLevel.world_index
-    var level_index = board.animations.checkOffLevel.level_index
-    worldMenuCheckLevel(campaign, world_index, level_index)
-  }
-
-  if ("checkOffWorld" in board.animations) {
-    var world_index = board.animations.checkOffWorld.world_index
-    worldMenuCheckWorld(campaign, world_index)
-  }
-
-  if ("addWorld" in board.animations) {
-    for (var i = 0; i < board.animations.addWorld.length; i++) {
-      var world_index = board.animations.addWorld[i]
-      addWorldToMenu(campaign, state, world_index)      
-    }
-  }
-
-  if ("addLevel" in board.animations) {
-    for (var i = 0; i < board.animations.addLevel.length; i++) {
-      var world_index = board.animations.addLevel[i].world_index
-      var level_index = board.animations.addLevel[i].level_index
-      addLevelToMenu(campaign, state, world_index, level_index)
-    }
-  }
-}
-
 // TODO: breakup into smaller functions
 function animate() {
   if (PLAY_STATUS != PlayStatus.PLAYING) {
@@ -686,7 +657,8 @@ function animateVictoryModal(board, campaign) {
 
   // wait until after the victoryBalls animation is done
   setTimeout(function(){
-      $("#victoryModal").modal('show')
+    $("#victoryModal").modal('show')
+    showOrHideLevelMenu(PUZZLE_CAMPAIGN_STATE)
   }, VICTORY_DUR * 2)
 
 }
@@ -724,8 +696,5 @@ function stepAndAnimate() {
   animateMarkers(board)
   animateVictoryBalls(board, PUZZLE_CAMPAIGN_STATE)
   animateVictoryModal(board, PUZZLE_CAMPAIGN)
-
-        // TODO: this doesn't seem to work
-      //showOrHideLevelMenu(state)
-  //animateLevelMenu(BOARD, PUZZLE_CAMPAIGN, PUZZLE_CAMPAIGN_STATE)
+  animateLevelMenu(BOARD, PUZZLE_CAMPAIGN, PUZZLE_CAMPAIGN_STATE)
 }

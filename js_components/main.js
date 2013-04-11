@@ -140,7 +140,7 @@ var PUZZLE_2 = cloneDeep(PUZZLE_1, {
 var PUZZLE_3 = cloneDeep(PUZZLE_1, {
   name: "Foobar",
   unlock: function(campaign, state) {
-    return levelCompleted(state, 0, 0)
+    return levelCompleted(state, 0, 1)
   }
 })
 

@@ -18,12 +18,17 @@
 
 // show or hide the level menu, depending on whether or not multiple
 // levels can be played
+
+// TODO: when reveaing level menu for first, time highlight it somehow
+// until after the user clicks it for the first time
 function showOrHideLevelMenu(state) {
 
   var hide = false
 
   // list of the indices for the visibile worlds
   var visibleWorldIndices = getVisibilityIndices(state.visibility)
+  assert(visibleWorldIndices.length > 0,
+    "showOrHideLevelMenu: visibleWorldIndices.length > 0")
 
   // if only one world is visible
   if (visibleWorldIndices.length == 1) {
@@ -145,5 +150,35 @@ function worldMenuCheckLevel(campaign, world_index, level_index) {
     .find(".level-link")
     .html(getLevelNameHtml(world_index, level_index, level.name, true))
 
+}
+
+// BOOKMARK: todo
+function animateLevelMenu(board, campaign, state) {
+
+  /*if ("checkOffLevel" in board.animations) {
+    var world_index = board.animations.checkOffLevel.world_index
+    var level_index = board.animations.checkOffLevel.level_index
+    worldMenuCheckLevel(campaign, world_index, level_index)
+  }
+
+  if ("checkOffWorld" in board.animations) {
+    var world_index = board.animations.checkOffWorld.world_index
+    worldMenuCheckWorld(campaign, world_index)
+  }
+
+  if ("addWorld" in board.animations) {
+    for (var i = 0; i < board.animations.addWorld.length; i++) {
+      var world_index = board.animations.addWorld[i]
+      addWorldToMenu(campaign, state, world_index)      
+    }
+  }
+
+  if ("addLevel" in board.animations) {
+    for (var i = 0; i < board.animations.addLevel.length; i++) {
+      var world_index = board.animations.addLevel[i].world_index
+      var level_index = board.animations.addLevel[i].level_index
+      addLevelToMenu(campaign, state, world_index, level_index)
+    }
+  }*/
 }
 
