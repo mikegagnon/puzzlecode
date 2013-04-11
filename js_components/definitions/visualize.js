@@ -608,55 +608,69 @@ function cleanUpVisualization() {
 }
 
 // TODO: have links to levels work
-function animateVictoryModal(board, campaign) {
+function animateVictoryModalAndMenu(board, campaign, state) {
 
-  if (!("unlocked" in board.visualize.step.general)) {
+  if (!("campaign_deltas" in board.visualize.step.general)) {
     return
   }
 
-  // (Step 1) First compute the contents of the modal
-  var html = ""
-
-  // TODO: sort announcements some way?
-  _(board.visualize.step.general.unlocked)
-    .forEach(function(unlocked) {
-      // if a level has been unlocked
-      if ("level_index" in unlocked) {
-        var level_name = campaign[unlocked.world_index]
-          .levels[unlocked.level_index].name
-
-        html += '<p>'
-          + '<span class="label label-info victory-label">New level</span> '
-          + 'You unlocked <a href="#">Level '
-          + (unlocked.world_index + 1)
-          + '-'
-          + (unlocked.level_index + 1)
-          + ': '
-          + level_name
-          + '</a>'
-          + '</p>'
-      }
-      // if a world has been unlocked
-      else {
-        var next_world_name = campaign[unlocked.world_index].name
-
-        html += '<p>'
-          + '<span class="label label-success victory-label">New world</span> '
-          + 'You unlocked World '
-          + (unlocked.world_index + 1)
-          + ': '
-          + next_world_name
-          + '</p>'
-
-      }
-    })
-
-  $("#victoryModalBody").html(html)
-
-  // (Step 2) Show the modal
-
   // wait until after the victoryBalls animation is done
   setTimeout(function(){
+
+    // the html contents of the modal
+    var html = ""
+
+    // TODO: sort announcements some way?
+    /**
+     * NOTE: this approach assumes that world_unlock deltas always occurs before
+     * level_unlock. This assumption is necessary because a level can only 
+     * be added to a menu after the world has been added to the menu.
+     */
+    _(board.visualize.step.general.campaign_deltas)
+      .forEach(function(delta) {
+        // if a level has been unlocked
+        if ("level_unlock" in delta) {
+          var level_name = campaign[delta.world_index]
+            .levels[delta.level_unlock].name
+
+          html += '<p>'
+            + '<span class="label label-info victory-label">New level</span> '
+            + 'You unlocked <a href="#">Level '
+            + (delta.world_index + 1)
+            + '-'
+            + (delta.level_unlock + 1)
+            + ': '
+            + level_name
+            + '</a>'
+            + '</p>'
+
+          addLevelToMenu(campaign, state, delta.world_index, delta.level_unlock)
+        }
+        // if a world has been unlocked
+        else if ("world_unlock" in delta) {
+          var next_world_name = campaign[delta.world_unlock].name
+
+          html += '<p>'
+            + '<span class="label label-success victory-label">New world</span> '
+            + 'You unlocked World '
+            + (delta.world_unlock + 1)
+            + ': '
+            + next_world_name
+            + '</p>'
+
+          addWorldToMenu(campaign, state, delta.world_unlock)
+        } else if ("level_complete" in delta) {
+          console.dir(delta.level_complete)
+          worldMenuCheckLevel(campaign, delta.world_index, delta.level_complete)        
+        } else if ("world_complete" in delta) {
+          worldMenuCheckWorld(campaign, delta.world_complete)
+        } else {
+          console.error("Unexpected delta: ")
+          console.dir(delta)
+        }
+      })
+
+    $("#victoryModalBody").html(html)
     $("#victoryModal").modal('show')
     showOrHideLevelMenu(PUZZLE_CAMPAIGN_STATE)
   }, VICTORY_DUR * 2)
@@ -695,6 +709,5 @@ function stepAndAnimate() {
   animateProgramDone(board)
   animateMarkers(board)
   animateVictoryBalls(board, PUZZLE_CAMPAIGN_STATE)
-  animateVictoryModal(board, PUZZLE_CAMPAIGN)
-  animateLevelMenu(BOARD, PUZZLE_CAMPAIGN, PUZZLE_CAMPAIGN_STATE)
+  animateVictoryModalAndMenu(board, PUZZLE_CAMPAIGN, PUZZLE_CAMPAIGN_STATE)
 }

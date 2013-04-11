@@ -197,7 +197,7 @@ var PUZZLE_CAMPAIGN_STATE = {
       complete: false,
       0: {
         complete: false,
-      }
+      },
     },
     complete: false
   }

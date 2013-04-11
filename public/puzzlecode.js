@@ -189,19 +189,31 @@ function unlockLevel(state, world_index, level_index) {
 
 /**
  * called upon a victory to update state.visibility
- * returns an array of "unlock description" objects, which can have 1 of 2
- * forms:
+ * returns an array of "campaign delta" objects, which have several forms
  *
  * (1) for unlocking a world:
  *    {
- *      world_index: number
+ *      world_unlock: number
  *    }
  *
  * (2) for unlocking a level:
  *    {
- *      world_index: number,
- *      level_index: number
+ *      level_unlock: number,
+ *      world_index: number
  *    }
+ *
+ * (3) for completing a level for the first time
+ *    {
+ *      level_complete: number,
+ *      world_index: number
+ *    }  
+ *
+ * (4) for completing a world for the first time
+ *    {
+ *      world_complete: number
+ *    }  
+ *
+ * TBD: beating the game and other awards / badges
  */
 function updateLevelVisibility(board, campaign, state) {
 
@@ -213,9 +225,14 @@ function updateLevelVisibility(board, campaign, state) {
     return []
   }
 
-  var unlocked = []
-
   state.visibility[world_index][level_index].complete = true
+
+  var deltas = [
+    {
+      level_complete: level_index,
+      world_index: world_index
+    }
+  ]
 
   // try the unlock function for each locked level
   _(allLevelIndices(campaign))
@@ -228,23 +245,41 @@ function updateLevelVisibility(board, campaign, state) {
 
           // if the unlocked level is in a new world
           if (!(lev.world_index in state.visibility)) {
-            unlocked.push({
-              world_index: lev.world_index
+            deltas.push({
+              world_unlock: lev.world_index
             })
           }
 
           unlockLevel(state, lev.world_index, lev.level_index)
 
-          unlocked.push({
-            world_index: lev.world_index,
-            level_index: lev.level_index
+          deltas.push({
+            level_unlock: lev.level_index,
+            world_index: lev.world_index
           })
 
         }
       }
     })
 
-  return unlocked
+  // check to see if this victory completed the world
+  var world_complete = true
+  for (i in getVisibilityIndices(state.visibility[world_index])) {
+    console.log("lev " + i)
+    if (!state.visibility[world_index][i].complete) {
+      console.log("done")
+      world_complete = false
+    } else {
+      console.log("not done")
+    }
+  }
+
+  if (world_complete) {
+    deltas.push({
+        world_complete: world_index
+    })
+  }
+
+  return deltas
 
 }/**
  * Copyright 2013 Michael N. Gagnon
@@ -1339,10 +1374,9 @@ function checkVictory(board, campaign, state) {
     board.victory = true
     board.visualize.step.general.victory = true
 
-    var unlocked = updateLevelVisibility(board, campaign, state)
-    if (unlocked.length > 0) {
-      console.dir(unlocked)
-      board.visualize.step.general.unlocked = unlocked
+    var campaign_deltas = updateLevelVisibility(board, campaign, state)
+    if (campaign_deltas.length > 0) {
+      board.visualize.step.general.campaign_deltas = campaign_deltas
     }
   }
 }
@@ -1935,37 +1969,6 @@ function animateVictoryBalls(board, state) {
   }, ANIMATION_DUR);
 }
 
-function animateLevelMenu(board, campaign, state) {
-
-  console.log("hai")
-
-  if ("checkOffLevel" in board.animations) {
-    var world_index = board.animations.checkOffLevel.world_index
-    var level_index = board.animations.checkOffLevel.level_index
-    worldMenuCheckLevel(campaign, world_index, level_index)
-  }
-
-  if ("checkOffWorld" in board.animations) {
-    var world_index = board.animations.checkOffWorld.world_index
-    worldMenuCheckWorld(campaign, world_index)
-  }
-
-  if ("addWorld" in board.animations) {
-    for (var i = 0; i < board.animations.addWorld.length; i++) {
-      var world_index = board.animations.addWorld[i]
-      addWorldToMenu(campaign, state, world_index)      
-    }
-  }
-
-  if ("addLevel" in board.animations) {
-    for (var i = 0; i < board.animations.addLevel.length; i++) {
-      var world_index = board.animations.addLevel[i].world_index
-      var level_index = board.animations.addLevel[i].level_index
-      addLevelToMenu(campaign, state, world_index, level_index)
-    }
-  }
-}
-
 // TODO: breakup into smaller functions
 function animate() {
   if (PLAY_STATUS != PlayStatus.PLAYING) {
@@ -2106,55 +2109,69 @@ function cleanUpVisualization() {
 }
 
 // TODO: have links to levels work
-function animateVictoryModal(board, campaign) {
+function animateVictoryModalAndMenu(board, campaign, state) {
 
-  if (!("unlocked" in board.visualize.step.general)) {
+  if (!("campaign_deltas" in board.visualize.step.general)) {
     return
   }
 
-  // (Step 1) First compute the contents of the modal
-  var html = ""
-
-  // TODO: sort announcements some way?
-  _(board.visualize.step.general.unlocked)
-    .forEach(function(unlocked) {
-      // if a level has been unlocked
-      if ("level_index" in unlocked) {
-        var level_name = campaign[unlocked.world_index]
-          .levels[unlocked.level_index].name
-
-        html += '<p>'
-          + '<span class="label label-info victory-label">New level</span> '
-          + 'You unlocked <a href="#">Level '
-          + (unlocked.world_index + 1)
-          + '-'
-          + (unlocked.level_index + 1)
-          + ': '
-          + level_name
-          + '</a>'
-          + '</p>'
-      }
-      // if a world has been unlocked
-      else {
-        var next_world_name = campaign[unlocked.world_index].name
-
-        html += '<p>'
-          + '<span class="label label-success victory-label">New world</span> '
-          + 'You unlocked World '
-          + (unlocked.world_index + 1)
-          + ': '
-          + next_world_name
-          + '</p>'
-
-      }
-    })
-
-  $("#victoryModalBody").html(html)
-
-  // (Step 2) Show the modal
-
   // wait until after the victoryBalls animation is done
   setTimeout(function(){
+
+    // the html contents of the modal
+    var html = ""
+
+    // TODO: sort announcements some way?
+    /**
+     * NOTE: this approach assumes that world_unlock deltas always occurs before
+     * level_unlock. This assumption is necessary because a level can only 
+     * be added to a menu after the world has been added to the menu.
+     */
+    _(board.visualize.step.general.campaign_deltas)
+      .forEach(function(delta) {
+        // if a level has been unlocked
+        if ("level_unlock" in delta) {
+          var level_name = campaign[delta.world_index]
+            .levels[delta.level_unlock].name
+
+          html += '<p>'
+            + '<span class="label label-info victory-label">New level</span> '
+            + 'You unlocked <a href="#">Level '
+            + (delta.world_index + 1)
+            + '-'
+            + (delta.level_unlock + 1)
+            + ': '
+            + level_name
+            + '</a>'
+            + '</p>'
+
+          addLevelToMenu(campaign, state, delta.world_index, delta.level_unlock)
+        }
+        // if a world has been unlocked
+        else if ("world_unlock" in delta) {
+          var next_world_name = campaign[delta.world_unlock].name
+
+          html += '<p>'
+            + '<span class="label label-success victory-label">New world</span> '
+            + 'You unlocked World '
+            + (delta.world_unlock + 1)
+            + ': '
+            + next_world_name
+            + '</p>'
+
+          addWorldToMenu(campaign, state, delta.world_unlock)
+        } else if ("level_complete" in delta) {
+          console.dir(delta.level_complete)
+          worldMenuCheckLevel(campaign, delta.world_index, delta.level_complete)        
+        } else if ("world_complete" in delta) {
+          worldMenuCheckWorld(campaign, delta.world_complete)
+        } else {
+          console.error("Unexpected delta: ")
+          console.dir(delta)
+        }
+      })
+
+    $("#victoryModalBody").html(html)
     $("#victoryModal").modal('show')
     showOrHideLevelMenu(PUZZLE_CAMPAIGN_STATE)
   }, VICTORY_DUR * 2)
@@ -2193,8 +2210,7 @@ function stepAndAnimate() {
   animateProgramDone(board)
   animateMarkers(board)
   animateVictoryBalls(board, PUZZLE_CAMPAIGN_STATE)
-  animateVictoryModal(board, PUZZLE_CAMPAIGN)
-  animateLevelMenu(BOARD, PUZZLE_CAMPAIGN, PUZZLE_CAMPAIGN_STATE)
+  animateVictoryModalAndMenu(board, PUZZLE_CAMPAIGN, PUZZLE_CAMPAIGN_STATE)
 }
 /**
  * Copyright 2013 Michael N. Gagnon
@@ -2292,15 +2308,8 @@ function getWorldNameHtml(world_index, name, completed) {
  */
 function addWorldToMenu(campaign, state, world_index) {
 
+  var worldCompleted = state.visibility[world_index].complete
   var world = campaign[world_index]
-
-  // determine if the world has been completed
-  var worldCompleted = true
-  for (level_index in state.visibility[world_index]) {
-    if (!state.visibility[world_index][level_index]) {
-      worldCompleted = false
-    }
-  }
 
   $("#levelmenu")
     .append(
@@ -2342,7 +2351,7 @@ function getLevelNameHtml(world_index, level_index, name, completed) {
 
 function addLevelToMenu(campaign, state, world_index, level_index) {
 
-  var completed = state.visibility[world_index][level_index]
+  var completed = state.visibility[world_index][level_index].complete
 
   var world = campaign[world_index]
   var level = world.levels[level_index]
@@ -2567,7 +2576,7 @@ var PUZZLE_CAMPAIGN_STATE = {
       complete: false,
       0: {
         complete: false,
-      }
+      },
     },
     complete: false
   }

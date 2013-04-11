@@ -76,15 +76,8 @@ function getWorldNameHtml(world_index, name, completed) {
  */
 function addWorldToMenu(campaign, state, world_index) {
 
+  var worldCompleted = state.visibility[world_index].complete
   var world = campaign[world_index]
-
-  // determine if the world has been completed
-  var worldCompleted = true
-  for (level_index in state.visibility[world_index]) {
-    if (!state.visibility[world_index][level_index]) {
-      worldCompleted = false
-    }
-  }
 
   $("#levelmenu")
     .append(
@@ -126,7 +119,7 @@ function getLevelNameHtml(world_index, level_index, name, completed) {
 
 function addLevelToMenu(campaign, state, world_index, level_index) {
 
-  var completed = state.visibility[world_index][level_index]
+  var completed = state.visibility[world_index][level_index].complete
 
   var world = campaign[world_index]
   var level = world.levels[level_index]
@@ -150,35 +143,5 @@ function worldMenuCheckLevel(campaign, world_index, level_index) {
     .find(".level-link")
     .html(getLevelNameHtml(world_index, level_index, level.name, true))
 
-}
-
-// BOOKMARK: todo
-function animateLevelMenu(board, campaign, state) {
-
-  /*if ("checkOffLevel" in board.animations) {
-    var world_index = board.animations.checkOffLevel.world_index
-    var level_index = board.animations.checkOffLevel.level_index
-    worldMenuCheckLevel(campaign, world_index, level_index)
-  }
-
-  if ("checkOffWorld" in board.animations) {
-    var world_index = board.animations.checkOffWorld.world_index
-    worldMenuCheckWorld(campaign, world_index)
-  }
-
-  if ("addWorld" in board.animations) {
-    for (var i = 0; i < board.animations.addWorld.length; i++) {
-      var world_index = board.animations.addWorld[i]
-      addWorldToMenu(campaign, state, world_index)      
-    }
-  }
-
-  if ("addLevel" in board.animations) {
-    for (var i = 0; i < board.animations.addLevel.length; i++) {
-      var world_index = board.animations.addLevel[i].world_index
-      var level_index = board.animations.addLevel[i].level_index
-      addLevelToMenu(campaign, state, world_index, level_index)
-    }
-  }*/
 }
 

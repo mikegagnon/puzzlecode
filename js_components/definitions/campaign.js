@@ -81,19 +81,31 @@ function unlockLevel(state, world_index, level_index) {
 
 /**
  * called upon a victory to update state.visibility
- * returns an array of "unlock description" objects, which can have 1 of 2
- * forms:
+ * returns an array of "campaign delta" objects, which have several forms
  *
  * (1) for unlocking a world:
  *    {
- *      world_index: number
+ *      world_unlock: number
  *    }
  *
  * (2) for unlocking a level:
  *    {
- *      world_index: number,
- *      level_index: number
+ *      level_unlock: number,
+ *      world_index: number
  *    }
+ *
+ * (3) for completing a level for the first time
+ *    {
+ *      level_complete: number,
+ *      world_index: number
+ *    }  
+ *
+ * (4) for completing a world for the first time
+ *    {
+ *      world_complete: number
+ *    }  
+ *
+ * TBD: beating the game and other awards / badges
  */
 function updateLevelVisibility(board, campaign, state) {
 
@@ -105,9 +117,14 @@ function updateLevelVisibility(board, campaign, state) {
     return []
   }
 
-  var unlocked = []
-
   state.visibility[world_index][level_index].complete = true
+
+  var deltas = [
+    {
+      level_complete: level_index,
+      world_index: world_index
+    }
+  ]
 
   // try the unlock function for each locked level
   _(allLevelIndices(campaign))
@@ -120,22 +137,40 @@ function updateLevelVisibility(board, campaign, state) {
 
           // if the unlocked level is in a new world
           if (!(lev.world_index in state.visibility)) {
-            unlocked.push({
-              world_index: lev.world_index
+            deltas.push({
+              world_unlock: lev.world_index
             })
           }
 
           unlockLevel(state, lev.world_index, lev.level_index)
 
-          unlocked.push({
-            world_index: lev.world_index,
-            level_index: lev.level_index
+          deltas.push({
+            level_unlock: lev.level_index,
+            world_index: lev.world_index
           })
 
         }
       }
     })
 
-  return unlocked
+  // check to see if this victory completed the world
+  var world_complete = true
+  for (i in getVisibilityIndices(state.visibility[world_index])) {
+    console.log("lev " + i)
+    if (!state.visibility[world_index][i].complete) {
+      console.log("done")
+      world_complete = false
+    } else {
+      console.log("not done")
+    }
+  }
+
+  if (world_complete) {
+    deltas.push({
+        world_complete: world_index
+    })
+  }
+
+  return deltas
 
 }

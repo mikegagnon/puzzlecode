@@ -246,10 +246,9 @@ function checkVictory(board, campaign, state) {
     board.victory = true
     board.visualize.step.general.victory = true
 
-    var unlocked = updateLevelVisibility(board, campaign, state)
-    if (unlocked.length > 0) {
-      console.dir(unlocked)
-      board.visualize.step.general.unlocked = unlocked
+    var campaign_deltas = updateLevelVisibility(board, campaign, state)
+    if (campaign_deltas.length > 0) {
+      board.visualize.step.general.campaign_deltas = campaign_deltas
     }
   }
 }
