@@ -44,6 +44,7 @@ function windowOnLoad() {
   nonBotAnimateInterval = setInterval("nonBotAnimate()", NON_BOT_CYCLE_DUR)
 
   loadCampaign(PUZZLE_CAMPAIGN, PUZZLE_CAMPAIGN_STATE)
+  restartSimulation()
 }
 
 /**

@@ -20,13 +20,6 @@ function setBotProgram(board, botIndex, program) {
   board.bots[botIndex].program = program
 }
 
-// TODO: implement
-// will return a summary of all victory announcements that should be
-// visualized once the level is beaten
-function getVictoryAnnouncements(campaign, state) {
-  return undefined
-}
-
 /**
  * Given a "board-configuration object," yields a new board object
  */

@@ -14,13 +14,6 @@
  * limitations under the License.
  */
 
-/**
- * Instead of using D3 selectAll, just do D3 select(node) for a given node
- * reference.
- */
-
-
-
 // Maps each BotColor to a hue 
 // The hue value (between 0 and 100)
 var BotColorHue = {
@@ -250,8 +243,6 @@ function animateProgramDone(board) {
     .each("end", function(){
       d3.select("#restart").attr("class", "btn btn-primary")
     })
-
-
 }
 
 function animateMoveTorus(board) {

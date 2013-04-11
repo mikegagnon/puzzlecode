@@ -28,9 +28,11 @@ function levelCompleted(state, world_index, level_index) {
     state.visibility[world_index][level_index].complete
 }
 
-// a "visibilityObject" comes from board.visibility
-// it is an object, where each key is either an index or "complete"
-// returns the index keys from visibilityObject
+/**
+ * a "visibilityObject" comes from board.visibility
+ * it is an object, where each key is either an index or "complete"
+ * returns the index keys from visibilityObject
+ */
 function getVisibilityIndices(visibilityObject) {
   return _.keys(visibilityObject)
     .filter(function(key) {
@@ -81,7 +83,8 @@ function unlockLevel(state, world_index, level_index) {
 
 /**
  * called upon a victory to update state.visibility
- * returns an array of "campaign delta" objects, which have several forms
+ * returns an array of "campaign delta" objects (used for animating campaign
+ * changes), which have several forms:
  *
  * (1) for unlocking a world:
  *    {
@@ -169,4 +172,26 @@ function updateLevelVisibility(board, campaign, state) {
 
   return deltas
 
+}
+
+/**
+ * loadLevel for loading visualization elements for a level, whereas
+ * loadBoard is for creating a new board object from a board-configuration obj
+ * TODO: where should this code go? Come up with a better function name.
+ */
+function loadLevel(campaign, state) {
+  var world_i = state.current_level.world_index
+  var level_i = state.current_level.level_index
+  var level = campaign[world_i].levels[level_i]
+
+  var programText = level.bots[level.programming_bot_index].program
+  var programText = level.solutions[0]
+
+  setupCodeMirrorBox(programText)
+}
+
+function loadCampaign(campaign, state) {
+  loadWorldMenu(campaign, state)
+  loadLevel(campaign, state)
+  showOrHideLevelMenu(state) 
 }

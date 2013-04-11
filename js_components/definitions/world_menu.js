@@ -145,3 +145,25 @@ function worldMenuCheckLevel(campaign, world_index, level_index) {
 
 }
 
+function loadWorldMenu(campaign, state) {
+
+  var worldIndices = getVisibilityIndices(state.visibility)
+
+  for (world_index in worldIndices) {
+    addWorldToMenu(
+      campaign,
+      state,
+      world_index)
+
+    var levelIndices = getVisibilityIndices(state.visibility[world_index])
+
+    for (level_index in levelIndices) {
+        addLevelToMenu(
+          campaign,
+          state,
+          world_index,
+          level_index)
+    }
+  }
+}
+

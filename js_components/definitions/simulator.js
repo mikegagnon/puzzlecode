@@ -221,8 +221,6 @@ function getMarkers(board, keepUndefined) {
   return markers
 }
 
-
-
 function checkVictory(board, campaign, state) {
   if (board.victory) {
     return

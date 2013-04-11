@@ -20,13 +20,6 @@ function setBotProgram(board, botIndex, program) {
   board.bots[botIndex].program = program
 }
 
-// TODO: implement
-// will return a summary of all victory announcements that should be
-// visualized once the level is beaten
-function getVictoryAnnouncements(campaign, state) {
-  return undefined
-}
-
 /**
  * Given a "board-configuration object," yields a new board object
  */
@@ -133,9 +126,11 @@ function levelCompleted(state, world_index, level_index) {
     state.visibility[world_index][level_index].complete
 }
 
-// a "visibilityObject" comes from board.visibility
-// it is an object, where each key is either an index or "complete"
-// returns the index keys from visibilityObject
+/**
+ * a "visibilityObject" comes from board.visibility
+ * it is an object, where each key is either an index or "complete"
+ * returns the index keys from visibilityObject
+ */
 function getVisibilityIndices(visibilityObject) {
   return _.keys(visibilityObject)
     .filter(function(key) {
@@ -186,7 +181,8 @@ function unlockLevel(state, world_index, level_index) {
 
 /**
  * called upon a victory to update state.visibility
- * returns an array of "campaign delta" objects, which have several forms
+ * returns an array of "campaign delta" objects (used for animating campaign
+ * changes), which have several forms:
  *
  * (1) for unlocking a world:
  *    {
@@ -274,7 +270,30 @@ function updateLevelVisibility(board, campaign, state) {
 
   return deltas
 
-}/**
+}
+
+/**
+ * loadLevel for loading visualization elements for a level, whereas
+ * loadBoard is for creating a new board object from a board-configuration obj
+ * TODO: where should this code go? Come up with a better function name.
+ */
+function loadLevel(campaign, state) {
+  var world_i = state.current_level.world_index
+  var level_i = state.current_level.level_index
+  var level = campaign[world_i].levels[level_i]
+
+  var programText = level.bots[level.programming_bot_index].program
+  var programText = level.solutions[0]
+
+  setupCodeMirrorBox(programText)
+}
+
+function loadCampaign(campaign, state) {
+  loadWorldMenu(campaign, state)
+  loadLevel(campaign, state)
+  showOrHideLevelMenu(state) 
+}
+/**
  * Copyright 2013 Michael N. Gagnon
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -866,6 +885,7 @@ function windowOnLoad() {
   nonBotAnimateInterval = setInterval("nonBotAnimate()", NON_BOT_CYCLE_DUR)
 
   loadCampaign(PUZZLE_CAMPAIGN, PUZZLE_CAMPAIGN_STATE)
+  restartSimulation()
 }
 
 /**
@@ -1041,83 +1061,6 @@ function restartSimulation() {
 
   initializeVisualization(PUZZLE_CAMPAIGN, PUZZLE_CAMPAIGN_STATE, BOARD)
 
-}
-/**
- * Copyright 2013 Michael N. Gagnon
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-var OnVictory = {
-  UNLOCK_NEXT_LEVEL: 0,
-  UNLOCK_NEXT_WORLD: 1
-}/**
- * Copyright 2013 Michael N. Gagnon
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-function loadWorldMenu(campaign, state) {
-
-  var worldIndices = getVisibilityIndices(state.visibility)
-
-  for (world_index in worldIndices) {
-    addWorldToMenu(
-      campaign,
-      state,
-      world_index)
-
-    var levelIndices = getVisibilityIndices(state.visibility[world_index])
-
-    for (level_index in levelIndices) {
-        addLevelToMenu(
-          campaign,
-          state,
-          world_index,
-          level_index)
-    }
-  }
-}
-
-/**
- * TODO: what's the difference between loadLevel and loadBoard?
- */
-function loadLevel(campaign, state) {
-  var world_i = state.current_level.world_index
-  var level_i = state.current_level.level_index
-  var level = campaign[world_i].levels[level_i]
-
-  var programText = level.bots[level.programming_bot_index].program
-  var programText = level.solutions[0]
-
-  setupCodeMirrorBox(programText)
-  restartSimulation()
-}
-
-function loadCampaign(campaign, state) {
-  loadWorldMenu(campaign, state)
-  loadLevel(campaign, state)
-  showOrHideLevelMenu(state) 
 }
 /**
  * Copyright 2013 Michael N. Gagnon
@@ -1341,8 +1284,6 @@ function getMarkers(board, keepUndefined) {
   }
   return markers
 }
-
-
 
 function checkVictory(board, campaign, state) {
   if (board.victory) {
@@ -2370,6 +2311,28 @@ function worldMenuCheckLevel(campaign, world_index, level_index) {
     .find(".level-link")
     .html(getLevelNameHtml(world_index, level_index, level.name, true))
 
+}
+
+function loadWorldMenu(campaign, state) {
+
+  var worldIndices = getVisibilityIndices(state.visibility)
+
+  for (world_index in worldIndices) {
+    addWorldToMenu(
+      campaign,
+      state,
+      world_index)
+
+    var levelIndices = getVisibilityIndices(state.visibility[world_index])
+
+    for (level_index in levelIndices) {
+        addLevelToMenu(
+          campaign,
+          state,
+          world_index,
+          level_index)
+    }
+  }
 }
 
 /**
