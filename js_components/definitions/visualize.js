@@ -106,9 +106,6 @@ function transitionBot(board, visualizeKey, fn) {
 
 function nonBotAnimate() {
   // TODO: animate coins rotating or something
-  // IDEA: perhaps the reason nonBotAnimate and animateCoinCollection were
-  // interferring is because they were both operating on the same svg elements
-  // but they were using different transition objects.
 }
 
 function animateCoinCollection(board) {
@@ -127,12 +124,15 @@ function animateCoinCollection(board) {
 
     var cloneCoinId = coinId(coin) + "_clone"
 
+    // TODO: design decision. This new coin appears above the bot. Should it
+    // go underneath the bot? If so, how to do it?
     var newCoin = VIS.selectAll("#" + cloneCoinId)
       .data([coin])
       .enter().append("svg:circle")
       .attr("id", cloneCoinId)
 
     drawCoin(newCoin)
+      .attr("class", "coinExplosion")
       .transition()
       .attr("r", COIN_EXPLODE_RADIUS)
       .attr("opacity", "0.0")
@@ -610,6 +610,7 @@ function cleanUpVisualization() {
   d3.selectAll(".cell").remove()
   d3.selectAll(".bot").remove()
   d3.selectAll(".coin").remove()
+  d3.selectAll(".coinExplosion").remove()
   d3.selectAll(".botClone").remove()
   d3.selectAll(".block").remove()
   d3.selectAll(".marker").remove()

@@ -1544,6 +1544,19 @@ function nonBotAnimate() {
   // IDEA: perhaps the reason nonBotAnimate and animateCoinCollection were
   // interferring is because they were both operating on the same svg elements
   // but they were using different transition objects.
+
+  d3.selectAll(".coin")
+    //.data(COINS)
+    .transition()
+    .attr("r", "7")
+    .ease("cubic-in-out")
+    .duration(NON_BOT_ANIMATION_DUR / 2)
+    .each("end", function() {
+      d3.select(this).transition()
+        .attr("r", "6")
+        .ease("cubic-in-out")
+        .duration(NON_BOT_ANIMATION_DUR / 2)
+    })
 }
 
 function animateCoinCollection(board) {
@@ -1557,40 +1570,26 @@ function animateCoinCollection(board) {
    */
 
   visualizeBot(board, "coin_collect", function(coin, bot) {
-
     // remove the actual coin
     VIS.select("#" + coinId(coin)).remove()
 
     var cloneCoinId = coinId(coin) + "_clone"
 
+    // TODO: design decision. This new coin appears above the bot. Should it
+    // go underneath the bot? If so, how to do it?
     var newCoin = VIS.selectAll("#" + cloneCoinId)
       .data([coin])
       .enter().append("svg:circle")
       .attr("id", cloneCoinId)
 
     drawCoin(newCoin)
+      .attr("class", "coinExplosion")
       .transition()
       .attr("r", COIN_EXPLODE_RADIUS)
       .attr("opacity", "0.0")
       .delay(ANIMATION_DUR / 4)
       .ease("cubic")
       .duration(ANIMATION_DUR)
-
-      // first create the coin svg elements
-  /*VIS.selectAll(".coin")
-    .data(BOARD.coins)
-    .enter().append("svg:circle")
-    .attr("id", function(coin){ return coinId(coin)} )
-
-  // Then draw each coin
-  _(BOARD.coins)
-    .forEach(function(coin) {
-      drawCoin(VIS.selectAll("#" + coinId(coin)))
-    })*/
-
-      //.delay(ANIMATION_DUR / 4)
-      //.ease("cubic")
-      //.duration(ANIMATION_DUR)
   })
 }
 
@@ -2062,6 +2061,7 @@ function cleanUpVisualization() {
   d3.selectAll(".cell").remove()
   d3.selectAll(".bot").remove()
   d3.selectAll(".coin").remove()
+  d3.selectAll(".coinExplosion").remove()
   d3.selectAll(".botClone").remove()
   d3.selectAll(".block").remove()
   d3.selectAll(".marker").remove()
@@ -2164,6 +2164,7 @@ function stepAndAnimate() {
   // advance the simulation by one "step"
   step(board, PUZZLE_CAMPAIGN, PUZZLE_CAMPAIGN_STATE)
 
+  nonBotAnimate()
   animateProgram(board)
 
   // TODO: delete BOARD.initCoins
