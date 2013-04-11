@@ -42,9 +42,6 @@ function loadBoard(campaign, state) {
     coinsCollected: 0
   }
 
-  // board.on_victory = cloneDeep(boardConfig.on_victory)
-  // board.num_victory_announcements = setupVictoryModal(campaign, state)
-
   /**
    * Contains all data that is needed to visualize the board and game state.
    * How can you tell what data belongs in board.visualize?

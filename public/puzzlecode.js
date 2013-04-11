@@ -42,9 +42,6 @@ function loadBoard(campaign, state) {
     coinsCollected: 0
   }
 
-  // board.on_victory = cloneDeep(boardConfig.on_victory)
-  // board.num_victory_announcements = setupVictoryModal(campaign, state)
-
   /**
    * Contains all data that is needed to visualize the board and game state.
    * How can you tell what data belongs in board.visualize?
@@ -2448,11 +2445,6 @@ var PUZZLE_1 = {
     {type: WinCondition.COLLECT_COINS}
   ],
   constraints: [],
-  // TODO: make sure all obsolete on_victory references are dealt with
-  /*on_victory: [
-    {type: OnVictory.UNLOCK_NEXT_LEVEL},
-    {type: OnVictory.UNLOCK_NEXT_WORLD},
-  ],*/
 
   // what conditions need to be met to unlock this level?
   // the unlock returns true if this level should be unlocked
