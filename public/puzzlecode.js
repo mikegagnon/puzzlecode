@@ -1541,22 +1541,6 @@ function transitionBot(board, visualizeKey, fn) {
 
 function nonBotAnimate() {
   // TODO: animate coins rotating or something
-  // IDEA: perhaps the reason nonBotAnimate and animateCoinCollection were
-  // interferring is because they were both operating on the same svg elements
-  // but they were using different transition objects.
-
-  d3.selectAll(".coin")
-    //.data(COINS)
-    .transition()
-    .attr("r", "7")
-    .ease("cubic-in-out")
-    .duration(NON_BOT_ANIMATION_DUR / 2)
-    .each("end", function() {
-      d3.select(this).transition()
-        .attr("r", "6")
-        .ease("cubic-in-out")
-        .duration(NON_BOT_ANIMATION_DUR / 2)
-    })
 }
 
 function animateCoinCollection(board) {
@@ -2164,7 +2148,6 @@ function stepAndAnimate() {
   // advance the simulation by one "step"
   step(board, PUZZLE_CAMPAIGN, PUZZLE_CAMPAIGN_STATE)
 
-  nonBotAnimate()
   animateProgram(board)
 
   // TODO: delete BOARD.initCoins
