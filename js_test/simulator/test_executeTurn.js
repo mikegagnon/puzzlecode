@@ -16,11 +16,6 @@
 
 var TEST_FILENAME = "js_test/simulator/test_executeTurn.js"
 
-/**
- * test execution of move instruction
- *************************************************************************/
-
-
 var botBase = {
   animations: {},
 }
@@ -31,106 +26,137 @@ var testExecuteTurn = {
       facing: Direction.UP,
     }),
     turnDirection: Direction.LEFT,
-    expected: cloneDeep(botBase, {
-      facing: Direction.LEFT,
-      animations: {
-        rotate: true
-      }
-    }),
+    expected: {
+      result: {
+        visualize: {rotate: true},
+        depositMarker: []
+      },
+      bot: cloneDeep(botBase, {
+        facing: Direction.LEFT,          
+      })
+    }
   },
   "facing up, turn right": {
     bot: cloneDeep(botBase, {
       facing: Direction.UP,
     }),
     turnDirection: Direction.RIGHT,
-    expected: cloneDeep(botBase, {
-      facing: Direction.RIGHT,
-      animations: {
-        rotate: true
-      }
-    }),
+    expected: {
+      result: {
+        visualize: {rotate: true},
+        depositMarker: []
+      },
+      bot: cloneDeep(botBase, {
+        facing: Direction.RIGHT,          
+      })
+    }
   },
 
-    "facing right, turn left": {
+  "facing right, turn left": {
     bot: cloneDeep(botBase, {
       facing: Direction.RIGHT,
     }),
     turnDirection: Direction.LEFT,
-    expected: cloneDeep(botBase, {
-      facing: Direction.UP,
-      animations: {
-        rotate: true
-      }
-    }),
+    expected: {
+      result: {
+        visualize: {rotate: true},
+        depositMarker: []
+      },
+      bot: cloneDeep(botBase, {
+        facing: Direction.UP,          
+      })
+    }
   },
   "facing right, turn right": {
     bot: cloneDeep(botBase, {
       facing: Direction.RIGHT,
     }),
     turnDirection: Direction.RIGHT,
-    expected: cloneDeep(botBase, {
-      facing: Direction.DOWN,
-      animations: {
-        rotate: true
-      }
-    }),
+    expected: {
+      result: {
+        visualize: {rotate: true},
+        depositMarker: []
+      },
+      bot: cloneDeep(botBase, {
+        facing: Direction.DOWN,          
+      })
+    }
   },
 
-    "facing down, turn left": {
+  "facing down, turn left": {
     bot: cloneDeep(botBase, {
       facing: Direction.DOWN,
     }),
     turnDirection: Direction.LEFT,
-    expected: cloneDeep(botBase, {
-      facing: Direction.RIGHT,
-      animations: {
-        rotate: true
-      }
-    }),
+    expected: {
+      result: {
+        visualize: {rotate: true},
+        depositMarker: []
+      },
+      bot: cloneDeep(botBase, {
+        facing: Direction.RIGHT,          
+      })
+    }
   },
   "facing down, turn right": {
     bot: cloneDeep(botBase, {
       facing: Direction.DOWN,
     }),
     turnDirection: Direction.RIGHT,
-    expected: cloneDeep(botBase, {
-      facing: Direction.LEFT,
-      animations: {
-        rotate: true
-      }
-    }),
+    expected: {
+      result: {
+        visualize: {rotate: true},
+        depositMarker: []
+      },
+      bot: cloneDeep(botBase, {
+        facing: Direction.LEFT,          
+      })
+    }
   },
 
-    "facing left, turn left": {
+  "facing left, turn left": {
     bot: cloneDeep(botBase, {
       facing: Direction.LEFT,
     }),
     turnDirection: Direction.LEFT,
-    expected: cloneDeep(botBase, {
-      facing: Direction.DOWN,
-      animations: {
-        rotate: true
-      }
-    }),
+    expected: {
+      result: {
+        visualize: {rotate: true},
+        depositMarker: []
+      },
+      bot: cloneDeep(botBase, {
+        facing: Direction.DOWN,          
+      })
+    }
   },
   "facing left, turn right": {
     bot: cloneDeep(botBase, {
       facing: Direction.LEFT,
     }),
     turnDirection: Direction.RIGHT,
-    expected: cloneDeep(botBase, {
-      facing: Direction.UP,
-      animations: {
-        rotate: true
-      }
-    }),
+    expected: {
+      result: {
+        visualize: {rotate: true},
+        depositMarker: []
+      },
+      bot: cloneDeep(botBase, {
+        facing: Direction.UP,          
+      })
+    }
   },
 }
 
 for (TC_NAME in testExecuteTurn) {
   TC = testExecuteTurn[TC_NAME]
   var bot = cloneDeep(TC.bot)
-  executeTurn(bot, TC.turnDirection)
-  RESULT = bot
+  var result = {
+    visualize: {},
+    depositMarker: []
+  }
+  executeTurn(result, bot, TC.turnDirection)
+  RESULT = {
+    bot: bot,
+    result: result
+  }
   test(_.isEqual(RESULT, TC.expected))
 }

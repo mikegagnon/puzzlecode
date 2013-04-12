@@ -30,10 +30,3 @@ for (TC_NAME in testTryMove) {
   var RESULT = tryMove(TC.board, TC.bot, TC.x, TC.y)
   test(_.isEqual(RESULT, TC.expected))
 }
-
-/*for (var TC_I = 0; TC_I < testTryMove.length; TC_I++) {
-  var TC = testTryMove[TC_I]
-  var RESULT = tryMove(TC.board, TC.bot, TC.x, TC.y)
-  test(_.isEqual(RESULT, TC.expected))
-}*/
-

@@ -51,14 +51,16 @@ var testMoveBot = {
     board: cloneDeep(emptyBoard),
     bot: cloneDeep(bot_2_2_up),
     expected: {
-      board: cloneDeep(emptyBoard),
-      bot: cloneDeep(bot_2_2_up, {
-        cellY: 1,
-        animations: {nonTorusMove: true},
+      result: {
+        visualize: {nonTorusMove: true},
         depositMarker: [
           {x: 2, y: 2, botColor: BotColor.BLUE, quadrant: Direction.UP},
           {x: 2, y: 1, botColor: BotColor.BLUE, quadrant: Direction.DOWN}
         ]
+      },
+      board: cloneDeep(emptyBoard),
+      bot: cloneDeep(bot_2_2_up, {
+        cellY: 1
       })
     }
   },
@@ -66,15 +68,17 @@ var testMoveBot = {
     board: cloneDeep(emptyBoard),
     bot: cloneDeep(bot_2_2_up, {facing: Direction.DOWN} ),
     expected: {
-      board: cloneDeep(emptyBoard),
-      bot: cloneDeep(bot_2_2_up, {
-        facing: Direction.DOWN,
-        cellY: 3,
-        animations: {nonTorusMove: true},
+      result: {
+        visualize: {nonTorusMove: true},
         depositMarker: [
           {x: 2, y: 2, botColor: BotColor.BLUE, quadrant: Direction.DOWN},
           {x: 2, y: 3, botColor: BotColor.BLUE, quadrant: Direction.UP}
         ]
+      },
+      board: cloneDeep(emptyBoard),
+      bot: cloneDeep(bot_2_2_up, {
+        facing: Direction.DOWN,
+        cellY: 3
       })
     }
   },
@@ -82,15 +86,17 @@ var testMoveBot = {
     board: cloneDeep(emptyBoard),
     bot: cloneDeep(bot_2_2_up, {facing: Direction.LEFT} ),
     expected: {
-      board: cloneDeep(emptyBoard),
-      bot: cloneDeep(bot_2_2_up, {
-        facing: Direction.LEFT,
-        cellX: 1,
-        animations: {nonTorusMove: true},
+      result: {
+        visualize: {nonTorusMove: true},
         depositMarker: [
           {x: 2, y: 2, botColor: BotColor.BLUE, quadrant: Direction.LEFT},
           {x: 1, y: 2, botColor: BotColor.BLUE, quadrant: Direction.RIGHT}
         ]
+      },
+      board: cloneDeep(emptyBoard),
+      bot: cloneDeep(bot_2_2_up, {
+        facing: Direction.LEFT,
+        cellX: 1        
       })
     }
   },
@@ -98,15 +104,17 @@ var testMoveBot = {
     board: cloneDeep(emptyBoard),
     bot: cloneDeep(bot_2_2_up, {facing: Direction.RIGHT} ),
     expected: {
-      board: cloneDeep(emptyBoard),
-      bot: cloneDeep(bot_2_2_up, {
-        facing: Direction.RIGHT,
-        cellX: 3,
-        animations: {nonTorusMove: true},
+      result: {
+        visualize: {nonTorusMove: true},
         depositMarker: [
           {x: 2, y: 2, botColor: BotColor.BLUE, quadrant: Direction.RIGHT},
           {x: 3, y: 2, botColor: BotColor.BLUE, quadrant: Direction.LEFT}
         ]
+      },
+      board: cloneDeep(emptyBoard),
+      bot: cloneDeep(bot_2_2_up, {
+        facing: Direction.RIGHT,
+        cellX: 3        
       })
     }
   },
@@ -118,10 +126,8 @@ var testMoveBot = {
     board: cloneDeep(emptyBoard),
     bot: cloneDeep(bot_0_0_up),
     expected: {
-      board: cloneDeep(emptyBoard),
-      bot: cloneDeep(bot_0_0_up, {
-        cellY: 4,
-        animations: {torusMove: {
+      result: {
+        visualize: {torusMove: {
           prevX: 0,
           prevY: 0,
           oobPrevX: 0,
@@ -133,6 +139,10 @@ var testMoveBot = {
           {x: 0, y: 0, botColor: BotColor.BLUE, quadrant: Direction.UP},
           {x: 0, y: 4, botColor: BotColor.BLUE, quadrant: Direction.DOWN}
         ]
+      },
+      board: cloneDeep(emptyBoard),
+      bot: cloneDeep(bot_0_0_up, {
+        cellY: 4
       })
     }
   },
@@ -144,11 +154,8 @@ var testMoveBot = {
       cellY: 4
     }),
     expected: {
-      board: cloneDeep(emptyBoard),
-      bot: cloneDeep(bot_0_0_up, {
-        facing: Direction.DOWN,
-        cellY: 0,
-        animations: {torusMove: {
+      result: {
+        visualize: {torusMove: {
           prevX: 0,
           prevY: 4,
           oobPrevX: 0,
@@ -160,6 +167,11 @@ var testMoveBot = {
           {x: 0, y: 4, botColor: BotColor.BLUE, quadrant: Direction.DOWN},
           {x: 0, y: 0, botColor: BotColor.BLUE, quadrant: Direction.UP}
         ]
+      },
+      board: cloneDeep(emptyBoard),
+      bot: cloneDeep(bot_0_0_up, {
+        facing: Direction.DOWN,
+        cellY: 0      
       })
     }
   },
@@ -167,11 +179,8 @@ var testMoveBot = {
     board: cloneDeep(emptyBoard),
     bot: cloneDeep(bot_0_0_up, {facing: Direction.LEFT} ),
     expected: {
-      board: cloneDeep(emptyBoard),
-      bot: cloneDeep(bot_0_0_up, {
-        facing: Direction.LEFT,
-        cellX: 3,
-        animations: {torusMove: {
+      result: {
+        visualize: {torusMove: {
           prevX: 0,
           prevY: 0,
           oobPrevX: 4,
@@ -183,6 +192,11 @@ var testMoveBot = {
           {x: 0, y: 0, botColor: BotColor.BLUE, quadrant: Direction.LEFT},
           {x: 3, y: 0, botColor: BotColor.BLUE, quadrant: Direction.RIGHT}
         ]
+      },
+      board: cloneDeep(emptyBoard),
+      bot: cloneDeep(bot_0_0_up, {
+        facing: Direction.LEFT,
+        cellX: 3
       })
     }
   },
@@ -193,11 +207,8 @@ var testMoveBot = {
       cellX: 3
     }),
     expected: {
-      board: cloneDeep(emptyBoard),
-      bot: cloneDeep(bot_0_0_up, {
-        facing: Direction.RIGHT,
-        cellX: 0,
-        animations: {torusMove: {
+      result: {
+        visualize: {torusMove: {
           prevX: 3,
           prevY: 0,
           oobPrevX: -1,
@@ -209,6 +220,11 @@ var testMoveBot = {
           {x: 3, y: 0, botColor: BotColor.BLUE, quadrant: Direction.RIGHT},
           {x: 0, y: 0, botColor: BotColor.BLUE, quadrant: Direction.LEFT}
         ]
+      },
+      board: cloneDeep(emptyBoard),
+      bot: cloneDeep(bot_0_0_up, {
+        facing: Direction.RIGHT,
+        cellX: 0        
       })
     }
   },
@@ -233,6 +249,16 @@ testMoveBot = _.assign(testMoveBot, {
       cellY: 2
     }),
     expected: {
+      result: {
+        visualize: {
+          nonTorusMove: true,
+          coin_collect: {x: 1, y: 1}
+        },
+        depositMarker: [
+          {x: 1, y: 2, botColor: BotColor.BLUE, quadrant: Direction.UP},
+          {x: 1, y: 1, botColor: BotColor.BLUE, quadrant: Direction.DOWN}
+        ]
+      },
       board: cloneDeep(boardWithCoins, {
         coins: [
           {x: 2, y: 2}
@@ -241,15 +267,7 @@ testMoveBot = _.assign(testMoveBot, {
       }),
       bot: cloneDeep(bot_0_0_up, {
         cellX: 1,
-        cellY: 1,
-        animations: {
-          nonTorusMove: true,
-          coin_collect: {x: 1, y: 1}
-        },
-        depositMarker: [
-          {x: 1, y: 2, botColor: BotColor.BLUE, quadrant: Direction.UP},
-          {x: 1, y: 1, botColor: BotColor.BLUE, quadrant: Direction.DOWN}
-        ]
+        cellY: 1        
       })
     }
   }
@@ -275,17 +293,18 @@ testMoveBot = _.assign(testMoveBot, {
       facing: Direction.RIGHT
     }),
     expected: {
+      result: {
+        visualize: { failMove: {
+            destX: 3,
+            destY: 3
+        }},
+        depositMarker: []
+      },
       board: cloneDeep(boardWithCoinsBlocks),
       bot: cloneDeep(bot_0_0_up, {
         cellX: 2,
         cellY: 3,
-        facing: Direction.RIGHT,
-        animations: {
-          failMove: {
-            destX: 3,
-            destY: 3
-          }
-        }
+        facing: Direction.RIGHT
       })
     }
   }
@@ -293,10 +312,17 @@ testMoveBot = _.assign(testMoveBot, {
 
 for (TC_NAME in testMoveBot) {
   TC = testMoveBot[TC_NAME]
+
   var board = cloneDeep(TC.board)
   var bot = cloneDeep(TC.bot)
-  executeMove(board, bot)
+  var result = {
+    visualize: {},
+    depositMarker: []
+  }
+
+  executeMove(result, board, bot)
   RESULT = {
+    result: result,
     board: board,
     bot: bot
   }
