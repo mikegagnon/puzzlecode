@@ -108,6 +108,38 @@ function nonBotAnimate() {
   // TODO: animate coins rotating or something
 }
 
+function animateGoto(board) {
+
+  var BLIP_RADIUS = 6
+
+  visualizeBot(board, "goto", function(gotoViz, bot) {
+
+    var blipId = botId(bot) + "_goto_blip"
+
+    // TODO: design decision. This new coin appears above the bot. Should it
+    // go underneath the bot? If so, how to do it?
+    var blip = VIS.selectAll("#" + blipId)
+      .data([bot])
+    .enter().append("svg:circle")
+      .attr("id", blipId)
+      .attr("class", "goto-blip")
+      .attr("stroke", "limegreen")
+      .attr("fill", "lime")
+      .attr("opacity", "0.75")
+      .attr("r", BLIP_RADIUS)
+      .attr("cx", function(d){ return d.cellX * CELL_SIZE + CELL_SIZE/2} )
+      .attr("cy", function(d){ return d.cellY * CELL_SIZE + CELL_SIZE/2} )
+    .transition()
+      .attr("opacity", "0.0")
+      .delay(ANIMATION_DUR / 4)
+      .ease("cubic")
+      .duration(ANIMATION_DUR * 3 / 4)
+      // garbage collect the blip
+      .each("end", function() {
+        d3.select(this).remove()
+      })  })
+}
+
 function animateCoinCollection(board) {
 
   /**
@@ -721,6 +753,7 @@ function stepAndAnimate() {
   // TODO: consider an alternative design, where instead of passing the board
   // to each animation function pass it only the bots for that animation.
   // This way you can do board.bots.groupBy(animation) in one pass.
+  animateGoto(board)
   animateFailMove(board)
   animateRotate(board)
   animateMoveNonTorus(board)

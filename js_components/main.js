@@ -77,7 +77,7 @@ var PUZZLE_1 = {
   },
 
   solutions: [
-    "move\nmove\nturn left\nmove\nmove\nmove\nmove\n",
+    "start: move\nmove\nturn left\nmove\nmove\nmove\nmove\ngoto start",
   ],
   num_cols: 9,
   num_rows: 7,
