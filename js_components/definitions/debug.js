@@ -32,10 +32,11 @@ d3.selection.prototype.size = function() {
 function assert(bool, message) {
   if (!bool) {
     alert(message)
+    console.error(message)
   }
 }
 
-function assertLazy(func, message) {
+function assertLazy(message, func) {
   if (DEBUG) {
     assert(func(), message)
   }

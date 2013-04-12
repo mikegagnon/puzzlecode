@@ -251,10 +251,51 @@ function checkVictory(board, campaign, state) {
   }
 }
 
+// a sub-step in the simulation
+function dupstep(board, bot) {
+
+  // make sure this bot hasn't finished
+  if ("done" in bot.program) {
+    return
+  } 
+
+  var instruction = bot.program.instructions[bot.ip]
+
+  // NOTE: executing the instruction may modify the ip
+  bot.ip = bot.ip + 1
+
+  // the bot-instruction functions will populate the fields of result
+  var result = {
+    // containins all visualizations for this bot
+    visualize: {},
+    // array of markers deposited by the bot
+    depositMarker: []
+  }
+
+  if (instruction.opcode == Opcode.MOVE) {
+    executeMove(result, board, bot)
+  } else if (instruction.opcode == Opcode.TURN) {
+    executeTurn(result, bot, instruction.data)
+  } else if (instruction.opcode == Opcode.GOTO) {
+    executeGoto(result, bot, instruction.data)
+  }
+
+  board.visualize.step.bot[bot.id] = result.visualize
+  board.visualize.step.bot[bot.id].lineIndex = instruction.lineIndex
+
+  // if the bot has reached the end of its program
+  if (bot.ip >= bot.program.instructions.length) {
+    bot.program.done = true
+    board.visualize.step.bot[bot.id].programDone = true
+  }
+
+  _(result.depositMarker).forEach( function (marker) {
+    addMarker(board, marker)
+  })
+}
+
 // TODO: do a better job separating model from view.
 function step(board, campaign, state) {
-
-  // TODO: assertLazy that all bot ids are unique
 
   // contains all data needed to visualize this step of the game
   board.visualize.step = {
@@ -268,47 +309,24 @@ function step(board, campaign, state) {
     bot: {}
   }
 
-  _(board.bots).forOwn(function(bot) {
-
-    // make sure this bot hasn't finished
-    if ("done" in bot.program) {
-      return
-    } 
-
-    var instruction = bot.program.instructions[bot.ip]
-
-    // NOTE: executing the instruction may modify the ip
-    bot.ip = bot.ip + 1
-
-    // the bot-instruction functions will populate the fields of result
-    var result = {
-      // containins all visualizations for this bot
-      visualize: {},
-      // array of markers deposited by the bot
-      depositMarker: []
-    }
-
-    if (instruction.opcode == Opcode.MOVE) {
-      executeMove(result, board, bot)
-    } else if (instruction.opcode == Opcode.TURN) {
-      executeTurn(result, bot, instruction.data)
-    } else if (instruction.opcode == Opcode.GOTO) {
-      executeGoto(result, bot, instruction.data)
-    }
-
-    board.visualize.step.bot[bot.id] = result.visualize
-    board.visualize.step.bot[bot.id].lineIndex = instruction.lineIndex
-
-    // if the bot has reached the end of its program
-    if (bot.ip >= bot.program.instructions.length) {
-      bot.program.done = true
-      board.visualize.step.bot[bot.id].programDone = true
-    }
-
-    _(result.depositMarker).forEach( function (marker) {
-      addMarker(board, marker)
+  assertLazy(
+    "board.bots must be ordered according to id, and every bot must have " +
+    "a unique id",
+    function(){
+      var prevId = -1
+      var sorted = true
+      _(board.bots)
+        .forEach(function(bot) {
+          if (bot.id <= prevId) {
+            sorted = false
+          }
+          prevId = bot.id
+        })
+      return sorted
     })
 
+  _(board.bots).forOwn(function(bot) {
+    dupstep(board, bot)
   })
 
   checkVictory(board, campaign, state)
