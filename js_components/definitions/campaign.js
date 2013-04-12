@@ -108,6 +108,7 @@ function unlockLevel(state, world_index, level_index) {
  *      world_complete: number
  *    }  
  *
+ * TODO: unit tests
  * TBD: beating the game and other awards / badges
  */
 function updateLevelVisibility(board, campaign, state) {

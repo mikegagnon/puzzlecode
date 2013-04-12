@@ -2442,7 +2442,7 @@ var PUZZLE_1 = {
       cellX: 4,
       cellY: 3,
       facing: Direction.UP,
-      program: "move\nmove\nmove\nturn left\nmove\nmove\n",
+      program: "move\nmove\nmove\nmove\nturn left\nmove\nmove\n",
     },
     {
       botColor: BotColor.BLUE,
