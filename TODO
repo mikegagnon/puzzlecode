@@ -1,5 +1,8 @@
-- Fix unit tests
 - Have resume button be highlighted in blue (for accidental clicks on pause)
+- Now that bots can block each other's movements, it could be helpful to
+  add a dubstep button, so that each bot is animated one step at a time.
+  Also it could be good to have the option to overlay each bot with its bot.id,
+  to help users understand what's going on.
 
 - Need major work on usability / instructions / walkthroughs.
 -- Idea for button semantics:

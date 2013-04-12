@@ -1100,7 +1100,6 @@ function executeGoto(result, bot, nextIp) {
 
 // a bot tries to move into cell x,y.
 // returns true if the bot is allowed to move in, false otherwise
-// TODO: also check for bots
 function tryMove(board, bot, x, y) {
   var matchingBlocks = _(board.blocks)
     .filter( function(block) {
@@ -1108,7 +1107,13 @@ function tryMove(board, bot, x, y) {
     })
     .value()
 
-  return matchingBlocks.length == 0
+  var matchingBots = _(board.bots)
+    .filter( function(bot) {
+      return bot.cellX == x && bot.cellY == y
+    })
+    .value()
+
+  return matchingBlocks.length == 0 && matchingBots.length == 0
 }
 
 /**
@@ -3202,10 +3207,15 @@ for (TC_NAME in testExecuteTurn) {
 
 var TEST_FILENAME = "js_test/simulator/test_tryMove.js"
 
-var board = {blocks : [{x:5,y:5}]}
+var board = {
+  blocks : [{x:5,y:5}],
+  bots : [{cellX: 7, cellY: 7}]
+}
+
 var bot = {facing: "any"}
 var testTryMove = {
-  "move blocked": {board: board, bot: bot, x: 5, y: 5, expected: false},
+  "move blocked by block": {board: board, bot: bot, x: 5, y: 5, expected: false},
+  "move blocked by bot": {board: board, bot: bot, x: 7, y: 7, expected: false},
   "move succeed #1": {board: board, bot: bot, x: 5, y: 6, expected: true},
   "move succeed #2": {board: board, bot: bot, x: 6, y: 5, expected: true},
   "move succeed #3": {board: board, bot: bot, x: 6, y: 6, expected: true}

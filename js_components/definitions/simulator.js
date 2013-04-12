@@ -34,7 +34,6 @@ function executeGoto(result, bot, nextIp) {
 
 // a bot tries to move into cell x,y.
 // returns true if the bot is allowed to move in, false otherwise
-// TODO: also check for bots
 function tryMove(board, bot, x, y) {
   var matchingBlocks = _(board.blocks)
     .filter( function(block) {
@@ -42,7 +41,13 @@ function tryMove(board, bot, x, y) {
     })
     .value()
 
-  return matchingBlocks.length == 0
+  var matchingBots = _(board.bots)
+    .filter( function(bot) {
+      return bot.cellX == x && bot.cellY == y
+    })
+    .value()
+
+  return matchingBlocks.length == 0 && matchingBots.length == 0
 }
 
 /**
