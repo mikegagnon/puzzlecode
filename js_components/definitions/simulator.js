@@ -35,6 +35,9 @@ function executeGoto(result, bot, nextIp) {
 // a bot tries to move into cell x,y.
 // returns true if the bot is allowed to move in, false otherwise
 function tryMove(board, bot, x, y) {
+
+  // TODO: matching objects like this doesn't seem to to be the best idea.
+  // Instead, uild up a cell matrix or some other data structure
   var matchingBlocks = _(board.blocks)
     .filter( function(block) {
       return block.x == x && block.y == y
@@ -256,8 +259,41 @@ function checkVictory(board, campaign, state) {
   }
 }
 
+// if this bot is in a trap, then remove it from the board
+// returns true if the bot was trapped
+function checkTrap(board, bot) {
+  var matchingTraps = _(board.traps)
+    .filter( function(trap) {
+      return trap.x == bot.cellX && trap.y == bot.cellY
+    })
+    .value()
+
+  if (matchingTraps.length == 0) {
+    return false
+  } else {
+    /**
+     * TODO:
+     * remove bot from board
+     */
+
+    if (!("traps" in board.visualize.step.general)) {
+      board.visualize.step.general.traps = []
+    }
+
+    board.visualize.step.general.traps.push({
+      x: bot.cellX,
+      y: bot.cellY
+    })
+
+  }
+}
+
 // a sub-step in the simulation
 function dupstep(board, bot) {
+
+  if (checkTrap(board, bot)) {
+    return
+  }
 
   // make sure this bot hasn't finished
   if ("done" in bot.program) {

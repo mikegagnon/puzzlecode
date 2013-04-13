@@ -118,6 +118,67 @@ function animateGoto(board) {
 
     // TODO: design decision. This new coin appears above the bot. Should it
     // go underneath the bot? If so, how to do it?
+    VIS.selectAll("#" + blipId)
+      .data([bot])
+    .enter().append("svg:circle")
+      .attr("id", blipId)
+      .attr("class", "goto-blip")
+      .attr("stroke", "limegreen")
+      .attr("fill", "lime")
+      .attr("opacity", "0.75")
+      .attr("r", BLIP_RADIUS)
+      .attr("cx", function(d){ return d.cellX * CELL_SIZE + CELL_SIZE/2} )
+      .attr("cy", function(d){ return d.cellY * CELL_SIZE + CELL_SIZE/2} )
+    .transition()
+      .attr("opacity", "0.0")
+      .delay(ANIMATION_DUR / 4)
+      .ease("cubic")
+      .duration(ANIMATION_DUR * 3 / 4)
+      // garbage collect the blip
+      .each("end", function() {
+        d3.select(this).remove()
+      })
+  })
+}
+
+function animateTraps(board) {
+
+  if ("traps" in board.visualize.step.general) {
+    var traps = board.visualize.step.general.traps
+    _(traps)
+      .forEach(function(trap){
+
+      var trapId = "trap_" + trap.x + "_" + trap.y
+
+      VIS.selectAll("#" + trapId)
+        .data([trap])
+      .enter().append("svg:circle")
+        .attr("id", trapId)
+        .attr("class", "trap_animate")
+        .attr("stroke", "red")
+        .attr("fill", "pink")
+        .attr("opacity", "0.75")
+        .attr("r", 10)
+        .attr("cx", trap.x * CELL_SIZE + CELL_SIZE/2)
+        .attr("cy", trap.y * CELL_SIZE + CELL_SIZE/2)
+      .transition()
+        .attr("opacity", "0.0")
+        .delay(ANIMATION_DUR / 4)
+        .ease("cubic")
+        .duration(ANIMATION_DUR * 3 / 4)
+        // garbage collect the blip
+        .each("end", function() {
+          d3.select(this).remove()
+        })
+      })
+  }
+
+  visualizeBot(board, "goto", function(gotoViz, bot) {
+
+    var blipId = botId(bot) + "_goto_blip"
+
+    // TODO: design decision. This new coin appears above the bot. Should it
+    // go underneath the bot? If so, how to do it?
     var blip = VIS.selectAll("#" + blipId)
       .data([bot])
     .enter().append("svg:circle")
@@ -614,6 +675,18 @@ function drawInitMarkers(board) {
     })
 }
 
+function drawTraps(board) {
+  VIS.selectAll(".trap")
+    .data(board.traps)
+    .enter().append("svg:rect")
+    .attr("class", "block")
+    .attr("fill", "black")
+    .attr("width", CELL_SIZE)
+    .attr("height", CELL_SIZE)
+    .attr("x", function(d){ return d.x * CELL_SIZE } )
+    .attr("y", function(d){ return d.y * CELL_SIZE } )  
+}
+
 function drawBlocks() {
   VIS.selectAll(".block")
     .data(BOARD.blocks)
@@ -735,6 +808,9 @@ function initializeVisualization(campaign, state, board) {
   drawBoardContainer(board)
   drawCells(board)
   drawInitMarkers(board)
+  drawTraps(board)
+
+  // TODO: refactor so that you pass board as a param
   drawCoins()
   drawBots()
   drawBlocks()
@@ -756,6 +832,7 @@ function stepAndAnimate() {
   // to each animation function pass it only the bots for that animation.
   // This way you can do board.bots.groupBy(animation) in one pass.
   animateGoto(board)
+  animateTraps(board)
   animateFailMove(board)
   animateRotate(board)
   animateMoveNonTorus(board)

@@ -32,6 +32,7 @@ function loadBoard(campaign, state) {
     num_rows: boardConfig.num_rows,
     coins: cloneDeep(boardConfig.coins),
     blocks: cloneDeep(boardConfig.blocks),
+    traps: cloneDeep(boardConfig.traps),
     coinsCollected: 0
   }
 

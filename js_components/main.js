@@ -101,7 +101,10 @@ var PUZZLE_1 = {
     {x:3, y:1},
   ],
   // TODO: make it so that you can omit empty properties from a puzzle
-  blocks: []
+  blocks: [],
+  traps: [
+    {x:3, y:0}
+  ]
 }
 
 var PUZZLE_2 = {
@@ -117,6 +120,8 @@ var PUZZLE_2 = {
   // what conditions need to be met to unlock this level?
   // the unlock returns true if this level should be unlocked
   unlock: function(campaign, state) {
+    // TODO: implement level completed that operates on puzzle.id
+    // this way it is resilient to level index changing
     return levelCompleted(state, 0, 0)
   },
 

@@ -32,6 +32,7 @@ function loadBoard(campaign, state) {
     num_rows: boardConfig.num_rows,
     coins: cloneDeep(boardConfig.coins),
     blocks: cloneDeep(boardConfig.blocks),
+    traps: cloneDeep(boardConfig.traps),
     coinsCollected: 0
   }
 
@@ -1108,6 +1109,9 @@ function executeGoto(result, bot, nextIp) {
 // a bot tries to move into cell x,y.
 // returns true if the bot is allowed to move in, false otherwise
 function tryMove(board, bot, x, y) {
+
+  // TODO: matching objects like this doesn't seem to to be the best idea.
+  // Instead, uild up a cell matrix or some other data structure
   var matchingBlocks = _(board.blocks)
     .filter( function(block) {
       return block.x == x && block.y == y
@@ -1329,8 +1333,41 @@ function checkVictory(board, campaign, state) {
   }
 }
 
+// if this bot is in a trap, then remove it from the board
+// returns true if the bot was trapped
+function checkTrap(board, bot) {
+  var matchingTraps = _(board.traps)
+    .filter( function(trap) {
+      return trap.x == bot.cellX && trap.y == bot.cellY
+    })
+    .value()
+
+  if (matchingTraps.length == 0) {
+    return false
+  } else {
+    /**
+     * TODO:
+     * remove bot from board
+     */
+
+    if (!("traps" in board.visualize.step.general)) {
+      board.visualize.step.general.traps = []
+    }
+
+    board.visualize.step.general.traps.push({
+      x: bot.cellX,
+      y: bot.cellY
+    })
+
+  }
+}
+
 // a sub-step in the simulation
 function dupstep(board, bot) {
+
+  if (checkTrap(board, bot)) {
+    return
+  }
 
   // make sure this bot hasn't finished
   if ("done" in bot.program) {
@@ -1578,6 +1615,67 @@ function nonBotAnimate() {
 function animateGoto(board) {
 
   var BLIP_RADIUS = 6
+
+  visualizeBot(board, "goto", function(gotoViz, bot) {
+
+    var blipId = botId(bot) + "_goto_blip"
+
+    // TODO: design decision. This new coin appears above the bot. Should it
+    // go underneath the bot? If so, how to do it?
+    VIS.selectAll("#" + blipId)
+      .data([bot])
+    .enter().append("svg:circle")
+      .attr("id", blipId)
+      .attr("class", "goto-blip")
+      .attr("stroke", "limegreen")
+      .attr("fill", "lime")
+      .attr("opacity", "0.75")
+      .attr("r", BLIP_RADIUS)
+      .attr("cx", function(d){ return d.cellX * CELL_SIZE + CELL_SIZE/2} )
+      .attr("cy", function(d){ return d.cellY * CELL_SIZE + CELL_SIZE/2} )
+    .transition()
+      .attr("opacity", "0.0")
+      .delay(ANIMATION_DUR / 4)
+      .ease("cubic")
+      .duration(ANIMATION_DUR * 3 / 4)
+      // garbage collect the blip
+      .each("end", function() {
+        d3.select(this).remove()
+      })
+  })
+}
+
+function animateTraps(board) {
+
+  if ("traps" in board.visualize.step.general) {
+    var traps = board.visualize.step.general.traps
+    _(traps)
+      .forEach(function(trap){
+
+      var trapId = "trap_" + trap.x + "_" + trap.y
+
+      VIS.selectAll("#" + trapId)
+        .data([trap])
+      .enter().append("svg:circle")
+        .attr("id", trapId)
+        .attr("class", "trap_animate")
+        .attr("stroke", "red")
+        .attr("fill", "pink")
+        .attr("opacity", "0.75")
+        .attr("r", 10)
+        .attr("cx", trap.x * CELL_SIZE + CELL_SIZE/2)
+        .attr("cy", trap.y * CELL_SIZE + CELL_SIZE/2)
+      .transition()
+        .attr("opacity", "0.0")
+        .delay(ANIMATION_DUR / 4)
+        .ease("cubic")
+        .duration(ANIMATION_DUR * 3 / 4)
+        // garbage collect the blip
+        .each("end", function() {
+          d3.select(this).remove()
+        })
+      })
+  }
 
   visualizeBot(board, "goto", function(gotoViz, bot) {
 
@@ -2081,6 +2179,18 @@ function drawInitMarkers(board) {
     })
 }
 
+function drawTraps(board) {
+  VIS.selectAll(".trap")
+    .data(board.traps)
+    .enter().append("svg:rect")
+    .attr("class", "block")
+    .attr("fill", "black")
+    .attr("width", CELL_SIZE)
+    .attr("height", CELL_SIZE)
+    .attr("x", function(d){ return d.x * CELL_SIZE } )
+    .attr("y", function(d){ return d.y * CELL_SIZE } )  
+}
+
 function drawBlocks() {
   VIS.selectAll(".block")
     .data(BOARD.blocks)
@@ -2202,6 +2312,9 @@ function initializeVisualization(campaign, state, board) {
   drawBoardContainer(board)
   drawCells(board)
   drawInitMarkers(board)
+  drawTraps(board)
+
+  // TODO: refactor so that you pass board as a param
   drawCoins()
   drawBots()
   drawBlocks()
@@ -2223,6 +2336,7 @@ function stepAndAnimate() {
   // to each animation function pass it only the bots for that animation.
   // This way you can do board.bots.groupBy(animation) in one pass.
   animateGoto(board)
+  animateTraps(board)
   animateFailMove(board)
   animateRotate(board)
   animateMoveNonTorus(board)
@@ -2532,7 +2646,10 @@ var PUZZLE_1 = {
     {x:3, y:1},
   ],
   // TODO: make it so that you can omit empty properties from a puzzle
-  blocks: []
+  blocks: [],
+  traps: [
+    {x:3, y:0}
+  ]
 }
 
 var PUZZLE_2 = {
@@ -2548,6 +2665,8 @@ var PUZZLE_2 = {
   // what conditions need to be met to unlock this level?
   // the unlock returns true if this level should be unlocked
   unlock: function(campaign, state) {
+    // TODO: implement level completed that operates on puzzle.id
+    // this way it is resilient to level index changing
     return levelCompleted(state, 0, 0)
   },
 
