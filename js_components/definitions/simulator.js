@@ -261,6 +261,7 @@ function checkVictory(board, campaign, state) {
 
 // if this bot is in a trap, then remove it from the board
 // returns true if the bot was trapped
+// TODO: unit test trap
 function checkTrap(board, bot) {
   var matchingTraps = _(board.traps)
     .filter( function(trap) {
