@@ -106,14 +106,17 @@ function worldMenuCheckWorld(campaign, world_index) {
 
 }
 
-function getLevelNameHtml(world_index, level_index, name, completed) {
-  var completedClass = getCompletedClass(completed)
-  var levelName = "Level "
+function getLevelName(world_index, level_index, name) {
+  return "Level "
     + (parseInt(world_index) + 1)
     + "-"
     + (parseInt(level_index) + 1)
-    + ": " + name
+    + ": " + name  
+}
 
+function getLevelNameHtml(world_index, level_index, name, completed) {
+  var completedClass = getCompletedClass(completed)
+  var levelName = getLevelName(world_index, level_index, name)
   return '<i class="' + completedClass + '"></i> ' + levelName
 }
 

@@ -186,14 +186,10 @@ function loadLevel(campaign, state) {
   var level = campaign[world_i].levels[level_i]
 
   var programText = level.bots[level.programming_bot_index].program
-  var programText = level.solutions[0]
+  var levelName = getLevelName(world_i, level_i, level.name)
 
+  $("#leveltitle").text(levelName)
+  PLAY_STATUS = PlayStatus.INITAL_STATE_PAUSED
   CODE_MIRROR_BOX.setValue(programText)
   compile()
-}
-
-function loadCampaign(campaign, state) {
-  loadWorldMenu(campaign, state)
-  loadLevel(campaign, state)
-  showOrHideLevelMenu(state) 
 }

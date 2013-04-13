@@ -1,3 +1,4 @@
+- BUG: level menu doesn't get updated properly on victory
 - Have resume button be highlighted in blue (for accidental clicks on pause)
 - Now that bots can block each other's movements, it could be helpful to
   add a dubstep button, so that each bot is animated one step at a time.

@@ -284,16 +284,12 @@ function loadLevel(campaign, state) {
   var level = campaign[world_i].levels[level_i]
 
   var programText = level.bots[level.programming_bot_index].program
-  var programText = level.solutions[0]
+  var levelName = getLevelName(world_i, level_i, level.name)
 
+  $("#leveltitle").text(levelName)
+  PLAY_STATUS = PlayStatus.INITAL_STATE_PAUSED
   CODE_MIRROR_BOX.setValue(programText)
   compile()
-}
-
-function loadCampaign(campaign, state) {
-  loadWorldMenu(campaign, state)
-  loadLevel(campaign, state)
-  showOrHideLevelMenu(state) 
 }
 /**
  * Copyright 2013 Michael N. Gagnon
@@ -337,16 +333,16 @@ function setupCodeMirrorBox() {
 
   // Defines a syntax highlighter for the robocom language
   CodeMirror.defineMIME("text/x-robocom", {
-  name: "clike",
-  keywords: RESERVED_WORDS,
-  blockKeywords: {},
-  atoms: {},
-  hooks: {
-    "@": function(stream) {
-      stream.eatWhile(/[\w\$_]/);
-      return "meta";
+    name: "clike",
+    keywords: RESERVED_WORDS,
+    blockKeywords: {},
+    atoms: {},
+    hooks: {
+      "@": function(stream) {
+        stream.eatWhile(/[\w\$_]/);
+        return "meta";
+      }
     }
-  }
   })
 
   var settings = {
@@ -869,7 +865,13 @@ function windowOnLoad() {
   ANIMATE_INTERVAL = setInterval("animate()", CYCLE_DUR)
   nonBotAnimateInterval = setInterval("nonBotAnimate()", NON_BOT_CYCLE_DUR)
 
-  loadCampaign(PUZZLE_CAMPAIGN, PUZZLE_CAMPAIGN_STATE)
+  var campaign = PUZZLE_CAMPAIGN
+  var state = PUZZLE_CAMPAIGN_STATE
+
+  loadWorldMenu(campaign, state)
+  showOrHideLevelMenu(state) 
+
+  loadLevel(campaign, state)
   restartSimulation()
 }
 
@@ -1052,8 +1054,6 @@ function restartSimulation() {
  * When the user clicks a level
  *****************************************************************************/
 function clickLevel(world_index, level_index) {
-  console.log(world_index + 1)
-  console.log(level_index + 1)
   cleanUpVisualization()
 
   var campaign = PUZZLE_CAMPAIGN
@@ -1062,6 +1062,8 @@ function clickLevel(world_index, level_index) {
   state.current_level.world_index = world_index
   state.current_level.level_index = level_index
 
+  loadLevel(campaign, state)
+  restartSimulation()
 }
 /**
  * Copyright 2013 Michael N. Gagnon
@@ -2348,14 +2350,17 @@ function worldMenuCheckWorld(campaign, world_index) {
 
 }
 
-function getLevelNameHtml(world_index, level_index, name, completed) {
-  var completedClass = getCompletedClass(completed)
-  var levelName = "Level "
+function getLevelName(world_index, level_index, name) {
+  return "Level "
     + (parseInt(world_index) + 1)
     + "-"
     + (parseInt(level_index) + 1)
-    + ": " + name
+    + ": " + name  
+}
 
+function getLevelNameHtml(world_index, level_index, name, completed) {
+  var completedClass = getCompletedClass(completed)
+  var levelName = getLevelName(world_index, level_index, name)
   return '<i class="' + completedClass + '"></i> ' + levelName
 }
 
@@ -2506,28 +2511,7 @@ var PUZZLE_1 = {
       cellX: 4,
       cellY: 3,
       facing: Direction.UP,
-      program: "move\nmove\nmove\nmove\nturn left\nmove\nmove\n",
-    },
-    {
-      botColor: BotColor.BLUE,
-      cellX: 0,
-      cellY: 0,
-      facing: Direction.RIGHT,
-      program: "start: move\nmove\nmove\ngoto start\n",
-    },
-    {
-      botColor: BotColor.BLUE,
-      cellX: 6,
-      cellY: 6,
-      facing: Direction.RIGHT,
-      program: "start: move\n turn right\ngoto start\n",
-    },
-    {
-      botColor: BotColor.BLUE,
-      cellX: 3,
-      cellY: 2,
-      facing: Direction.LEFT,
-      program: "start: move\nmove\ngoto start\n",
+      program: "move\nmove\nmove\nturn left\nmove\nmove\nmove\n",
     },
   ],
   coins: [
@@ -2535,20 +2519,62 @@ var PUZZLE_1 = {
     {x:1, y:1},
     {x:2, y:1},
     {x:3, y:1},
-    {x:4, y:1}
+  ],
+  blocks: []
+}
+
+var PUZZLE_2 = {
+  id: "puzzle1",
+  name: "Wrap around",
+  description: "tbd",
+  hint: "tbd",
+  win_conditions: [
+    {type: WinCondition.COLLECT_COINS}
+  ],
+  constraints: [],
+
+  // what conditions need to be met to unlock this level?
+  // the unlock returns true if this level should be unlocked
+  unlock: function(campaign, state) {
+    return levelCompleted(state, 0, 0)
+  },
+
+  solutions: [
+    ""
+  ],
+  num_cols: 8,
+  num_rows: 8,
+  programming_bot_index: 0,
+  bots : [
+    {
+      botColor: BotColor.BLUE,
+      cellX: 3,
+      cellY: 3,
+      facing: Direction.UP,
+      program: "",
+    }
+  ],
+  coins: [
+    {x:0, y:4},
+    {x:1, y:4},
+    {x:2, y:4},
+    {x:3, y:4},
+    {x:5, y:4},
+    {x:6, y:4},
+    {x:7, y:4},
   ],
   blocks: [
-    {x:2, y:2},
-    {x:2, y:3},
+    {x:4, y:0},
+    {x:4, y:1},
+    {x:4, y:2},
+    {x:4, y:3},
+    {x:4, y:4},
+    {x:4, y:5},
+    {x:4, y:6},
+    {x:4, y:7},
   ]
 }
 
-var PUZZLE_2 = cloneDeep(PUZZLE_1, {
-  name: "Avoid the blocks",
-  unlock: function(campaign, state) {
-    return levelCompleted(state, 0, 0)
-  }
-})
 
 var PUZZLE_3 = cloneDeep(PUZZLE_1, {
   name: "Foobar",

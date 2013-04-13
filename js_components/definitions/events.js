@@ -43,7 +43,13 @@ function windowOnLoad() {
   ANIMATE_INTERVAL = setInterval("animate()", CYCLE_DUR)
   nonBotAnimateInterval = setInterval("nonBotAnimate()", NON_BOT_CYCLE_DUR)
 
-  loadCampaign(PUZZLE_CAMPAIGN, PUZZLE_CAMPAIGN_STATE)
+  var campaign = PUZZLE_CAMPAIGN
+  var state = PUZZLE_CAMPAIGN_STATE
+
+  loadWorldMenu(campaign, state)
+  showOrHideLevelMenu(state) 
+
+  loadLevel(campaign, state)
   restartSimulation()
 }
 
@@ -226,8 +232,6 @@ function restartSimulation() {
  * When the user clicks a level
  *****************************************************************************/
 function clickLevel(world_index, level_index) {
-  console.log(world_index + 1)
-  console.log(level_index + 1)
   cleanUpVisualization()
 
   var campaign = PUZZLE_CAMPAIGN
@@ -236,4 +240,6 @@ function clickLevel(world_index, level_index) {
   state.current_level.world_index = world_index
   state.current_level.level_index = level_index
 
+  loadLevel(campaign, state)
+  restartSimulation()
 }

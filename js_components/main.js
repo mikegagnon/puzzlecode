@@ -88,28 +88,7 @@ var PUZZLE_1 = {
       cellX: 4,
       cellY: 3,
       facing: Direction.UP,
-      program: "move\nmove\nmove\nmove\nturn left\nmove\nmove\n",
-    },
-    {
-      botColor: BotColor.BLUE,
-      cellX: 0,
-      cellY: 0,
-      facing: Direction.RIGHT,
-      program: "start: move\nmove\nmove\ngoto start\n",
-    },
-    {
-      botColor: BotColor.BLUE,
-      cellX: 6,
-      cellY: 6,
-      facing: Direction.RIGHT,
-      program: "start: move\n turn right\ngoto start\n",
-    },
-    {
-      botColor: BotColor.BLUE,
-      cellX: 3,
-      cellY: 2,
-      facing: Direction.LEFT,
-      program: "start: move\nmove\ngoto start\n",
+      program: "move\nmove\nmove\nturn left\nmove\nmove\nmove\n",
     },
   ],
   coins: [
@@ -117,20 +96,62 @@ var PUZZLE_1 = {
     {x:1, y:1},
     {x:2, y:1},
     {x:3, y:1},
-    {x:4, y:1}
+  ],
+  blocks: []
+}
+
+var PUZZLE_2 = {
+  id: "puzzle1",
+  name: "Wrap around",
+  description: "tbd",
+  hint: "tbd",
+  win_conditions: [
+    {type: WinCondition.COLLECT_COINS}
+  ],
+  constraints: [],
+
+  // what conditions need to be met to unlock this level?
+  // the unlock returns true if this level should be unlocked
+  unlock: function(campaign, state) {
+    return levelCompleted(state, 0, 0)
+  },
+
+  solutions: [
+    ""
+  ],
+  num_cols: 8,
+  num_rows: 8,
+  programming_bot_index: 0,
+  bots : [
+    {
+      botColor: BotColor.BLUE,
+      cellX: 3,
+      cellY: 3,
+      facing: Direction.UP,
+      program: "",
+    }
+  ],
+  coins: [
+    {x:0, y:4},
+    {x:1, y:4},
+    {x:2, y:4},
+    {x:3, y:4},
+    {x:5, y:4},
+    {x:6, y:4},
+    {x:7, y:4},
   ],
   blocks: [
-    {x:2, y:2},
-    {x:2, y:3},
+    {x:4, y:0},
+    {x:4, y:1},
+    {x:4, y:2},
+    {x:4, y:3},
+    {x:4, y:4},
+    {x:4, y:5},
+    {x:4, y:6},
+    {x:4, y:7},
   ]
 }
 
-var PUZZLE_2 = cloneDeep(PUZZLE_1, {
-  name: "Avoid the blocks",
-  unlock: function(campaign, state) {
-    return levelCompleted(state, 0, 0)
-  }
-})
 
 var PUZZLE_3 = cloneDeep(PUZZLE_1, {
   name: "Foobar",
