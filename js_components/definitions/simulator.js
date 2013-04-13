@@ -271,10 +271,9 @@ function checkTrap(board, bot) {
   if (matchingTraps.length == 0) {
     return false
   } else {
-    /**
-     * TODO:
-     * remove bot from board
-     */
+
+    // TODO: remove bot from bots
+    bot.program.done = true
 
     if (!("traps" in board.visualize.step.general)) {
       board.visualize.step.general.traps = []
