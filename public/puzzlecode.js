@@ -1651,29 +1651,49 @@ function animateTraps(board) {
     var traps = board.visualize.step.general.traps
     _(traps)
       .forEach(function(trap){
-
       var trapId = "trap_" + trap.x + "_" + trap.y
 
       VIS.selectAll("#" + trapId)
         .data([trap])
-      .enter().append("svg:circle")
+      .enter().append("svg:rect")
         .attr("id", trapId)
         .attr("class", "trap_animate")
-        .attr("stroke", "red")
-        .attr("fill", "pink")
-        .attr("opacity", "0.75")
-        .attr("r", 10)
-        .attr("cx", trap.x * CELL_SIZE + CELL_SIZE/2)
-        .attr("cy", trap.y * CELL_SIZE + CELL_SIZE/2)
+        .attr("stroke", "white")
+        .attr("fill", "black")
+        .attr("x", trap.x * CELL_SIZE)
+        .attr("y", trap.y * CELL_SIZE)
+        .attr("width", CELL_SIZE)
+        .attr("height", 0)
       .transition()
-        .attr("opacity", "0.0")
-        .delay(ANIMATION_DUR / 4)
-        .ease("cubic")
-        .duration(ANIMATION_DUR * 3 / 4)
+        .attr("height", CELL_SIZE / 2)
+        .ease("linear")
+        .duration(ANIMATION_DUR)
         // garbage collect the blip
         .each("end", function() {
           d3.select(this).remove()
         })
+
+      VIS.selectAll("#" + trapId + "_part2")
+        .data([trap])
+      .enter().append("svg:rect")
+        .attr("id", trapId)
+        .attr("class", "trap_animate")
+        .attr("stroke", "white")
+        .attr("fill", "black")
+        .attr("x", trap.x * CELL_SIZE)
+        .attr("y", (trap.y + 1) * CELL_SIZE)
+        .attr("width", CELL_SIZE)
+        .attr("height", 0)
+      .transition()
+        .attr("y", (trap.y + 0.5) * CELL_SIZE)
+        .attr("height", CELL_SIZE / 2)
+        .ease("linear")
+        .duration(ANIMATION_DUR)
+        // garbage collect the blip
+        .each("end", function() {
+          d3.select(this).remove()
+        })
+
       })
   }
 
