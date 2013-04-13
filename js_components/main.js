@@ -60,6 +60,9 @@ var CELL_SIZE = 32,
     NORMAL_CODE_THEME = "solarized dark",
     DISABLED_CODE_THEME = "solarized_dim dark"
 
+// if true, then loads the solution program when loading new levels
+var AUTO_SOLVE_DEBUG = false
+
 var PUZZLE_1 = {
   id: "puzzle1",
   name: "Collect the coins",
@@ -77,7 +80,7 @@ var PUZZLE_1 = {
   },
 
   solutions: [
-    "start: move\nmove\nturn left\nmove\nmove\nmove\nmove\ngoto start",
+    "move\nmove\nturn left\nmove\nmove\nmove\nmove\n",
   ],
   num_cols: 9,
   num_rows: 7,
@@ -97,6 +100,7 @@ var PUZZLE_1 = {
     {x:2, y:1},
     {x:3, y:1},
   ],
+  // TODO: make it so that you can omit empty properties from a puzzle
   blocks: []
 }
 
@@ -117,7 +121,10 @@ var PUZZLE_2 = {
   },
 
   solutions: [
-    ""
+    _(["turn left", "turn left",
+     "move",
+     "turn right",
+     "move", "move", "move", "move", "move", "move"]).join("\n")
   ],
   num_cols: 8,
   num_rows: 8,

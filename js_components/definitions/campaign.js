@@ -185,7 +185,12 @@ function loadLevel(campaign, state) {
   var level_i = state.current_level.level_index
   var level = campaign[world_i].levels[level_i]
 
-  var programText = level.bots[level.programming_bot_index].program
+  if (AUTO_SOLVE_DEBUG) {
+    var programText = level.solutions[0]
+  } else {
+    var programText = level.bots[level.programming_bot_index].program
+  }
+
   var levelName = getLevelName(world_i, level_i, level.name)
 
   $("#leveltitle").text(levelName)
