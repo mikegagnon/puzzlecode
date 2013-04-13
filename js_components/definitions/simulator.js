@@ -272,8 +272,11 @@ function checkTrap(board, bot) {
     return false
   } else {
 
-    // TODO: remove bot from bots
-    bot.program.done = true
+    // TODO: more efficient way to remove bot
+    board.bots = _(board.bots)
+      .filter(function(b) {
+        return b.id != bot.id
+      }).value()
 
     if (!("traps" in board.visualize.step.general)) {
       board.visualize.step.general.traps = []
@@ -281,9 +284,11 @@ function checkTrap(board, bot) {
 
     board.visualize.step.general.traps.push({
       x: bot.cellX,
-      y: bot.cellY
+      y: bot.cellY,
+      bot : bot
     })
 
+    return true
   }
 }
 

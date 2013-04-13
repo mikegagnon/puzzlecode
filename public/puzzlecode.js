@@ -1,4 +1,10 @@
-/**
+// Array Remove - By John Resig (MIT Licensed)
+// http://ejohn.org/blog/javascript-array-remove/
+function remove(array, from, to) {
+  var rest = array.slice((to || from) + 1 || array.length)
+  array.length = from < 0 ? array.length + from : from
+  return array.push.apply(array, rest)
+}/**
  * Copyright 2013 Michael N. Gagnon
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -1346,8 +1352,11 @@ function checkTrap(board, bot) {
     return false
   } else {
 
-    // TODO: remove bot from bots
-    bot.program.done = true
+    // TODO: more efficient way to remove bot
+    board.bots = _(board.bots)
+      .filter(function(b) {
+        return b.id != bot.id
+      }).value()
 
     if (!("traps" in board.visualize.step.general)) {
       board.visualize.step.general.traps = []
@@ -1355,9 +1364,11 @@ function checkTrap(board, bot) {
 
     board.visualize.step.general.traps.push({
       x: bot.cellX,
-      y: bot.cellY
+      y: bot.cellY,
+      bot : bot
     })
 
+    return true
   }
 }
 
@@ -1613,7 +1624,7 @@ function nonBotAnimate() {
 
 function animateGoto(board) {
 
-  var BLIP_RADIUS = 6
+  var BLIP_RADIUS = 10
 
   visualizeBot(board, "goto", function(gotoViz, bot) {
 
@@ -1628,7 +1639,7 @@ function animateGoto(board) {
       .attr("class", "goto-blip")
       .attr("stroke", "limegreen")
       .attr("fill", "lime")
-      .attr("opacity", "0.75")
+      .attr("opacity", "1.0")
       .attr("r", BLIP_RADIUS)
       .attr("cx", function(d){ return d.cellX * CELL_SIZE + CELL_SIZE/2} )
       .attr("cy", function(d){ return d.cellY * CELL_SIZE + CELL_SIZE/2} )
@@ -1658,7 +1669,7 @@ function animateTraps(board) {
         .attr("id", trapId)
         .attr("class", "trap_animate")
         .attr("stroke", "white")
-        .attr("fill", "black")
+        .attr("fill", "darkred")
         .attr("x", trap.x * CELL_SIZE)
         .attr("y", trap.y * CELL_SIZE)
         .attr("width", CELL_SIZE)
@@ -1667,9 +1678,12 @@ function animateTraps(board) {
         .attr("height", CELL_SIZE / 2)
         .ease("linear")
         .duration(ANIMATION_DUR)
-        // garbage collect the blip
         .each("end", function() {
+          // garbage collect the trap
           d3.select(this).remove()
+
+          // garbage collect the bot
+          d3.selectAll("#" + botId(trap.bot)).remove()
         })
 
       VIS.selectAll("#" + trapId + "_part2")
@@ -1678,7 +1692,7 @@ function animateTraps(board) {
         .attr("id", trapId)
         .attr("class", "trap_animate")
         .attr("stroke", "white")
-        .attr("fill", "black")
+        .attr("fill", "darkred")
         .attr("x", trap.x * CELL_SIZE)
         .attr("y", (trap.y + 1) * CELL_SIZE)
         .attr("width", CELL_SIZE)
@@ -1688,7 +1702,7 @@ function animateTraps(board) {
         .attr("height", CELL_SIZE / 2)
         .ease("linear")
         .duration(ANIMATION_DUR)
-        // garbage collect the blip
+        // garbage collect the trap
         .each("end", function() {
           d3.select(this).remove()
         })
@@ -1696,7 +1710,7 @@ function animateTraps(board) {
       })
   }
 
-  visualizeBot(board, "goto", function(gotoViz, bot) {
+  /*visualizeBot(board, "goto", function(gotoViz, bot) {
 
     var blipId = botId(bot) + "_goto_blip"
 
@@ -1721,7 +1735,7 @@ function animateTraps(board) {
       // garbage collect the blip
       .each("end", function() {
         d3.select(this).remove()
-      })  })
+      })  })*/
 }
 
 function animateCoinCollection(board) {
@@ -1868,6 +1882,8 @@ function animateProgramDone(board) {
     .ease(EASING)
     .duration(ANIMATION_DUR / 2)
     .each("end", function(){
+      // TODO: highlight the restart button iff you detect a level "failure"
+      // i.e., if it becomes impossible to accomplish the objective
       d3.select("#restart").attr("class", "btn btn-primary")
     })
 }
@@ -2648,6 +2664,7 @@ var PUZZLE_1 = {
   ],
   num_cols: 9,
   num_rows: 7,
+  // BUG: this should be programming_bot_id, not index
   programming_bot_index: 0,
   bots : [
     {
@@ -2657,6 +2674,27 @@ var PUZZLE_1 = {
       facing: Direction.UP,
       program: "move\nmove\nmove\nturn left\nmove\nmove\nmove\n",
     },
+    {
+      botColor: BotColor.BLUE,
+      cellX: 2,
+      cellY: 0,
+      facing: Direction.RIGHT,
+      program: "start: move\ngoto start",
+    },
+    {
+      botColor: BotColor.BLUE,
+      cellX: 1,
+      cellY: 0,
+      facing: Direction.RIGHT,
+      program: "start: move\ngoto start",
+    },
+    {
+      botColor: BotColor.BLUE,
+      cellX: 0,
+      cellY: 0,
+      facing: Direction.RIGHT,
+      program: "start: move\ngoto start",
+    }
   ],
   coins: [
     {x:0, y:1},
@@ -2725,6 +2763,9 @@ var PUZZLE_2 = {
     {x:4, y:5},
     {x:4, y:6},
     {x:4, y:7},
+  ],
+  traps: [
+    //{x:3, y:0}
   ]
 }
 

@@ -84,6 +84,7 @@ var PUZZLE_1 = {
   ],
   num_cols: 9,
   num_rows: 7,
+  // BUG: this should be programming_bot_id, not index
   programming_bot_index: 0,
   bots : [
     {
@@ -93,6 +94,27 @@ var PUZZLE_1 = {
       facing: Direction.UP,
       program: "move\nmove\nmove\nturn left\nmove\nmove\nmove\n",
     },
+    {
+      botColor: BotColor.BLUE,
+      cellX: 2,
+      cellY: 0,
+      facing: Direction.RIGHT,
+      program: "start: move\ngoto start",
+    },
+    {
+      botColor: BotColor.BLUE,
+      cellX: 1,
+      cellY: 0,
+      facing: Direction.RIGHT,
+      program: "start: move\ngoto start",
+    },
+    {
+      botColor: BotColor.BLUE,
+      cellX: 0,
+      cellY: 0,
+      facing: Direction.RIGHT,
+      program: "start: move\ngoto start",
+    }
   ],
   coins: [
     {x:0, y:1},
@@ -161,6 +183,9 @@ var PUZZLE_2 = {
     {x:4, y:5},
     {x:4, y:6},
     {x:4, y:7},
+  ],
+  traps: [
+    //{x:3, y:0}
   ]
 }
 

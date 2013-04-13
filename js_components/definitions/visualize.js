@@ -110,7 +110,7 @@ function nonBotAnimate() {
 
 function animateGoto(board) {
 
-  var BLIP_RADIUS = 6
+  var BLIP_RADIUS = 10
 
   visualizeBot(board, "goto", function(gotoViz, bot) {
 
@@ -125,7 +125,7 @@ function animateGoto(board) {
       .attr("class", "goto-blip")
       .attr("stroke", "limegreen")
       .attr("fill", "lime")
-      .attr("opacity", "0.75")
+      .attr("opacity", "1.0")
       .attr("r", BLIP_RADIUS)
       .attr("cx", function(d){ return d.cellX * CELL_SIZE + CELL_SIZE/2} )
       .attr("cy", function(d){ return d.cellY * CELL_SIZE + CELL_SIZE/2} )
@@ -155,7 +155,7 @@ function animateTraps(board) {
         .attr("id", trapId)
         .attr("class", "trap_animate")
         .attr("stroke", "white")
-        .attr("fill", "black")
+        .attr("fill", "darkred")
         .attr("x", trap.x * CELL_SIZE)
         .attr("y", trap.y * CELL_SIZE)
         .attr("width", CELL_SIZE)
@@ -164,9 +164,12 @@ function animateTraps(board) {
         .attr("height", CELL_SIZE / 2)
         .ease("linear")
         .duration(ANIMATION_DUR)
-        // garbage collect the blip
         .each("end", function() {
+          // garbage collect the trap
           d3.select(this).remove()
+
+          // garbage collect the bot
+          d3.selectAll("#" + botId(trap.bot)).remove()
         })
 
       VIS.selectAll("#" + trapId + "_part2")
@@ -175,7 +178,7 @@ function animateTraps(board) {
         .attr("id", trapId)
         .attr("class", "trap_animate")
         .attr("stroke", "white")
-        .attr("fill", "black")
+        .attr("fill", "darkred")
         .attr("x", trap.x * CELL_SIZE)
         .attr("y", (trap.y + 1) * CELL_SIZE)
         .attr("width", CELL_SIZE)
@@ -185,40 +188,12 @@ function animateTraps(board) {
         .attr("height", CELL_SIZE / 2)
         .ease("linear")
         .duration(ANIMATION_DUR)
-        // garbage collect the blip
+        // garbage collect the trap
         .each("end", function() {
           d3.select(this).remove()
         })
-
       })
   }
-
-  visualizeBot(board, "goto", function(gotoViz, bot) {
-
-    var blipId = botId(bot) + "_goto_blip"
-
-    // TODO: design decision. This new coin appears above the bot. Should it
-    // go underneath the bot? If so, how to do it?
-    var blip = VIS.selectAll("#" + blipId)
-      .data([bot])
-    .enter().append("svg:circle")
-      .attr("id", blipId)
-      .attr("class", "goto-blip")
-      .attr("stroke", "limegreen")
-      .attr("fill", "lime")
-      .attr("opacity", "0.75")
-      .attr("r", BLIP_RADIUS)
-      .attr("cx", function(d){ return d.cellX * CELL_SIZE + CELL_SIZE/2} )
-      .attr("cy", function(d){ return d.cellY * CELL_SIZE + CELL_SIZE/2} )
-    .transition()
-      .attr("opacity", "0.0")
-      .delay(ANIMATION_DUR / 4)
-      .ease("cubic")
-      .duration(ANIMATION_DUR * 3 / 4)
-      // garbage collect the blip
-      .each("end", function() {
-        d3.select(this).remove()
-      })  })
 }
 
 function animateCoinCollection(board) {
@@ -365,6 +340,8 @@ function animateProgramDone(board) {
     .ease(EASING)
     .duration(ANIMATION_DUR / 2)
     .each("end", function(){
+      // TODO: highlight the restart button iff you detect a level "failure"
+      // i.e., if it becomes impossible to accomplish the objective
       d3.select("#restart").attr("class", "btn btn-primary")
     })
 }
