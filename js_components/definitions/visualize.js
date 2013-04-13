@@ -570,10 +570,16 @@ function animate() {
 }
  
 function drawBoardContainer(board) {
+
+  var height = board.num_rows * CELL_SIZE
+
   VIS = d3.select("#board")
     .attr("class", "vis")
     .attr("width", board.num_cols * CELL_SIZE)
-    .attr("height", board.num_rows * CELL_SIZE)
+    .attr("height", height)
+
+  CODE_MIRROR_BOX.setSize("100%", height + "px")
+
 }
 
 function drawCells(board) {

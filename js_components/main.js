@@ -94,7 +94,7 @@ var PUZZLE_1 = {
       facing: Direction.UP,
       program: "move\nmove\nmove\nturn left\nmove\nmove\nmove\n",
     },
-    {
+    /*{
       botColor: BotColor.BLUE,
       cellX: 2,
       cellY: 0,
@@ -114,7 +114,7 @@ var PUZZLE_1 = {
       cellY: 0,
       facing: Direction.RIGHT,
       program: "start: move\ngoto start",
-    }
+    }*/
   ],
   coins: [
     {x:0, y:1},
@@ -125,7 +125,7 @@ var PUZZLE_1 = {
   // TODO: make it so that you can omit empty properties from a puzzle
   blocks: [],
   traps: [
-    {x:3, y:0}
+    //{x:3, y:0}
   ]
 }
 

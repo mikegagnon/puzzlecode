@@ -58,12 +58,14 @@ function setupCodeMirrorBox() {
     theme: "solarized dark",
     smartIndent: false,
     lineNumbers: true,
+    height: 50
   }
 
   CODE_MIRROR_BOX = CodeMirror(document.getElementById("codeMirrorEdit"),
     settings)
 
   cm = CODE_MIRROR_BOX
+  cm.setSize("100%", "250px")
 
   //  TODO: put the cursorActivity function in seperate file
   var line = 0

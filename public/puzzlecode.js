@@ -363,12 +363,14 @@ function setupCodeMirrorBox() {
     theme: "solarized dark",
     smartIndent: false,
     lineNumbers: true,
+    height: 50
   }
 
   CODE_MIRROR_BOX = CodeMirror(document.getElementById("codeMirrorEdit"),
     settings)
 
   cm = CODE_MIRROR_BOX
+  cm.setSize("100%", "250px")
 
   //  TODO: put the cursorActivity function in seperate file
   var line = 0
@@ -1341,6 +1343,7 @@ function checkVictory(board, campaign, state) {
 
 // if this bot is in a trap, then remove it from the board
 // returns true if the bot was trapped
+// TODO: unit test trap
 function checkTrap(board, bot) {
   var matchingTraps = _(board.traps)
     .filter( function(trap) {
@@ -1706,36 +1709,8 @@ function animateTraps(board) {
         .each("end", function() {
           d3.select(this).remove()
         })
-
       })
   }
-
-  /*visualizeBot(board, "goto", function(gotoViz, bot) {
-
-    var blipId = botId(bot) + "_goto_blip"
-
-    // TODO: design decision. This new coin appears above the bot. Should it
-    // go underneath the bot? If so, how to do it?
-    var blip = VIS.selectAll("#" + blipId)
-      .data([bot])
-    .enter().append("svg:circle")
-      .attr("id", blipId)
-      .attr("class", "goto-blip")
-      .attr("stroke", "limegreen")
-      .attr("fill", "lime")
-      .attr("opacity", "0.75")
-      .attr("r", BLIP_RADIUS)
-      .attr("cx", function(d){ return d.cellX * CELL_SIZE + CELL_SIZE/2} )
-      .attr("cy", function(d){ return d.cellY * CELL_SIZE + CELL_SIZE/2} )
-    .transition()
-      .attr("opacity", "0.0")
-      .delay(ANIMATION_DUR / 4)
-      .ease("cubic")
-      .duration(ANIMATION_DUR * 3 / 4)
-      // garbage collect the blip
-      .each("end", function() {
-        d3.select(this).remove()
-      })  })*/
 }
 
 function animateCoinCollection(board) {
@@ -2112,10 +2087,16 @@ function animate() {
 }
  
 function drawBoardContainer(board) {
+
+  var height = board.num_rows * CELL_SIZE
+
   VIS = d3.select("#board")
     .attr("class", "vis")
     .attr("width", board.num_cols * CELL_SIZE)
-    .attr("height", board.num_rows * CELL_SIZE)
+    .attr("height", height)
+
+  CODE_MIRROR_BOX.setSize("100%", height + "px")
+
 }
 
 function drawCells(board) {
@@ -2674,7 +2655,7 @@ var PUZZLE_1 = {
       facing: Direction.UP,
       program: "move\nmove\nmove\nturn left\nmove\nmove\nmove\n",
     },
-    {
+    /*{
       botColor: BotColor.BLUE,
       cellX: 2,
       cellY: 0,
@@ -2694,7 +2675,7 @@ var PUZZLE_1 = {
       cellY: 0,
       facing: Direction.RIGHT,
       program: "start: move\ngoto start",
-    }
+    }*/
   ],
   coins: [
     {x:0, y:1},
@@ -2705,7 +2686,7 @@ var PUZZLE_1 = {
   // TODO: make it so that you can omit empty properties from a puzzle
   blocks: [],
   traps: [
-    {x:3, y:0}
+    //{x:3, y:0}
   ]
 }
 
