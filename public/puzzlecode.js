@@ -1054,6 +1054,7 @@ function restartSimulation() {
  * When the user clicks a level
  *****************************************************************************/
 function clickLevel(world_index, level_index) {
+  $("#victoryModal").modal('hide')
   cleanUpVisualization()
 
   var campaign = PUZZLE_CAMPAIGN
@@ -2140,16 +2141,18 @@ function animateVictoryModalAndMenu(board, campaign, state) {
       .forEach(function(delta) {
         // if a level has been unlocked
         if ("level_unlock" in delta) {
-          var level_name = campaign[delta.world_index]
+          var name = campaign[delta.world_index]
             .levels[delta.level_unlock].name
+          var level_name = getLevelName(
+              delta.world_index,
+              delta.level_unlock,
+              name)
 
           html += '<p>'
             + '<span class="label label-info victory-label">New level</span> '
-            + 'You unlocked <a href="#">Level '
-            + (delta.world_index + 1)
-            + '-'
-            + (delta.level_unlock + 1)
-            + ': '
+            + 'You unlocked <a href="'
+            + levelLink(delta.world_index, delta.level_unlock)
+            + '">'
             + level_name
             + '</a>'
             + '</p>'

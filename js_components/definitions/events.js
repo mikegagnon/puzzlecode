@@ -232,6 +232,7 @@ function restartSimulation() {
  * When the user clicks a level
  *****************************************************************************/
 function clickLevel(world_index, level_index) {
+  $("#victoryModal").modal('hide')
   cleanUpVisualization()
 
   var campaign = PUZZLE_CAMPAIGN
