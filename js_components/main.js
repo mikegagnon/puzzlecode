@@ -106,7 +106,7 @@ var PUZZLE_1 = {
     },
     {
       botColor: BotColor.BLUE,
-      cellX: 4,
+      cellX: 3,
       cellY: 2,
       facing: Direction.LEFT,
       program: "start: move\nmove\ngoto start\n",

@@ -15,27 +15,12 @@
  */
 
 /**
- * IDEAS:
- *  - make the text box read-only while the simulation is playing
- *  - add break points
- *  - have the text box highlight the line that is currently being executed
- *
- * TODO: see if there is more sophisticated gutter mechanisms to
- * present comments and errors to the user
- * http://codemirror.net/doc/upgrade_v3.html#gutters
- *
- * TODO: listen for changes in the document and automatically update gutter
- * with comments and errors
- *
- * TODO: how to keep width of gutter constant?
- *
  * IDEA: breakpoints, see http://codemirror.net/demo/marker.html
  *
  * TODO: error text usually needs to be more verbose. Perhaps add a link to
- * a popup that explains the error and gives references.
+ * a modal that explains the error and gives references.
  *
  * IDEA: put drop-down boxes in comment section so you can fit more text there
- *
  */
 
 // lineComments is a map where line index points to comment for that line
@@ -51,7 +36,7 @@ function addLineComments(codeMirrorBox, lineComments) {
   }
 }
 
-function setupCodeMirrorBox(programText) {
+function setupCodeMirrorBox() {
 
   // Defines a syntax highlighter for the robocom language
   CodeMirror.defineMIME("text/x-robocom", {
@@ -65,7 +50,7 @@ function setupCodeMirrorBox(programText) {
       return "meta";
     }
   }
-  });
+  })
 
   var settings = {
     gutters: ["note-gutter", "CodeMirror-linenumbers"],
@@ -98,7 +83,4 @@ function setupCodeMirrorBox(programText) {
       change.cancel()
     }
   })
-
-  cm.setValue(programText)
-  compile()
 }

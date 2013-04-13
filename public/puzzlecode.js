@@ -286,7 +286,8 @@ function loadLevel(campaign, state) {
   var programText = level.bots[level.programming_bot_index].program
   var programText = level.solutions[0]
 
-  setupCodeMirrorBox(programText)
+  CODE_MIRROR_BOX.setValue(programText)
+  compile()
 }
 
 function loadCampaign(campaign, state) {
@@ -311,27 +312,12 @@ function loadCampaign(campaign, state) {
  */
 
 /**
- * IDEAS:
- *  - make the text box read-only while the simulation is playing
- *  - add break points
- *  - have the text box highlight the line that is currently being executed
- *
- * TODO: see if there is more sophisticated gutter mechanisms to
- * present comments and errors to the user
- * http://codemirror.net/doc/upgrade_v3.html#gutters
- *
- * TODO: listen for changes in the document and automatically update gutter
- * with comments and errors
- *
- * TODO: how to keep width of gutter constant?
- *
  * IDEA: breakpoints, see http://codemirror.net/demo/marker.html
  *
  * TODO: error text usually needs to be more verbose. Perhaps add a link to
- * a popup that explains the error and gives references.
+ * a modal that explains the error and gives references.
  *
  * IDEA: put drop-down boxes in comment section so you can fit more text there
- *
  */
 
 // lineComments is a map where line index points to comment for that line
@@ -347,7 +333,7 @@ function addLineComments(codeMirrorBox, lineComments) {
   }
 }
 
-function setupCodeMirrorBox(programText) {
+function setupCodeMirrorBox() {
 
   // Defines a syntax highlighter for the robocom language
   CodeMirror.defineMIME("text/x-robocom", {
@@ -361,7 +347,7 @@ function setupCodeMirrorBox(programText) {
       return "meta";
     }
   }
-  });
+  })
 
   var settings = {
     gutters: ["note-gutter", "CodeMirror-linenumbers"],
@@ -394,9 +380,6 @@ function setupCodeMirrorBox(programText) {
       change.cancel()
     }
   })
-
-  cm.setValue(programText)
-  compile()
 }
 /**
  * Copyright 2013 Michael N. Gagnon
@@ -879,7 +862,7 @@ function registerEventHandlers() {
 
 // These event handlers are registered in main.js and in index.html
 function windowOnLoad() {
-
+  setupCodeMirrorBox()
   registerEventHandlers()
 
   // TODO: where should i put this?
@@ -1062,6 +1045,22 @@ function restartSimulation() {
   setBotProgram(BOARD, PROGRAMING_BOT_INDEX, program)
 
   initializeVisualization(PUZZLE_CAMPAIGN, PUZZLE_CAMPAIGN_STATE, BOARD)
+
+}
+
+/**
+ * When the user clicks a level
+ *****************************************************************************/
+function clickLevel(world_index, level_index) {
+  console.log(world_index + 1)
+  console.log(level_index + 1)
+  cleanUpVisualization()
+
+  var campaign = PUZZLE_CAMPAIGN
+  var state = PUZZLE_CAMPAIGN_STATE
+
+  state.current_level.world_index = world_index
+  state.current_level.level_index = level_index
 
 }
 /**
@@ -2360,6 +2359,11 @@ function getLevelNameHtml(world_index, level_index, name, completed) {
   return '<i class="' + completedClass + '"></i> ' + levelName
 }
 
+// Returns an href target for a particular level
+function levelLink(world_index, level_index) {
+  return "javascript: clickLevel(" + world_index + "," + level_index + ")"
+}
+
 function addLevelToMenu(campaign, state, world_index, level_index) {
 
   var completed = state.visibility[world_index][level_index].complete
@@ -2370,7 +2374,9 @@ function addLevelToMenu(campaign, state, world_index, level_index) {
   $("#" + world.id)
     .find(".dropdown-menu")
     .append('<li id="' + level.id + '">'
-      + '<a tabindex="-1" class="level-link" href="#">'
+      + '<a tabindex="-1" class="level-link" href="'
+      + levelLink(world_index, level_index)
+      + '">'
       + getLevelNameHtml(world_index, level_index, level.name, completed)
       + '</a>'
       + '</li>')
@@ -2518,7 +2524,7 @@ var PUZZLE_1 = {
     },
     {
       botColor: BotColor.BLUE,
-      cellX: 4,
+      cellX: 3,
       cellY: 2,
       facing: Direction.LEFT,
       program: "start: move\nmove\ngoto start\n",

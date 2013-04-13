@@ -188,7 +188,8 @@ function loadLevel(campaign, state) {
   var programText = level.bots[level.programming_bot_index].program
   var programText = level.solutions[0]
 
-  setupCodeMirrorBox(programText)
+  CODE_MIRROR_BOX.setValue(programText)
+  compile()
 }
 
 function loadCampaign(campaign, state) {

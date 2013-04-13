@@ -117,6 +117,11 @@ function getLevelNameHtml(world_index, level_index, name, completed) {
   return '<i class="' + completedClass + '"></i> ' + levelName
 }
 
+// Returns an href target for a particular level
+function levelLink(world_index, level_index) {
+  return "javascript: clickLevel(" + world_index + "," + level_index + ")"
+}
+
 function addLevelToMenu(campaign, state, world_index, level_index) {
 
   var completed = state.visibility[world_index][level_index].complete
@@ -127,7 +132,9 @@ function addLevelToMenu(campaign, state, world_index, level_index) {
   $("#" + world.id)
     .find(".dropdown-menu")
     .append('<li id="' + level.id + '">'
-      + '<a tabindex="-1" class="level-link" href="#">'
+      + '<a tabindex="-1" class="level-link" href="'
+      + levelLink(world_index, level_index)
+      + '">'
       + getLevelNameHtml(world_index, level_index, level.name, completed)
       + '</a>'
       + '</li>')

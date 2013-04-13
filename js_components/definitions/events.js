@@ -36,7 +36,7 @@ function registerEventHandlers() {
 
 // These event handlers are registered in main.js and in index.html
 function windowOnLoad() {
-
+  setupCodeMirrorBox()
   registerEventHandlers()
 
   // TODO: where should i put this?
@@ -219,5 +219,21 @@ function restartSimulation() {
   setBotProgram(BOARD, PROGRAMING_BOT_INDEX, program)
 
   initializeVisualization(PUZZLE_CAMPAIGN, PUZZLE_CAMPAIGN_STATE, BOARD)
+
+}
+
+/**
+ * When the user clicks a level
+ *****************************************************************************/
+function clickLevel(world_index, level_index) {
+  console.log(world_index + 1)
+  console.log(level_index + 1)
+  cleanUpVisualization()
+
+  var campaign = PUZZLE_CAMPAIGN
+  var state = PUZZLE_CAMPAIGN_STATE
+
+  state.current_level.world_index = world_index
+  state.current_level.level_index = level_index
 
 }
