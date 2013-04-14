@@ -312,7 +312,7 @@ function animateProgramDone(board) {
       // Long-term idea: only change restart to primary if this is the bot
       // that is being programmed on the code editor.
       .each("end", function(){
-        d3.select("#restart").attr("class", "btn btn-primary")
+        d3.select("#restart").attr("class", "btn btn-primary menu-button")
       })
   })
 
@@ -342,7 +342,7 @@ function animateProgramDone(board) {
     .each("end", function(){
       // TODO: highlight the restart button iff you detect a level "failure"
       // i.e., if it becomes impossible to accomplish the objective
-      d3.select("#restart").attr("class", "btn btn-primary")
+      d3.select("#restart").attr("class", "btn btn-primary menu-button")
     })
 }
 

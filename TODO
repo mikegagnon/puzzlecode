@@ -13,7 +13,24 @@
 -- One player thought that pressing 4 would active the instruction for line-4
 -- Players tended not to read the hints about the reset button etc.
 -- Players tended not to know that that they could only edit when the game
-   was reset
+   was reset. IDEA: when player clicks CM when game is still active, then show
+   a pop over that says you need to reset the level to edit the program.
+-- When players beat a level, they didn't click the next level button. Perhaps
+   give them two buttons: (1) play next level, and (2) continue with current
+   level. If player closes modal (by clicking outside it), then goto next
+   level.
+-- Some players, don't realize the text box is a text box. Perhaps make it
+   white to make it look like normal text boxes.
+-- Show check marks next to good lines?
+-- I think it would be much better if i did recompiles on every keystroke
+   (but only show error messages once you complete a line, show a check mark
+    as soon as a line is good, and show nothing when the line being edited
+    doesn't compile)
+-- Every time the player does something wrong, popup a suggestion box with
+   a tutorial / hint on how to do it right
+-- One player suggested starting the game off teaching "step" instead of "run"
+-- Make the block graphic better. Perhaps add an isometric perspective/shadows.
+-- Put a label above the code editor.
 -- On the plus side, once players realized what was going on they seemed to get
    the hang of it right away.
 

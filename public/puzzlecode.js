@@ -360,7 +360,7 @@ function setupCodeMirrorBox() {
   var settings = {
     gutters: ["note-gutter", "CodeMirror-linenumbers"],
     mode:  "text/x-robocom",
-    theme: "solarized dark",
+    theme: "eclipse",
     smartIndent: false,
     lineNumbers: true,
     height: 50
@@ -504,7 +504,7 @@ function compileMove(tokens) {
   // assert tokens[0] == "move"
   if (tokens.length == 1) {
     instruction = new RobocomInstruction(Opcode.MOVE, null)
-    comment = newComment("Move forward one square")
+    comment = newComment("") //Move forward one square")
   } else {
     instruction = null
     comment = newErrorComment("Malformed 'move' instruction", "#")
@@ -528,10 +528,10 @@ function compileTurn(tokens) {
     var direction = tokens[1]
     if (direction == "left") {
       instruction = new RobocomInstruction(Opcode.TURN, Direction.LEFT)
-      comment = newComment("Rotate to the left ↰")
+      comment = newComment("")//Rotate to the left ↰")
     } else if (direction == "right") {
       instruction = new RobocomInstruction(Opcode.TURN, Direction.RIGHT)
-      comment = newComment("Rotate to the right ↱")
+      comment = newComment("")//Rotate to the right ↱")
     } else {
       instruction = null
       comment = newErrorComment("'" + direction + "' is not a valid direction", "#")
@@ -691,7 +691,7 @@ function compileRobocom(programText) {
         instruction.data = labels[label]
         // TODO: better comment
         lineComments[instruction.lineIndex] =
-          newComment("resume execution at line " + labelLineNumbers[label])
+          newComment("")//resume execution at line " + labelLineNumbers[label])
       } else {
         error = true
         lineComments[instruction.lineIndex] =
@@ -911,22 +911,22 @@ function setSpeed(speed) {
 function doPause() {
   PLAY_STATUS = PlayStatus.PAUSED
   pausePlay.innerHTML = 'Resume'
-  d3.select("#pauseplay").attr("class", "btn")
+  d3.select("#pauseplay").attr("class", "btn menu-button")
   CODE_MIRROR_BOX.setOption("theme", DISABLED_CODE_THEME)
 }
 
 function doResume() {
   PLAY_STATUS = PlayStatus.PLAYING
   pausePlay.innerHTML = 'Pause'
-  d3.select("#pauseplay").attr("class", "btn")
-  d3.select("#restart").attr("class", "btn")
+  d3.select("#pauseplay").attr("class", "btn menu-button")
+  d3.select("#restart").attr("class", "btn menu-button")
 
   d3.select("#messageBoxDiv")
     .attr("class", "alert alert-block alert-success")
   d3.select("#messageBoxHeader")
     .text("Tip:")
   d3.select("#messageBox")
-    .text("To edit your program, click 'Reset'")
+    .html("<h3>To edit your program, click 'Reset'</h3>")
 
   CODE_MIRROR_BOX.setOption("theme", DISABLED_CODE_THEME)
 }
@@ -965,7 +965,7 @@ function doFirstStep() {
 function doStep() {
   PLAY_STATUS = PlayStatus.PAUSED
   pausePlay.innerHTML = 'Resume'
-  d3.select("#pauseplay").attr("class", "btn")
+  d3.select("#pauseplay").attr("class", "btn menu-button")
   CODE_MIRROR_BOX.setOption("theme", DISABLED_CODE_THEME)
 
   d3.select("#messageBoxDiv")
@@ -973,7 +973,7 @@ function doStep() {
   d3.select("#messageBoxHeader")
     .text("Tip:")
   d3.select("#messageBox")
-    .text("To edit your program, click 'Reset'")
+    .html("<h3>To edit your program, click 'Reset'</h3>")
 
   // TODO: clicking "Step" to fast will lead to bad animations
   // TODO: the highlighted instruction is the one that just executed
@@ -1000,11 +1000,16 @@ function compile() {
   // Enable or disable the #pausePlay and #stepButton buttons
   if (PLAY_STATUS == PlayStatus.INITAL_STATE_PAUSED) {
     if (program.instructions == null) {
-      d3.select("#pauseplay").attr("class", "btn disabled")
-      d3.select("#stepButton").attr("class", "btn disabled")
+      d3.select("#pauseplay").attr("class", "btn disabled menu-button")
+      d3.select("#stepButton").attr("class", "btn disabled menu-button")
     } else {
-      d3.select("#pauseplay").attr("class", "btn btn-primary")
-      d3.select("#stepButton").attr("class", "btn")
+      if (HELP_BUTTON_CLICKED) {
+        d3.select("#pauseplay").attr("class", "btn btn-primary menu-button")
+        d3.select("#helpButton").attr("class", "btn help-button menu-button")
+      } else {
+        d3.select("#pauseplay").attr("class", "btn menu-button")
+      }
+      d3.select("#stepButton").attr("class", "btn menu-button")
     }
   } else {
     console.error("I don't expect compile to be called unless board is reset")
@@ -1016,8 +1021,8 @@ function compile() {
       .attr("class", "alert alert-block alert-error")
     d3.select("#messageBoxHeader")
       .text("Error:")
-    d3.select("#messageBox").text("You must fix the errors  " +
-      "before you can run your program.")
+    d3.select("#messageBox").html("<h3>You must fix the errors  " +
+      "before you can run your program.</h3>")
   } else {
     // TODO: put this comm functionality in function
     d3.select("#messageBox")
@@ -1025,8 +1030,13 @@ function compile() {
       .attr("class", "alert alert-block alert-success")
     d3.select("#messageBoxHeader")
       .text("Tip:")
-    d3.select("#messageBox")
-      .text("Click the 'Run!' button to run your program")
+    if (HELP_BUTTON_CLICKED) {
+      d3.select("#messageBox")
+        .html("<h3>Click the 'Run!' button to run your program</h3>")
+    } else {
+      d3.select("#messageBox")
+        .html("<h3>Click the blue 'Help' button, below</h3>")
+    }
   }
 
   return program
@@ -1050,8 +1060,8 @@ function restartSimulation() {
     .attr("class", "alert alert-block alert-success")
   d3.select("#messageBoxHeader")
     .text("Tip:")
-  d3.select("#messageBox").text("Click the 'Run!' button to run your program")
-  d3.select("#restart").attr("class", "btn")
+  d3.select("#messageBox").html("<h3>Click the 'Run!' button to run your program</h3>")
+  d3.select("#restart").attr("class", "btn menu-button")
 
   cleanUpVisualization()
 
@@ -1829,7 +1839,7 @@ function animateProgramDone(board) {
       // Long-term idea: only change restart to primary if this is the bot
       // that is being programmed on the code editor.
       .each("end", function(){
-        d3.select("#restart").attr("class", "btn btn-primary")
+        d3.select("#restart").attr("class", "btn btn-primary menu-button")
       })
   })
 
@@ -1859,7 +1869,7 @@ function animateProgramDone(board) {
     .each("end", function(){
       // TODO: highlight the restart button iff you detect a level "failure"
       // i.e., if it becomes impossible to accomplish the objective
-      d3.select("#restart").attr("class", "btn btn-primary")
+      d3.select("#restart").attr("class", "btn btn-primary menu-button")
     })
 }
 
@@ -2583,7 +2593,7 @@ function loadWorldMenu(campaign, state) {
 // to show program execution
 var MAX_HIGHLIGHT_SPEED = 150
 
-// [animationDuration, delayDuration, description, easing]
+// [animatiBACK_CLASSonDuration, delayDuration, description, easing]
 PlaySpeed = {
   SUPER_SLOW: [2000, 4000, "Super slow", "cubic-in-out"],
   SLOW: [750, 1500, "Slow", "cubic-in-out"],
@@ -2618,8 +2628,8 @@ var CELL_SIZE = 32,
     pausePlay = null,
     DEBUG = true,
     IDENT_REGEX = /^[A-Za-z][A-Za-z0-9_]*$/,
-    NORMAL_CODE_THEME = "solarized dark",
-    DISABLED_CODE_THEME = "solarized_dim dark"
+    NORMAL_CODE_THEME = "eclipse",
+    DISABLED_CODE_THEME = "eclipse-dim"
 
 // if true, then loads the solution program when loading new levels
 var AUTO_SOLVE_DEBUG = false
@@ -2816,6 +2826,9 @@ var PUZZLE_CAMPAIGN_STATE = {
     complete: false
   }
 }
+
+// set to true once the help button has been clicked
+var HELP_BUTTON_CLICKED = false 
 
 var BOARD = undefined
 

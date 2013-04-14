@@ -10,6 +10,7 @@
     <!-- Le styles -->
     <link rel="stylesheet" href="lib/codemirror.css">
     <link rel="stylesheet" href="lib/solarized.css">
+    <link rel="stylesheet" href="lib/eclipse.css">
     <link rel="stylesheet" href="lib/solarized_dim.css">
     <link href="lib/bootstrap.css" rel="stylesheet">
     <style>
@@ -19,9 +20,11 @@
       .note-gutter { width: 15em; }
       .CodeMirror-linenumbers { width: 3em; }
       /* TODO: better styling. Make highlighted line look like editable program*/
-      .activeline-background {background: #000;}
-      .errorLink {text-decoration:underline; color: GoldenRod; font-weight: bold}
-      a.errorLink:hover{color: Gold}
+      .activeline-background {background: #ff0;}
+      .errorLink {
+        text-decoration: underline;
+        color: navy; font-weight: bold}
+      a.errorLink:hover{color: deepskyblue}
       body .modal {
         color: #444;
         text-align: left;
@@ -50,6 +53,41 @@
         overflow: hidden;
         padding-left: 20px;
       }
+      .menu-button {
+        width: 100px;
+      }
+      .help-button {
+        width: 400px;
+      }
+      .code-mirror-wrapper {
+      line-height: 1.3em;
+      font-family: monospace;
+
+      /* Necessary so the scrollbar can be absolutely positioned within the wrapper on Lion. */
+      position: relative;
+      /* This prevents unwanted scrollbars from showing up on the body and wrapper in IE. */
+      overflow: hidden;
+      background-color: white;
+      width: 530px;
+
+      /* Copied from Bootstrap's textarea */
+      display: inline-block;
+      padding: 4px 6px;
+      margin-bottom: 9px;
+      color: #555555;
+      border: 1px solid #ccc;
+      -webkit-border-radius: 3px;
+      -moz-border-radius: 3px;
+      border-radius: 3px;
+      -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+      -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+      box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+      -webkit-transition: border linear 0.2s, box-shadow linear 0.2s;
+      -moz-transition: border linear 0.2s, box-shadow linear 0.2s;
+      -ms-transition: border linear 0.2s, box-shadow linear 0.2s;
+      -o-transition: border linear 0.2s, box-shadow linear 0.2s;
+      transition: border linear 0.2s, box-shadow linear 0.2s;  
+    }
     </style>
     <link href="lib/bootstrap-responsive.css" rel="stylesheet">
 
@@ -90,6 +128,7 @@
 
         <!-- this div will only be visible if the player has at least two
          levels to choose from -->
+        <!-- BEGIN: level menu -->
         <div
           class="accordion"
           id="accordionLevelSelect">
@@ -119,14 +158,55 @@
               </div>
             </div><!-- END: collapseOne-->
           </div>
-
-        </div>
+        </div> <!-- END: level menu -->
 
         <!-- BEGIN: level-box -->
-        <div class="level-box">
+        <div class="level-box"  style="background: #eee">
 
-          <h4 id="leveltitle"></h4>
+          <h4 id="leveltitle" styl="text-color: white"></h4>
 
+            <!-- BEGIN: message box -->
+            <div id="messageBoxDiv" class="alert alert-block alert-success">
+              <button type="button" class="close" data-dismiss="alert">&times;</button>
+
+              <h3 id="messageBoxHeader"></h3>
+              <p id="messageBox"></p>
+            </div><!-- END: message box -->
+
+          <!-- BEGIN: buttons, message box and code editor -->
+          <div style="clear:both">
+            <p>
+              <div class="btn-group">
+                <button class="btn menu-button" id="pauseplay">Run!</button>
+                <button class="btn menu-button" id="stepButton">step</button>
+                <button class="btn menu-button" id="restart">Reset</button>
+                <a class="btn menu-button" id="speedText">Normal</a>
+                  <a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
+                  <ul class="dropdown-menu">
+                    <li><a href="javascript: setSpeed(PlaySpeed.SUPER_SLOW)">Super slow</a></li>
+                    <li><a href="javascript: setSpeed(PlaySpeed.SLOW)">Slow</a></li>
+                    <li><a href="javascript: setSpeed(PlaySpeed.NORMAL)">Normal</a></li>
+                    <li><a href="javascript: setSpeed(PlaySpeed.FAST)">Fast</a></li>
+                    <li><a href="javascript: setSpeed(PlaySpeed.SUPER_FAST)">Super fast</a></li>
+                  </ul>
+              </div>
+              <button
+                class="btn help-button btn-primary"
+                style="width: 200px"
+                id="helpButton"
+                href="javascript: #helpModal"
+                data-toggle="modal"
+                href="#helpModal"
+                id="example"
+                class="btn btn-danger"
+                rel="popover"
+                data-placement="top"
+                data-content='<p><strong>Puzzle Code</strong> is a video game. <a href="javascript: ;"></p><p>Click here to learn how to play</a>.</p>'
+                data-original-title="Help">
+                Help</button>
+
+            </p>
+          </div><!-- END: buttons, message box and code editor -->
 
 
           <!-- BEGIN: board div -->
@@ -173,9 +253,10 @@
           <!-- BEGIN: right column -->
           <div class="right-column">
 
-          <div id="codeMirrorEdit">
+          <div class="code-mirror-wrapper">
+            <div id="codeMirrorEdit">
+            </div>
           </div>
-
           
 
 
@@ -184,7 +265,7 @@
             <h2><a href="#helpModal" role="button" data-toggle="modal">Help</a></h2>
             -->
             <!-- BEGIN: help modal -->
-            <!--<div
+            <div
               id="helpModal"
               class="modal hide fade"
               tabindex="-1"
@@ -192,17 +273,26 @@
               aria-labelledby="helpModalLabel"
               aria-hidden="true">
               <div class="modal-header">
-                <h3 id="helpModalLabel">Help for <i>Puzzle Code</i> </h3>
+                <h3 id="helpModalLabel">How to play <i>Puzzle Code</i> </h3>
               </div>
               <div class="modal-body">
                 <p>
-                  Your goal is to collect all the <strong>gold coins</strong>
-                  using your <strong>robot</strong>.
+                  Try to collect all the <strong>gold coins</strong>
+                  using your <strong>blue robot</strong>.
                 </p>
                 <p>
-                  Tell your robot what to do by writing a
-                  <strong>"program"</strong> in the dark text box (the right
-                  side of the dark text box).
+                  You cannot move your robot using your mouse or keyboard.
+                </p>
+                <p>
+                  Instead, you must tell your robot what to do by
+                  writing a <strong>"program"</strong>.</p>
+                <p>
+                  A program is just
+                  <strong>
+                    a list of instructions that your robot will follow exactly.
+                  </strong></p>
+                <p>
+                  Write your instructions in the text box on the right side.
                 </p>
                 <p>
                   To run your program, click the <strong>Run!</strong> button.
@@ -226,10 +316,10 @@
               <div class="modal-footer">
                 <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
               </div>
-            </div>--> <!-- END: help modal -->
+            </div> <!-- END: help modal -->
           </div> <!-- END: right  column -->
 
-          <!--Victory modal -->
+          <!-- BEGIN: victory modal -->
           <div
             id="victoryModal"
             class="modal hide fade"
@@ -254,44 +344,9 @@
             <div class="modal-footer">
               <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
             </div>
-          </div>
-
-          <!-- BEGIN: buttons, message box and code editor -->
-          <div style="clear:both">
-            <p>
-              <div class="btn-group">
-                <button class="btn btn-primary" id="pauseplay">Run!</button>
-                <button class="btn" id="stepButton">Step</button>
-                <button class="btn" id="restart">Reset</button>
-                <a class="btn" id="speedText">Normal</a>
-                  <a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
-                  <ul class="dropdown-menu">
-                    <li><a href="javascript: setSpeed(PlaySpeed.SUPER_SLOW)">Super slow</a></li>
-                    <li><a href="javascript: setSpeed(PlaySpeed.SLOW)">Slow</a></li>
-                    <li><a href="javascript: setSpeed(PlaySpeed.NORMAL)">Normal</a></li>
-                    <li><a href="javascript: setSpeed(PlaySpeed.FAST)">Fast</a></li>
-                    <li><a href="javascript: setSpeed(PlaySpeed.SUPER_FAST)">Super fast</a></li>
-                  </ul>
-              </div>
-            </p>
-            <div id="messageBoxDiv" class="alert alert-block alert-success">
-              <button type="button" class="close" data-dismiss="alert">&times;</button>
-
-              <h4 id="messageBoxHeader"></h4>
-              <p id="messageBox"></p>
-            </div>
-          </div><!-- END: buttons, message box and code editor -->
+          </div> <!-- END: victory modal -->
 
         </div> <!-- END: level-box -->
-
-        <a href="javascript: ;"
-        id="example"
-        class="btn btn-danger"
-        rel="popover"
-        data-content="It's so simple to create a tooltop for my website"
-        data-original-title="Twitter Bootstrap Popover">
-        hover for popover</a>  
-
       </div><!-- END: column -->
 
     </div> <!-- /container -->
@@ -314,7 +369,7 @@
 <script type="text/javascript">
     $(function () {
 
-      $("#example").popover();  
+      //$("#helpButton").popover({ html : true });  
 
       $('body').popover({
           selector: '[data-toggle="popover"]',
@@ -325,6 +380,11 @@
       $('body').tooltip({
           selector: 'a[rel="tooltip"], [data-toggle="tooltip"]'
       });
+
+      $('#helpModal').on('hidden', function () {
+        HELP_BUTTON_CLICKED = true
+        compile()
+      })
     });
 
 </script>

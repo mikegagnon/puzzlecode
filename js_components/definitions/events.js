@@ -75,22 +75,22 @@ function setSpeed(speed) {
 function doPause() {
   PLAY_STATUS = PlayStatus.PAUSED
   pausePlay.innerHTML = 'Resume'
-  d3.select("#pauseplay").attr("class", "btn")
+  d3.select("#pauseplay").attr("class", "btn menu-button")
   CODE_MIRROR_BOX.setOption("theme", DISABLED_CODE_THEME)
 }
 
 function doResume() {
   PLAY_STATUS = PlayStatus.PLAYING
   pausePlay.innerHTML = 'Pause'
-  d3.select("#pauseplay").attr("class", "btn")
-  d3.select("#restart").attr("class", "btn")
+  d3.select("#pauseplay").attr("class", "btn menu-button")
+  d3.select("#restart").attr("class", "btn menu-button")
 
   d3.select("#messageBoxDiv")
     .attr("class", "alert alert-block alert-success")
   d3.select("#messageBoxHeader")
     .text("Tip:")
   d3.select("#messageBox")
-    .text("To edit your program, click 'Reset'")
+    .html("<h3>To edit your program, click 'Reset'</h3>")
 
   CODE_MIRROR_BOX.setOption("theme", DISABLED_CODE_THEME)
 }
@@ -129,7 +129,7 @@ function doFirstStep() {
 function doStep() {
   PLAY_STATUS = PlayStatus.PAUSED
   pausePlay.innerHTML = 'Resume'
-  d3.select("#pauseplay").attr("class", "btn")
+  d3.select("#pauseplay").attr("class", "btn menu-button")
   CODE_MIRROR_BOX.setOption("theme", DISABLED_CODE_THEME)
 
   d3.select("#messageBoxDiv")
@@ -137,7 +137,7 @@ function doStep() {
   d3.select("#messageBoxHeader")
     .text("Tip:")
   d3.select("#messageBox")
-    .text("To edit your program, click 'Reset'")
+    .html("<h3>To edit your program, click 'Reset'</h3>")
 
   // TODO: clicking "Step" to fast will lead to bad animations
   // TODO: the highlighted instruction is the one that just executed
@@ -164,11 +164,16 @@ function compile() {
   // Enable or disable the #pausePlay and #stepButton buttons
   if (PLAY_STATUS == PlayStatus.INITAL_STATE_PAUSED) {
     if (program.instructions == null) {
-      d3.select("#pauseplay").attr("class", "btn disabled")
-      d3.select("#stepButton").attr("class", "btn disabled")
+      d3.select("#pauseplay").attr("class", "btn disabled menu-button")
+      d3.select("#stepButton").attr("class", "btn disabled menu-button")
     } else {
-      d3.select("#pauseplay").attr("class", "btn btn-primary")
-      d3.select("#stepButton").attr("class", "btn")
+      if (HELP_BUTTON_CLICKED) {
+        d3.select("#pauseplay").attr("class", "btn btn-primary menu-button")
+        d3.select("#helpButton").attr("class", "btn help-button menu-button")
+      } else {
+        d3.select("#pauseplay").attr("class", "btn menu-button")
+      }
+      d3.select("#stepButton").attr("class", "btn menu-button")
     }
   } else {
     console.error("I don't expect compile to be called unless board is reset")
@@ -180,8 +185,8 @@ function compile() {
       .attr("class", "alert alert-block alert-error")
     d3.select("#messageBoxHeader")
       .text("Error:")
-    d3.select("#messageBox").text("You must fix the errors  " +
-      "before you can run your program.")
+    d3.select("#messageBox").html("<h3>You must fix the errors  " +
+      "before you can run your program.</h3>")
   } else {
     // TODO: put this comm functionality in function
     d3.select("#messageBox")
@@ -189,8 +194,13 @@ function compile() {
       .attr("class", "alert alert-block alert-success")
     d3.select("#messageBoxHeader")
       .text("Tip:")
-    d3.select("#messageBox")
-      .text("Click the 'Run!' button to run your program")
+    if (HELP_BUTTON_CLICKED) {
+      d3.select("#messageBox")
+        .html("<h3>Click the 'Run!' button to run your program</h3>")
+    } else {
+      d3.select("#messageBox")
+        .html("<h3>Click the blue 'Help' button, below</h3>")
+    }
   }
 
   return program
@@ -214,8 +224,8 @@ function restartSimulation() {
     .attr("class", "alert alert-block alert-success")
   d3.select("#messageBoxHeader")
     .text("Tip:")
-  d3.select("#messageBox").text("Click the 'Run!' button to run your program")
-  d3.select("#restart").attr("class", "btn")
+  d3.select("#messageBox").html("<h3>Click the 'Run!' button to run your program</h3>")
+  d3.select("#restart").attr("class", "btn menu-button")
 
   cleanUpVisualization()
 

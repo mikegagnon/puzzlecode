@@ -55,7 +55,7 @@ function setupCodeMirrorBox() {
   var settings = {
     gutters: ["note-gutter", "CodeMirror-linenumbers"],
     mode:  "text/x-robocom",
-    theme: "solarized dark",
+    theme: "eclipse",
     smartIndent: false,
     lineNumbers: true,
     height: 50

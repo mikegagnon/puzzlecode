@@ -22,7 +22,7 @@
 // to show program execution
 var MAX_HIGHLIGHT_SPEED = 150
 
-// [animationDuration, delayDuration, description, easing]
+// [animatiBACK_CLASSonDuration, delayDuration, description, easing]
 PlaySpeed = {
   SUPER_SLOW: [2000, 4000, "Super slow", "cubic-in-out"],
   SLOW: [750, 1500, "Slow", "cubic-in-out"],
@@ -57,8 +57,8 @@ var CELL_SIZE = 32,
     pausePlay = null,
     DEBUG = true,
     IDENT_REGEX = /^[A-Za-z][A-Za-z0-9_]*$/,
-    NORMAL_CODE_THEME = "solarized dark",
-    DISABLED_CODE_THEME = "solarized_dim dark"
+    NORMAL_CODE_THEME = "eclipse",
+    DISABLED_CODE_THEME = "eclipse-dim"
 
 // if true, then loads the solution program when loading new levels
 var AUTO_SOLVE_DEBUG = false
@@ -255,6 +255,9 @@ var PUZZLE_CAMPAIGN_STATE = {
     complete: false
   }
 }
+
+// set to true once the help button has been clicked
+var HELP_BUTTON_CLICKED = false 
 
 var BOARD = undefined
 
