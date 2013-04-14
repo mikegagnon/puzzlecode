@@ -30,6 +30,8 @@
    a tutorial / hint on how to do it right
 -- One player suggested starting the game off teaching "step" instead of "run"
 -- Make the block graphic better. Perhaps add an isometric perspective/shadows.
+-- Players would often guess at new instructions. It will be good to concretely
+   to introduce each instruction.
 -- Put a label above the code editor.
 -- On the plus side, once players realized what was going on they seemed to get
    the hang of it right away.

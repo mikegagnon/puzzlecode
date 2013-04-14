@@ -868,6 +868,10 @@ function registerEventHandlers() {
   document
     .getElementById("restart")
     .addEventListener("click", restartSimulation);
+
+  document
+    .getElementById("helpButton")
+    .addEventListener("click", helpButtonClick);
 }
 
 // These event handlers are registered in main.js and in index.html
@@ -887,6 +891,48 @@ function windowOnLoad() {
 
   loadLevel(campaign, state)
   restartSimulation()
+
+  // Add popover contents
+  // TODO: go back doesn't work
+  $("#helpButton").popover({
+    html : true,
+    trigger : "manual",
+    title : "<h3>How to play Puzzle Code</3>",
+    placement: "top",
+    content : "<p><a href='javascript: beginTutorial()'>Begin the walkthrough tutorial</a></p>" + 
+      "<p><a href='javascript: clearTutorial()'>Cancel</a></p>"
+  })
+
+  $("#boardDiv").popover({
+    html : true,
+    trigger : "manual",
+    title : "<h3>This is the game board</3>",
+    placement: "top",
+    content : 
+      "<p>Try to collect all the <strong>gold coins</strong> "
+      + "using your <strong>blue robot</strong>.</p>"
+      + "<p>However, you cannot move your robot using your mouse or keyboard...</p>"
+      + "<p><a href='javascript: tutorialProgramEditor()'>Continue</a></p>"
+      + "<p><a href='javascript: helpButtonClick()'>Go back</a></p>"
+      + "<p><a href='javascript: clearTutorial()'>Cancel</a></p>"
+  })
+
+  $("#code-mirror-wrapper").popover({
+    html : true,
+    trigger : "manual",
+    title : "<h3>This is the program editor</3>",
+    placement: "top",
+    content :
+      "<p>You must tell your robot what to do by "
+      + 'writing a <strong>"program."</strong></p> '
+      + "<p>A program is just "
+      + "<strong>a list of instructions</strong> that your robot will follow exactly. "
+      + "</p>"
+      + "<p><a href='javascript: tutorialProgramEditor()'>Continue</a></p>"
+      + "<p><a href='javascript: beginTutorial()'>Go back</a></p>"
+      + "<p><a href='javascript: clearTutorial()'>Cancel</a></p>"
+  })
+
 }
 
 /**
@@ -1073,6 +1119,40 @@ function restartSimulation() {
   initializeVisualization(PUZZLE_CAMPAIGN, PUZZLE_CAMPAIGN_STATE, BOARD)
 
 }
+
+/**
+ * Help walkthrough
+ *****************************************************************************/
+function clearTutorial() {
+  $('#helpButton').popover('hide')
+  $('#boardDiv').popover('hide')
+  $("#boardDiv").attr("class", "")
+  compile()
+}
+
+function helpButtonClick() {
+  clearTutorial()
+  $('#helpButton').popover('show')
+  HELP_BUTTON_CLICKED = true
+  d3.select("#helpButton").attr("class", "btn help-button menu-button")
+
+}
+
+// TODO: consistent names for tutorial funcions
+function beginTutorial() {
+  clearTutorial()
+  $("#boardDiv").attr("class", "glow-focus")
+  $('#boardDiv').popover('show')
+}
+
+// TODO: add go-back button
+function tutorialProgramEditor() {
+  clearTutorial()
+  // TODO: this glow doesn't look very good
+  $("#code-mirror-wrapper").attr("class", "glow-focus")
+  $('#code-mirror-wrapper').popover('show')
+}
+
 
 /**
  * When the user clicks a level

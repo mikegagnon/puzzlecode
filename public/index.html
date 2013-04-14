@@ -59,35 +59,42 @@
       .help-button {
         width: 400px;
       }
+      /* TODO: document where this came from */
       .code-mirror-wrapper {
-      line-height: 1.3em;
-      font-family: monospace;
+        line-height: 1.3em;
+        font-family: monospace;
 
-      /* Necessary so the scrollbar can be absolutely positioned within the wrapper on Lion. */
-      position: relative;
-      /* This prevents unwanted scrollbars from showing up on the body and wrapper in IE. */
-      overflow: hidden;
-      background-color: white;
-      width: 530px;
+        /* Necessary so the scrollbar can be absolutely positioned within the wrapper on Lion. */
+        position: relative;
+        /* This prevents unwanted scrollbars from showing up on the body and wrapper in IE. */
+        overflow: hidden;
+        background-color: white;
+        width: 530px;
 
-      /* Copied from Bootstrap's textarea */
-      display: inline-block;
-      padding: 4px 6px;
-      margin-bottom: 9px;
-      color: #555555;
-      border: 1px solid #ccc;
-      -webkit-border-radius: 3px;
-      -moz-border-radius: 3px;
-      border-radius: 3px;
-      -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-      -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-      box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-      -webkit-transition: border linear 0.2s, box-shadow linear 0.2s;
-      -moz-transition: border linear 0.2s, box-shadow linear 0.2s;
-      -ms-transition: border linear 0.2s, box-shadow linear 0.2s;
-      -o-transition: border linear 0.2s, box-shadow linear 0.2s;
-      transition: border linear 0.2s, box-shadow linear 0.2s;  
-    }
+        /* Copied from Bootstrap's textarea */
+        display: inline-block;
+        padding: 4px 6px;
+        margin-bottom: 9px;
+        color: #555555;
+        border: 1px solid #ccc;
+        -webkit-border-radius: 3px;
+        -moz-border-radius: 3px;
+        border-radius: 3px;
+        -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+        -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+        box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+        -webkit-transition: border linear 0.2s, box-shadow linear 0.2s;
+        -moz-transition: border linear 0.2s, box-shadow linear 0.2s;
+        -ms-transition: border linear 0.2s, box-shadow linear 0.2s;
+        -o-transition: border linear 0.2s, box-shadow linear 0.2s;
+        transition: border linear 0.2s, box-shadow linear 0.2s;  
+      }
+      /* http://stackoverflow.com/questions/9834961/making-select-boxes-glow-blue-in-twitter-bootstrap */
+      .glow-focus {
+        -moz-box-shadow: 0 0 20px #f00;
+        -webkit-box-shadow: 0 0 20px #f00;
+        box-shadow: 0px 0px 20px #f00;
+      }
     </style>
     <link href="lib/bootstrap-responsive.css" rel="stylesheet">
 
@@ -192,17 +199,9 @@
               </div>
               <button
                 class="btn help-button btn-primary"
+                type="button"
                 style="width: 200px"
-                id="helpButton"
-                href="javascript: #helpModal"
-                data-toggle="modal"
-                href="#helpModal"
-                id="example"
-                class="btn btn-danger"
-                rel="popover"
-                data-placement="top"
-                data-content='<p><strong>Puzzle Code</strong> is a video game. <a href="javascript: ;"></p><p>Click here to learn how to play</a>.</p>'
-                data-original-title="Help">
+                id="helpButton">
                 Help</button>
 
             </p>
@@ -210,7 +209,7 @@
 
 
           <!-- BEGIN: board div -->
-          <div style="float: left">
+          <div style="float: left" id="boardDiv">
             <svg id="board" xmlns="http://www.w3.org/2000/svg" >
               <defs>
         
@@ -253,7 +252,7 @@
           <!-- BEGIN: right column -->
           <div class="right-column">
 
-          <div class="code-mirror-wrapper">
+          <div id="code-mirror-wrapper" class="code-mirror-wrapper">
             <div id="codeMirrorEdit">
             </div>
           </div>
@@ -369,7 +368,6 @@
 <script type="text/javascript">
     $(function () {
 
-      //$("#helpButton").popover({ html : true });  
 
       $('body').popover({
           selector: '[data-toggle="popover"]',
@@ -381,10 +379,10 @@
           selector: 'a[rel="tooltip"], [data-toggle="tooltip"]'
       });
 
-      $('#helpModal').on('hidden', function () {
+      /*$('#helpModal').on('hidden', function () {
         HELP_BUTTON_CLICKED = true
         compile()
-      })
+      })*/ 
     });
 
 </script>
