@@ -312,6 +312,7 @@ function clearTutorial(show) {
   compile()
 }
 
+// TODO: when player clicks help, make sure the message box is visible
 function helpButtonClick() {
   clearTutorial("#helpButton")
   $("#helpButton").popover("show")
