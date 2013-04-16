@@ -906,21 +906,22 @@ function windowOnLoad() {
   $("#boardDiv").popover({
     html : true,
     trigger : "manual",
-    title : "<h3>This is the game board</3>",
+    title : "<h3>This is the game board <a class='close' href='javascript: clearTutorial()''>&times;</a></h3>",
     placement: "top",
     content : 
       "<p>Try to collect all the <strong>gold coins</strong> "
       + "using your <strong>blue robot</strong>.</p>"
       + "<p>However, you cannot move your robot using your mouse or keyboard...</p>"
-      + "<p><a href='javascript: tutorialProgramEditor()'>Continue</a></p>"
-      + "<p><a href='javascript: helpButtonClick()'>Go back</a></p>"
-      + "<p><a href='javascript: clearTutorial()'>Cancel</a></p>"
+      + "<div class='btn-group'>"
+      + "<a class='btn' href='javascript: helpButtonClick()'>Back</a>"
+      + "<a class='btn' href='javascript: tutorialProgramEditor()'>Continue</a>"
+      + "</div>"
   })
 
   $("#code-mirror-wrapper").popover({
     html : true,
     trigger : "manual",
-    title : "<h3>This is the program editor</3>",
+    title : "<h3>This is the program editor <a class='close' href='javascript: clearTutorial()''>&times;</a></h3>",
     placement: "top",
     content :
       "<p>You must tell your robot what to do by "
@@ -928,9 +929,12 @@ function windowOnLoad() {
       + "<p>A program is just "
       + "<strong>a list of instructions</strong> that your robot will follow exactly. "
       + "</p>"
-      + "<p><a href='javascript: tutorialProgramEditor()'>Continue</a></p>"
-      + "<p><a href='javascript: beginTutorial()'>Go back</a></p>"
-      + "<p><a href='javascript: clearTutorial()'>Cancel</a></p>"
+      + "<p>The current program tells the robot to move forward twice, turn left, "
+      + "then move forward twice again.</p>"
+      + "<div class='btn-group'>"
+      + "<a class='btn' href='javascript: beginTutorial()'>Back</a>"
+      + "<a class='btn' href='javascript: tutorialProgramEditor()'>Continue</a>"
+      + "</div>"
   })
 
 }
@@ -1138,9 +1142,9 @@ function clearTutorial(show) {
       console.log("hiding " + popover)
     }
   }
-  //$('#helpButton').popover('hide')
-  //$('#boardDiv').popover('hide')
-  $("#boardDiv").attr("class", "")
+
+  $("#boardDiv").attr("class", "board")
+  $("#code-mirror-wrapper").attr("class", "code-mirror-wrapper")
   compile()
 }
 
@@ -1155,7 +1159,7 @@ function helpButtonClick() {
 // TODO: consistent names for tutorial funcions
 function beginTutorial() {
   clearTutorial("#boardDiv")
-  $("#boardDiv").attr("class", "glow-focus")
+  $("#boardDiv").attr("class", "board glow-focus")
   $('#boardDiv').popover('show')
 }
 
@@ -1163,7 +1167,7 @@ function beginTutorial() {
 function tutorialProgramEditor() {
   clearTutorial("#code-mirror-wrapper")
   // TODO: this glow doesn't look very good
-  $("#code-mirror-wrapper").attr("class", "glow-focus")
+  $("#code-mirror-wrapper").attr("class", "glow-focus code-mirror-wrapper")
   $('#code-mirror-wrapper').popover('show')
 }
 
@@ -2804,7 +2808,7 @@ var PUZZLE_1 = {
       facing: Direction.UP,
       program: "move\nmove\nmove\nturn left\nmove\nmove\nmove\n",
     },
-    /*{
+    {
       botColor: BotColor.BLUE,
       cellX: 2,
       cellY: 0,
@@ -2824,7 +2828,7 @@ var PUZZLE_1 = {
       cellY: 0,
       facing: Direction.RIGHT,
       program: "start: move\ngoto start",
-    }*/
+    }
   ],
   coins: [
     {x:0, y:1},

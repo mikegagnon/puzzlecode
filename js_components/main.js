@@ -139,7 +139,7 @@ var PUZZLE_1 = {
       facing: Direction.UP,
       program: "move\nmove\nmove\nturn left\nmove\nmove\nmove\n",
     },
-    /*{
+    {
       botColor: BotColor.BLUE,
       cellX: 2,
       cellY: 0,
@@ -159,7 +159,7 @@ var PUZZLE_1 = {
       cellY: 0,
       facing: Direction.RIGHT,
       program: "start: move\ngoto start",
-    }*/
+    }
   ],
   coins: [
     {x:0, y:1},

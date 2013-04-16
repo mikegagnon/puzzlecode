@@ -52,6 +52,11 @@
       .right-column {
         overflow: hidden;
         padding-left: 20px;
+        padding-top: 20px;
+      }
+      .board {
+        float: left;
+        margin-top: 23px;
       }
       .menu-button {
         width: 100px;
@@ -94,6 +99,9 @@
         -moz-box-shadow: 0 0 20px #f00;
         -webkit-box-shadow: 0 0 20px #f00;
         box-shadow: 0px 0px 20px #f00;
+      }
+      .tutorial-continue-btn {
+        float: right;
       }
     </style>
     <link href="lib/bootstrap-responsive.css" rel="stylesheet">
@@ -209,7 +217,7 @@
 
 
           <!-- BEGIN: board div -->
-          <div style="float: left" id="boardDiv">
+          <div class="board" id="boardDiv">
             <svg id="board" xmlns="http://www.w3.org/2000/svg" >
               <defs>
         
