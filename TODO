@@ -33,8 +33,18 @@
 -- Players would often guess at new instructions. It will be good to concretely
    to introduce each instruction.
 -- Put a label above the code editor.
+-- Show a video of someone typing in a program
+-- Instead of tip: click run to run your program, say "type in your program
+   then click run"
+-- Teach step button before run button.
 -- On the plus side, once players realized what was going on they seemed to get
    the hang of it right away.
+
+
+-- IDEA: make a puzzle-code freestyle universe, where there's not objective,
+   but you just drop in anywhere and do what you want. Maybe you'll stake out
+   a territory, and defend it, or maybe you'll mess up with someone else's
+   territory.
 
 - Need major work on usability / instructions / walkthroughs.
 -- Idea for button semantics:

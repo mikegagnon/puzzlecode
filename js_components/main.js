@@ -63,6 +63,51 @@ var CELL_SIZE = 32,
 // if true, then loads the solution program when loading new levels
 var AUTO_SOLVE_DEBUG = false
 
+var INTRO_PUZZLE = {
+  id: "intro_puzzle",
+  name: "Collect the coins",
+  description: "Collect all the coins on the board.",
+  hint: "tbd",
+  win_conditions: [
+    {type: WinCondition.COLLECT_COINS}
+  ],
+  constraints: [],
+
+  // what conditions need to be met to unlock this level?
+  // the unlock returns true if this level should be unlocked
+  unlock: function(campaign, state) {
+    return true
+  },
+
+  solutions: [
+    "move\nmove\nturn left\nmove\nmove\nmove\nmove\n",
+  ],
+  num_cols: 9,
+  num_rows: 7,
+  // BUG: this should be programming_bot_id, not index
+  programming_bot_index: 0,
+  bots : [
+    {
+      botColor: BotColor.BLUE,
+      cellX: 4,
+      cellY: 4,
+      facing: Direction.UP,
+      program: "move\nmove\nturn left\nmove\nmove\n",
+    },
+  ],
+  coins: [
+    {x:0, y:1},
+    {x:1, y:1},
+    {x:2, y:1},
+    {x:3, y:1},
+  ],
+  // TODO: make it so that you can omit empty properties from a puzzle
+  blocks: [],
+  traps: [
+    //{x:3, y:0}
+  ]
+}
+
 var PUZZLE_1 = {
   id: "puzzle1",
   name: "Collect the coins",
@@ -128,6 +173,73 @@ var PUZZLE_1 = {
     //{x:3, y:0}
   ]
 }
+
+var AVOID_THE_TRAPS = {
+  id: "avoid_the_traps",
+  name: "Avoid the traps",
+  description: "Collect all the coins on the board, while avoiding the traps",
+  hint: "tbd",
+  win_conditions: [
+    {type: WinCondition.COLLECT_COINS}
+  ],
+  constraints: [],
+
+  // what conditions need to be met to unlock this level?
+  // the unlock returns true if this level should be unlocked
+  unlock: function(campaign, state) {
+    return true
+  },
+
+  solutions: [
+    "move\nmove\nturn left\nmove\nmove\nmove\nmove\n",
+  ],
+  num_cols: 9,
+  num_rows: 7,
+  // BUG: this should be programming_bot_id, not index
+  programming_bot_index: 0,
+  bots : [
+    {
+      botColor: BotColor.BLUE,
+      cellX: 4,
+      cellY: 5,
+      facing: Direction.UP,
+      program: "move\nmove\nmove\nturn left\nmove\nmove\nmove\n",
+    },
+  ],
+  coins: [
+    {x:4, y:4},
+    {x:4, y:3},
+    {x:3, y:3},
+    {x:2, y:3},
+    {x:2, y:2},
+    {x:2, y:1},
+    {x:2, y:0},
+
+  ],
+  // TODO: make it so that you can omit empty properties from a puzzle
+  blocks: [],
+  traps: [
+    {x:3, y:6},
+    {x:4, y:6},
+    {x:5, y:6},
+    {x:3, y:5},
+    {x:5, y:5},
+    {x:1, y:4},
+    {x:2, y:4},
+    {x:3, y:4},
+    {x:5, y:4},
+    {x:5, y:4},
+    {x:1, y:3},
+    {x:5, y:3},
+    {x:1, y:2},
+    {x:3, y:2},
+    {x:4, y:2},
+    {x:5, y:2},
+    {x:1, y:1},
+    {x:3, y:1},
+  ]
+}
+
 
 var PUZZLE_2 = {
   id: "puzzle1",
@@ -208,7 +320,7 @@ var WORLD_1 = {
   id: "world1",
   name: "Move &amp; Turn",
   levels: [
-    PUZZLE_1,
+    INTRO_PUZZLE,
     PUZZLE_2
   ]
 }

@@ -287,16 +287,30 @@ function restartSimulation() {
 /**
  * Help walkthrough
  *****************************************************************************/
-function clearTutorial() {
-  $('#helpButton').popover('hide')
-  $('#boardDiv').popover('hide')
+
+// hides all popovers except show
+function clearTutorial(show) {
+  var POPOVERS = [
+    "#helpButton",
+    "#boardDiv",
+    "#code-mirror-wrapper"
+  ]
+  for (i in POPOVERS) {
+    var popover = POPOVERS[i]
+    if (popover != show) {
+      $(popover).popover("hide")
+      console.log("hiding " + popover)
+    }
+  }
+  //$('#helpButton').popover('hide')
+  //$('#boardDiv').popover('hide')
   $("#boardDiv").attr("class", "")
   compile()
 }
 
 function helpButtonClick() {
-  clearTutorial()
-  $('#helpButton').popover('show')
+  clearTutorial("#helpButton")
+  $("#helpButton").popover("show")
   HELP_BUTTON_CLICKED = true
   d3.select("#helpButton").attr("class", "btn help-button menu-button")
 
@@ -304,14 +318,14 @@ function helpButtonClick() {
 
 // TODO: consistent names for tutorial funcions
 function beginTutorial() {
-  clearTutorial()
+  clearTutorial("#boardDiv")
   $("#boardDiv").attr("class", "glow-focus")
   $('#boardDiv').popover('show')
 }
 
 // TODO: add go-back button
 function tutorialProgramEditor() {
-  clearTutorial()
+  clearTutorial("#code-mirror-wrapper")
   // TODO: this glow doesn't look very good
   $("#code-mirror-wrapper").attr("class", "glow-focus")
   $('#code-mirror-wrapper').popover('show')

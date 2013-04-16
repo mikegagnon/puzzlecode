@@ -27,7 +27,7 @@
 
 
 .cm-s-eclipse-dim span.cm-meta {color: #FF1717;}
-.cm-s-eclipse-dim span.cm-keyword { line-height: 1em; font-weight: bold; color: #999; }
+.cm-s-eclipse-dim span.cm-keyword { line-height: 1em; font-weight: bold; color: #666; }
 .cm-s-eclipse-dim span.cm-atom {color: #219;}
 .cm-s-eclipse-dim span.cm-number {color: #164;}
 .cm-s-eclipse-dim span.cm-def {color: #00f;}
