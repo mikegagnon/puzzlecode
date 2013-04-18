@@ -260,8 +260,13 @@
           <!-- BEGIN: right column -->
           <div class="right-column">
 
-          <div id="code-mirror-wrapper" class="code-mirror-wrapper">
-            <div id="codeMirrorEdit">
+          <!-- HACK: these nesteed divs are a hack to allow me to show
+           mulitple popover overs on the code editor
+           TODO: fix this hack -->
+          <div id="code-mirror-wrapper2">
+            <div id="code-mirror-wrapper" class="code-mirror-wrapper">
+              <div id="codeMirrorEdit">
+              </div>
             </div>
           </div>
           
@@ -387,10 +392,6 @@
           selector: 'a[rel="tooltip"], [data-toggle="tooltip"]'
       });
 
-      /*$('#helpModal').on('hidden', function () {
-        HELP_BUTTON_CLICKED = true
-        compile()
-      })*/ 
     });
 
 </script>

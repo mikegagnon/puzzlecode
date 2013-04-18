@@ -78,7 +78,7 @@ function windowOnLoad() {
       + "<p>However, you cannot move your robot using your mouse or keyboard...</p>"
       + "<div class='btn-group'>"
       + "<a class='btn' href='javascript: helpButtonClick()'>Back</a>"
-      + "<a class='btn' href='javascript: tutorialProgramEditor()'>Continue</a>"
+      + "<a class='btn' href='javascript: tutorialProgramEditor1()'>Continue</a>"
       + "</div>"
   })
 
@@ -97,7 +97,20 @@ function windowOnLoad() {
       + "then move forward twice again.</p>"
       + "<div class='btn-group'>"
       + "<a class='btn' href='javascript: beginTutorial()'>Back</a>"
-      + "<a class='btn' href='javascript: tutorialProgramEditor()'>Continue</a>"
+      + "<a class='btn' href='javascript: tutorialProgramEditor2()'>Continue</a>"
+      + "</div>"
+  })
+
+  $("#code-mirror-wrapper2").popover({
+    html : true,
+    trigger : "manual",
+    title : "<h3>Type your program <a class='close' href='javascript: clearTutorial()''>&times;</a></h3>",
+    placement: "top",
+    content :
+      "<p><img src='img/editor_typing.gif'></p>"
+      + "<div class='btn-group'>"
+      + "<a class='btn' href='javascript: tutorialProgramEditor1()'>Back</a>"
+      + "<a class='btn' href='javascript: tutorialProgramEditor3()'>Continue</a>"
       + "</div>"
   })
 
@@ -292,18 +305,22 @@ function restartSimulation() {
  * Help walkthrough
  *****************************************************************************/
 
+function updatePopover(target, newPopover) {
+  $(target).data('popover', null).popover(newPopover)
+}
+
 // hides all popovers except show
 function clearTutorial(show) {
   var POPOVERS = [
     "#helpButton",
     "#boardDiv",
-    "#code-mirror-wrapper"
+    "#code-mirror-wrapper",
+    "#code-mirror-wrapper2"
   ]
   for (i in POPOVERS) {
     var popover = POPOVERS[i]
     if (popover != show) {
       $(popover).popover("hide")
-      console.log("hiding " + popover)
     }
   }
 
@@ -328,12 +345,16 @@ function beginTutorial() {
   $('#boardDiv').popover('show')
 }
 
-// TODO: add go-back button
-function tutorialProgramEditor() {
+function tutorialProgramEditor1() {
   clearTutorial("#code-mirror-wrapper")
-  // TODO: this glow doesn't look very good
   $("#code-mirror-wrapper").attr("class", "glow-focus code-mirror-wrapper")
   $('#code-mirror-wrapper').popover('show')
+}
+
+function tutorialProgramEditor2() {
+  clearTutorial("#code-mirror-wrapper2")
+  $("#code-mirror-wrapper").attr("class", "glow-focus code-mirror-wrapper")
+  $('#code-mirror-wrapper2').popover('show')
 }
 
 
