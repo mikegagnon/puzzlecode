@@ -943,7 +943,7 @@ function windowOnLoad() {
     title : "<h3>Type your program <a class='close' href='javascript: clearTutorial()''>&times;</a></h3>",
     placement: "top",
     content :
-      "<p><img height='30' src='img/editor_typing.gif'></p>"
+      "<div style='width:500px'><img src='img/editor_typing.gif'></div>"
       + "<div class='btn-group'>"
       + "<a class='btn' href='javascript: tutorialProgramEditor1()'>Back</a>"
       + "<a class='btn' href='javascript: tutorialProgramEditor3()'>Continue</a>"
