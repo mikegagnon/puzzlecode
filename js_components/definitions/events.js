@@ -87,7 +87,7 @@ function windowOnLoad() {
   $("#code-mirror-wrapper").popover({
     html : true,
     trigger : "manual",
-    title : "<h4>This is the program editor <a class='close' href='javascript: clearTutorial()''>&times;</a></h4>",
+    title : "<h4>This is the Program Editor <a class='close' href='javascript: clearTutorial()''>&times;</a></h4>",
     placement: "top",
     content :
       "<p>You must tell your robot what to do by "
@@ -106,10 +106,10 @@ function windowOnLoad() {
   $("#code-mirror-wrapper2").popover({
     html : true,
     trigger : "manual",
-    title : "<h4>Type your program <a class='close' href='javascript: clearTutorial()''>&times;</a></h4>",
+    title : "<h4>You can edit your program <a class='close' href='javascript: clearTutorial()''>&times;</a></h4>",
     placement: "top",
     content :
-      "<strong>Like this</strong>: <div style='width:500px'><img src='img/editor_typing.gif'></div>"
+      "By typing like this (for example): <div style='width:500px'><img src='img/editor_typing.gif'></div>"
       + "<div class='btn-group'>"
       + "<a class='btn' href='javascript: tutorialProgramEditor1()'>Back</a>"
       + "<a class='btn btn-primary' href='javascript: tutorialProgramEditor3()'>Continue</a>"
@@ -122,10 +122,31 @@ function windowOnLoad() {
     title : "<h4>Step through your program <a class='close' href='javascript: clearTutorial()''>&times;</a></h4>",
     placement: "top",
     content :
-      "<strong>Like this</strong>: <div style='width:500px'><img src='img/editor_typing.gif'></div>"
+      "<p>"
+      + "You can run your program, <strong>one step at a time</strong>, "
+      + "by clicking the <strong>Step</strong> button (above the game board)."
+      + "</p>"
+      + "<p><strong>Try it now</strong>.</p>"
+      + "<p>Note: If your program has errors, you must fix them before you "
+      + "can step through your program.</p>"
       + "<div class='btn-group'>"
       + "<a class='btn' href='javascript: tutorialProgramEditor2()'>Back</a>"
-      + "<a class='btn btn-primary' href='javascript: tutorialProgramEditor4()'>Continue</a>"
+      + "</div>"
+  })
+
+  $("#code-mirror-wrapper4").popover({
+    html : true,
+    trigger : "manual",
+    title : "<h4>Watch your robot run <a class='close' href='javascript: clearTutorial()''>&times;</a></h4>",
+    placement: "top",
+    content :
+      "<p>Your robot just <strong>executed one of your instructions</strong>.</p>"
+      + "<p>(1) Notice how the <strong>game board</strong> has changed.</p>"
+      + "<p>(2) Also notice, the program editor has <strong>highlighted</strong> the instruction "
+      + "your robot just executed.</p>"
+      + "<p>Keep stepping through your program until your program finishes.</p>"
+      + "<div class='btn-group'>"
+      + "<a class='btn' href='javascript: tutorialProgramEditor3()'>Back</a>"
       + "</div>"
   })
 
@@ -183,6 +204,11 @@ function doRun() {
 
 // handles clicks on the #pauseplay button
 function togglePausePlay() {
+
+  if (TUTORIAL_STEP_BUTTON_ACTIVE) {
+    return
+  }
+
   if (PLAY_STATUS == PlayStatus.INITAL_STATE_PAUSED) {
     doRun()
   } else if (PLAY_STATUS == PlayStatus.PAUSED) {
@@ -231,6 +257,10 @@ function stepButtonClick() {
   } else {
     doStep()
   }
+
+  if (TUTORIAL_STEP_BUTTON_ACTIVE) {
+    tutorialProgramEditor4()
+  }
 }
 
 function disableButton(button) {
@@ -241,6 +271,12 @@ function disableButton(button) {
 function enableButton(button) {
   assert(button in MENU_BUTTONS, "enableButton: button in MENU_BUTTONS")
   $(button).removeClass("disabled")
+}
+
+function noPrimaryButtons() {
+  for (b in MENU_BUTTONS) {
+    $(b).removeClass("btn-primary")
+  }
 }
 
 function setPrimaryButton(button) {
@@ -272,7 +308,9 @@ function compile() {
       enableButton("#pauseplay")
       enableButton("#stepButton")
       if (HELP_BUTTON_CLICKED) {
-        setPrimaryButton("#pauseplay")
+        if (!TUTORIAL_ACTIVE) {
+          setPrimaryButton("#pauseplay")
+        }
       } else {
         setPrimaryButton("#helpButton")
       }
@@ -356,7 +394,7 @@ function clearTutorial(show) {
     "#code-mirror-wrapper",
     "#code-mirror-wrapper2",
     "#code-mirror-wrapper3",
-
+    "#code-mirror-wrapper4",
   ]
   for (i in POPOVERS) {
     var popover = POPOVERS[i]
@@ -369,6 +407,7 @@ function clearTutorial(show) {
   $("#code-mirror-wrapper").attr("class", "code-mirror-wrapper")
 
   TUTORIAL_ACTIVE = false
+  TUTORIAL_STEP_BUTTON_ACTIVE = false
 }
 
 // TODO: when player clicks help, make sure the message box is visible
@@ -376,8 +415,7 @@ function helpButtonClick() {
   clearTutorial("#helpButton")
   $("#helpButton").popover("show")
   HELP_BUTTON_CLICKED = true
-  d3.select("#helpButton").attr("class", "btn help-button menu-button")
-
+  noPrimaryButtons()
 }
 
 // TODO: consistent names for tutorial funcions
@@ -386,6 +424,7 @@ function beginTutorial() {
   TUTORIAL_ACTIVE = true
   $("#boardDiv").attr("class", "board glow-focus")
   $('#boardDiv').popover('show')
+  noPrimaryButtons()
 }
 
 function tutorialProgramEditor1() {
@@ -393,6 +432,7 @@ function tutorialProgramEditor1() {
   TUTORIAL_ACTIVE = true
   $("#code-mirror-wrapper").attr("class", "glow-focus code-mirror-wrapper")
   $('#code-mirror-wrapper').popover('show')
+  noPrimaryButtons()
 }
 
 function tutorialProgramEditor2() {
@@ -400,16 +440,30 @@ function tutorialProgramEditor2() {
   TUTORIAL_ACTIVE = true
   $("#code-mirror-wrapper").attr("class", "glow-focus code-mirror-wrapper")
   $('#code-mirror-wrapper2').popover('show')
+  noPrimaryButtons()
 }
 
 function tutorialProgramEditor3() {
   clearTutorial("#code-mirror-wrapper3")
   TUTORIAL_ACTIVE = true
+  TUTORIAL_STEP_BUTTON_ACTIVE = true
 
   $("#code-mirror-wrapper").attr("class", "glow-focus code-mirror-wrapper")
   $('#code-mirror-wrapper3').popover('show')
+  setPrimaryButton("#stepButton")
+
 }
 
+function tutorialProgramEditor4() {
+  clearTutorial("#code-mirror-wrapper4")
+  TUTORIAL_ACTIVE = true
+  TUTORIAL_STEP_BUTTON_ACTIVE = true
+
+  $("#code-mirror-wrapper").attr("class", "glow-focus code-mirror-wrapper")
+  $('#code-mirror-wrapper4').popover('show')
+  setPrimaryButton("#stepButton")
+
+}
 
 /**
  * When the user clicks a level
