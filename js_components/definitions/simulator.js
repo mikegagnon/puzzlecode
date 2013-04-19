@@ -333,6 +333,14 @@ function dupstep(board, bot) {
   if (bot.ip >= bot.program.instructions.length) {
     bot.program.done = true
     board.visualize.step.bot[bot.id].programDone = true
+
+    // TODO only set encourage_reset if it's sensible.
+    // Right now, if any bot's program finishes encourage_reset will be
+    // activated.
+    // Perhaos the best thing is have each puzzle define a function that
+    // analyzes the board and determines whether or not a reset should be
+    // encouraged
+    board.visualize.step.general.encourage_reset = true
   }
 
   _(result.depositMarker).forEach( function (marker) {

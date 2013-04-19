@@ -892,8 +892,9 @@ function windowOnLoad() {
   loadLevel(campaign, state)
   restartSimulation()
 
-  // Add popover contents
-  // TODO: go back doesn't work
+  // TODO: the tutorial is a mess. Reorganize and make clean.
+  // Also, there are some bugs. Need to test corner cases.
+  // TODO: add a hint button
   $("#helpButton").popover({
     html : true,
     trigger : "manual",
@@ -920,6 +921,8 @@ function windowOnLoad() {
       + "</div>"
   })
 
+  // TODO: only say what the current program is if it actually matches up
+  // with the current program
   $("#code-mirror-wrapper").popover({
     html : true,
     trigger : "manual",
@@ -942,10 +945,11 @@ function windowOnLoad() {
   $("#code-mirror-wrapper2").popover({
     html : true,
     trigger : "manual",
-    title : "<h4>You can edit your program <a class='close' href='javascript: clearTutorial()''>&times;</a></h4>",
+    title : "<h4>Editing your program <a class='close' href='javascript: clearTutorial()''>&times;</a></h4>",
     placement: "top",
     content :
-      "By typing like this (for example): <div style='width:500px'><img src='img/editor_typing.gif'></div>"
+      "You don't need to edit your program now, but when you "
+      + "want to, you can edit your program by typing like this (for example): <div style='width:500px'><img src='img/editor_typing.gif'></div>"
       + "<div class='btn-group'>"
       + "<a class='btn' href='javascript: tutorialProgramEditor1()'>Back</a>"
       + "<a class='btn btn-primary' href='javascript: tutorialProgramEditor3()'>Continue</a>"
@@ -983,6 +987,23 @@ function windowOnLoad() {
       + "<p>Keep stepping through your program until your program finishes.</p>"
       + "<div class='btn-group'>"
       + "<a class='btn' href='javascript: tutorialProgramEditor3()'>Back</a>"
+      + "</div>"
+  })
+
+  $("#code-mirror-wrapper5").popover({
+    html : true,
+    trigger : "manual",
+    title : "<h4>Your program has finished <a class='close' href='javascript: clearTutorial()''>&times;</a></h4>",
+    placement: "top",
+    content :
+      "<p>Your robot probably did not accomplish its objective (collect "
+      + "all the gold coins).</p>"
+      + "<p><strong>That's OK!</strong> <i class='icon-thumbs-up'></i></p>"
+      + "<p><strong>To try again, click the <strong>Reset</strong> button, edit "
+      + "your program and run it again.</strong></p>"
+      + "<p>You have now completed the tutorial!</p>"
+      + "<div class='btn-group'>"
+      + "<a class='btn btn-primary' href='javascript: clearTutorial()'>Exit tutorial</a>"
       + "</div>"
   })
 
@@ -1095,7 +1116,12 @@ function stepButtonClick() {
   }
 
   if (TUTORIAL_STEP_BUTTON_ACTIVE) {
-    tutorialProgramEditor4()
+    // if the bot has finished
+    if ("encourage_reset" in BOARD.visualize.step.general) {
+      tutorialProgramEditor5()
+    } else {
+      tutorialProgramEditor4NoPopover()
+    }
   }
 }
 
@@ -1231,6 +1257,7 @@ function clearTutorial(show) {
     "#code-mirror-wrapper2",
     "#code-mirror-wrapper3",
     "#code-mirror-wrapper4",
+    "#code-mirror-wrapper5",
   ]
   for (i in POPOVERS) {
     var popover = POPOVERS[i]
@@ -1290,14 +1317,27 @@ function tutorialProgramEditor3() {
 
 }
 
-function tutorialProgramEditor4() {
+function tutorialProgramEditor4NoPopover() {
   clearTutorial("#code-mirror-wrapper4")
   TUTORIAL_ACTIVE = true
-  TUTORIAL_STEP_BUTTON_ACTIVE = true
+  TUTORIAL_STEP_BUTTON_ACTIVE = true  
+  setPrimaryButton("#stepButton")
+}
+
+function tutorialProgramEditor4() {
+  tutorialProgramEditor4NoPopover()
 
   $("#code-mirror-wrapper").attr("class", "glow-focus code-mirror-wrapper")
   $('#code-mirror-wrapper4').popover('show')
-  setPrimaryButton("#stepButton")
+
+}
+
+function tutorialProgramEditor5() {
+  clearTutorial("#code-mirror-wrapper5")
+  TUTORIAL_ACTIVE = true
+
+  $("#code-mirror-wrapper").attr("class", "glow-focus code-mirror-wrapper")
+  $('#code-mirror-wrapper5').popover('show')
 
 }
 
@@ -1652,6 +1692,14 @@ function dupstep(board, bot) {
   if (bot.ip >= bot.program.instructions.length) {
     bot.program.done = true
     board.visualize.step.bot[bot.id].programDone = true
+
+    // TODO only set encourage_reset if it's sensible.
+    // Right now, if any bot's program finishes encourage_reset will be
+    // activated.
+    // Perhaos the best thing is have each puzzle define a function that
+    // analyzes the board and determines whether or not a reset should be
+    // encouraged
+    board.visualize.step.general.encourage_reset = true
   }
 
   _(result.depositMarker).forEach( function (marker) {
@@ -2061,13 +2109,7 @@ function animateProgramDone(board) {
       .delay(ANIMATION_DUR)
       .ease(EASING)
       .duration(ANIMATION_DUR / 2)
-      // TODO: this is a temporary hack that only makes sense when there is
-      // one bot.
-      // Long-term idea: only change restart to primary if this is the bot
-      // that is being programmed on the code editor.
-      .each("end", function(){
-        d3.select("#restart").attr("class", "btn btn-primary menu-button")
-      })
+
   })
 
   return
@@ -2199,6 +2241,14 @@ function animateProgram(board) {
     }
     cm.addLineClass(lineHandle, "background", BACK_CLASS);
     cm._activeLine = lineHandle;
+  }
+}
+
+function animateEncourageReset(board) {
+  if ("encourage_reset" in board.visualize.step.general) {
+    setTimeout(function(){
+      setPrimaryButton("#restart")
+    }, ANIMATION_DUR)
   }
 }
 
@@ -2598,6 +2648,7 @@ function stepAndAnimate() {
   animateMarkers(board)
   animateVictoryBalls(board, PUZZLE_CAMPAIGN_STATE)
   animateVictoryModalAndMenu(board, PUZZLE_CAMPAIGN, PUZZLE_CAMPAIGN_STATE)
+  animateEncourageReset(board)
 }
 /**
  * Copyright 2013 Michael N. Gagnon
@@ -2663,6 +2714,10 @@ function showOrHideLevelMenu(state) {
     $("#accordionLevelSelect").attr("style", "display: none;")
   } else {
     $("#accordionLevelSelect").removeAttr("style")
+
+    // TODO: only glow the level menu if the player has never clicked on it
+    // before. As soon as the player clicks the level menu, un-glow it
+    $("#accordionLevelSelect").addClass("glow-focus")
   }
 
 }
@@ -2728,9 +2783,9 @@ function worldMenuCheckWorld(campaign, world_index) {
 function getLevelName(world_index, level_index, name) {
   return "Level "
     + (parseInt(world_index) + 1)
-    + "-"
+    + "."
     + (parseInt(level_index) + 1)
-    + ": " + name  
+    + " " + name  
 }
 
 function getLevelNameHtml(world_index, level_index, name, completed) {
@@ -2863,7 +2918,7 @@ var AUTO_SOLVE_DEBUG = false
 
 var INTRO_PUZZLE = {
   id: "intro_puzzle",
-  name: "Collect the coins",
+  name: "Welcome to Puzzle Code!",
   description: "Collect all the coins on the board.",
   hint: "tbd",
   win_conditions: [
@@ -3169,10 +3224,12 @@ var PUZZLE_CAMPAIGN_STATE = {
 // set to true once the help button has been clicked
 var HELP_BUTTON_CLICKED = false 
 var TUTORIAL_ACTIVE = false
+var TUTORIAL_STEP_BUTTON_ACTIVE = false
 
 var MENU_BUTTONS = {
   "#pauseplay": true,
   "#stepButton": true,
+  "#restart": true,
   "#helpButton": true
 }
 

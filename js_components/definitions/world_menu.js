@@ -44,6 +44,10 @@ function showOrHideLevelMenu(state) {
     $("#accordionLevelSelect").attr("style", "display: none;")
   } else {
     $("#accordionLevelSelect").removeAttr("style")
+
+    // TODO: only glow the level menu if the player has never clicked on it
+    // before. As soon as the player clicks the level menu, un-glow it
+    $("#accordionLevelSelect").addClass("glow-focus")
   }
 
 }
@@ -109,9 +113,9 @@ function worldMenuCheckWorld(campaign, world_index) {
 function getLevelName(world_index, level_index, name) {
   return "Level "
     + (parseInt(world_index) + 1)
-    + "-"
+    + "."
     + (parseInt(level_index) + 1)
-    + ": " + name  
+    + " " + name  
 }
 
 function getLevelNameHtml(world_index, level_index, name, completed) {

@@ -65,7 +65,7 @@ var AUTO_SOLVE_DEBUG = false
 
 var INTRO_PUZZLE = {
   id: "intro_puzzle",
-  name: "Collect the coins",
+  name: "Welcome to Puzzle Code!",
   description: "Collect all the coins on the board.",
   hint: "tbd",
   win_conditions: [
@@ -371,10 +371,12 @@ var PUZZLE_CAMPAIGN_STATE = {
 // set to true once the help button has been clicked
 var HELP_BUTTON_CLICKED = false 
 var TUTORIAL_ACTIVE = false
+var TUTORIAL_STEP_BUTTON_ACTIVE = false
 
 var MENU_BUTTONS = {
   "#pauseplay": true,
   "#stepButton": true,
+  "#restart": true,
   "#helpButton": true
 }
 

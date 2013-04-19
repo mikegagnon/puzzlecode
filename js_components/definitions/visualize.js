@@ -307,13 +307,7 @@ function animateProgramDone(board) {
       .delay(ANIMATION_DUR)
       .ease(EASING)
       .duration(ANIMATION_DUR / 2)
-      // TODO: this is a temporary hack that only makes sense when there is
-      // one bot.
-      // Long-term idea: only change restart to primary if this is the bot
-      // that is being programmed on the code editor.
-      .each("end", function(){
-        d3.select("#restart").attr("class", "btn btn-primary menu-button")
-      })
+
   })
 
   return
@@ -445,6 +439,14 @@ function animateProgram(board) {
     }
     cm.addLineClass(lineHandle, "background", BACK_CLASS);
     cm._activeLine = lineHandle;
+  }
+}
+
+function animateEncourageReset(board) {
+  if ("encourage_reset" in board.visualize.step.general) {
+    setTimeout(function(){
+      setPrimaryButton("#restart")
+    }, ANIMATION_DUR)
   }
 }
 
@@ -844,4 +846,5 @@ function stepAndAnimate() {
   animateMarkers(board)
   animateVictoryBalls(board, PUZZLE_CAMPAIGN_STATE)
   animateVictoryModalAndMenu(board, PUZZLE_CAMPAIGN, PUZZLE_CAMPAIGN_STATE)
+  animateEncourageReset(board)
 }

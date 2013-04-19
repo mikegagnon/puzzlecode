@@ -56,8 +56,9 @@ function windowOnLoad() {
   loadLevel(campaign, state)
   restartSimulation()
 
-  // Add popover contents
-  // TODO: go back doesn't work
+  // TODO: the tutorial is a mess. Reorganize and make clean.
+  // Also, there are some bugs. Need to test corner cases.
+  // TODO: add a hint button
   $("#helpButton").popover({
     html : true,
     trigger : "manual",
@@ -84,6 +85,8 @@ function windowOnLoad() {
       + "</div>"
   })
 
+  // TODO: only say what the current program is if it actually matches up
+  // with the current program
   $("#code-mirror-wrapper").popover({
     html : true,
     trigger : "manual",
@@ -106,10 +109,11 @@ function windowOnLoad() {
   $("#code-mirror-wrapper2").popover({
     html : true,
     trigger : "manual",
-    title : "<h4>You can edit your program <a class='close' href='javascript: clearTutorial()''>&times;</a></h4>",
+    title : "<h4>Editing your program <a class='close' href='javascript: clearTutorial()''>&times;</a></h4>",
     placement: "top",
     content :
-      "By typing like this (for example): <div style='width:500px'><img src='img/editor_typing.gif'></div>"
+      "You don't need to edit your program now, but when you "
+      + "want to, you can edit your program by typing like this (for example): <div style='width:500px'><img src='img/editor_typing.gif'></div>"
       + "<div class='btn-group'>"
       + "<a class='btn' href='javascript: tutorialProgramEditor1()'>Back</a>"
       + "<a class='btn btn-primary' href='javascript: tutorialProgramEditor3()'>Continue</a>"
@@ -147,6 +151,23 @@ function windowOnLoad() {
       + "<p>Keep stepping through your program until your program finishes.</p>"
       + "<div class='btn-group'>"
       + "<a class='btn' href='javascript: tutorialProgramEditor3()'>Back</a>"
+      + "</div>"
+  })
+
+  $("#code-mirror-wrapper5").popover({
+    html : true,
+    trigger : "manual",
+    title : "<h4>Your program has finished <a class='close' href='javascript: clearTutorial()''>&times;</a></h4>",
+    placement: "top",
+    content :
+      "<p>Your robot probably did not accomplish its objective (collect "
+      + "all the gold coins).</p>"
+      + "<p><strong>That's OK!</strong> <i class='icon-thumbs-up'></i></p>"
+      + "<p><strong>To try again, click the <strong>Reset</strong> button, edit "
+      + "your program and run it again.</strong></p>"
+      + "<p>You have now completed the tutorial!</p>"
+      + "<div class='btn-group'>"
+      + "<a class='btn btn-primary' href='javascript: clearTutorial()'>Exit tutorial</a>"
       + "</div>"
   })
 
@@ -259,7 +280,12 @@ function stepButtonClick() {
   }
 
   if (TUTORIAL_STEP_BUTTON_ACTIVE) {
-    tutorialProgramEditor4()
+    // if the bot has finished
+    if ("encourage_reset" in BOARD.visualize.step.general) {
+      tutorialProgramEditor5()
+    } else {
+      tutorialProgramEditor4NoPopover()
+    }
   }
 }
 
@@ -395,6 +421,7 @@ function clearTutorial(show) {
     "#code-mirror-wrapper2",
     "#code-mirror-wrapper3",
     "#code-mirror-wrapper4",
+    "#code-mirror-wrapper5",
   ]
   for (i in POPOVERS) {
     var popover = POPOVERS[i]
@@ -454,14 +481,27 @@ function tutorialProgramEditor3() {
 
 }
 
-function tutorialProgramEditor4() {
+function tutorialProgramEditor4NoPopover() {
   clearTutorial("#code-mirror-wrapper4")
   TUTORIAL_ACTIVE = true
-  TUTORIAL_STEP_BUTTON_ACTIVE = true
+  TUTORIAL_STEP_BUTTON_ACTIVE = true  
+  setPrimaryButton("#stepButton")
+}
+
+function tutorialProgramEditor4() {
+  tutorialProgramEditor4NoPopover()
 
   $("#code-mirror-wrapper").attr("class", "glow-focus code-mirror-wrapper")
   $('#code-mirror-wrapper4').popover('show')
-  setPrimaryButton("#stepButton")
+
+}
+
+function tutorialProgramEditor5() {
+  clearTutorial("#code-mirror-wrapper5")
+  TUTORIAL_ACTIVE = true
+
+  $("#code-mirror-wrapper").attr("class", "glow-focus code-mirror-wrapper")
+  $('#code-mirror-wrapper5').popover('show')
 
 }
 
