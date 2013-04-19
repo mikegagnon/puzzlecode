@@ -370,6 +370,13 @@ var PUZZLE_CAMPAIGN_STATE = {
 
 // set to true once the help button has been clicked
 var HELP_BUTTON_CLICKED = false 
+var TUTORIAL_ACTIVE = false
+
+var MENU_BUTTONS = {
+  "#pauseplay": true,
+  "#stepButton": true,
+  "#helpButton": true
+}
 
 var BOARD = undefined
 

@@ -897,56 +897,71 @@ function windowOnLoad() {
   $("#helpButton").popover({
     html : true,
     trigger : "manual",
-    title : "<h3>How to play Puzzle Code</3>",
+    title : "<h4>How to play Puzzle Code</h4>",
     placement: "top",
-    content : "<p><a href='javascript: beginTutorial()'>Begin the walkthrough tutorial</a></p>" + 
-      "<p><a href='javascript: clearTutorial()'>Cancel</a></p>"
+    content :
+      "<div class='btn-group'>"
+      + "<a class='btn' href='javascript: clearTutorial()'>Cancel</a>"
+      + "<a class='btn btn-primary' href='javascript: beginTutorial()'>Begin tutorial</a>"
+      + "</div>"
   })
 
   $("#boardDiv").popover({
     html : true,
     trigger : "manual",
-    title : "<h3>This is the game board <a class='close' href='javascript: clearTutorial()''>&times;</a></h3>",
+    title : "<h4>This is the game board <a class='close' href='javascript: clearTutorial()''>&times;</a></h4>",
     placement: "top",
     content : 
-      "<p>Try to collect all the <strong>gold coins</strong> "
-      + "using your <strong>blue robot</strong>.</p>"
-      + "<p>However, you cannot move your robot using your mouse or keyboard...</p>"
+      "<p>Try to collect the <strong>gold coins</strong> "
+      + "using your <strong>robot</strong>. <img src='img/bot.png'></p>"
       + "<div class='btn-group'>"
       + "<a class='btn' href='javascript: helpButtonClick()'>Back</a>"
-      + "<a class='btn' href='javascript: tutorialProgramEditor1()'>Continue</a>"
+      + "<a class='btn btn-primary' href='javascript: tutorialProgramEditor1()'>Continue</a>"
       + "</div>"
   })
 
   $("#code-mirror-wrapper").popover({
     html : true,
     trigger : "manual",
-    title : "<h3>This is the program editor <a class='close' href='javascript: clearTutorial()''>&times;</a></h3>",
+    title : "<h4>This is the program editor <a class='close' href='javascript: clearTutorial()''>&times;</a></h4>",
     placement: "top",
     content :
       "<p>You must tell your robot what to do by "
       + 'writing a <strong>"program."</strong></p> '
       + "<p>A program is just "
-      + "<strong>a list of instructions</strong> that your robot will follow exactly. "
+      + "<strong>a list of instructions</strong> that your robot will follow <strong>exactly</strong>. "
       + "</p>"
       + "<p>The current program tells the robot to move forward twice, turn left, "
       + "then move forward twice again.</p>"
       + "<div class='btn-group'>"
       + "<a class='btn' href='javascript: beginTutorial()'>Back</a>"
-      + "<a class='btn' href='javascript: tutorialProgramEditor2()'>Continue</a>"
+      + "<a class='btn btn-primary' href='javascript: tutorialProgramEditor2()'>Continue</a>"
       + "</div>"
   })
 
   $("#code-mirror-wrapper2").popover({
     html : true,
     trigger : "manual",
-    title : "<h3>Type your program <a class='close' href='javascript: clearTutorial()''>&times;</a></h3>",
+    title : "<h4>Type your program <a class='close' href='javascript: clearTutorial()''>&times;</a></h4>",
     placement: "top",
     content :
-      "<div style='width:500px'><img src='img/editor_typing.gif'></div>"
+      "<strong>Like this</strong>: <div style='width:500px'><img src='img/editor_typing.gif'></div>"
       + "<div class='btn-group'>"
       + "<a class='btn' href='javascript: tutorialProgramEditor1()'>Back</a>"
-      + "<a class='btn' href='javascript: tutorialProgramEditor3()'>Continue</a>"
+      + "<a class='btn btn-primary' href='javascript: tutorialProgramEditor3()'>Continue</a>"
+      + "</div>"
+  })
+
+  $("#code-mirror-wrapper3").popover({
+    html : true,
+    trigger : "manual",
+    title : "<h4>Step through your program <a class='close' href='javascript: clearTutorial()''>&times;</a></h4>",
+    placement: "top",
+    content :
+      "<strong>Like this</strong>: <div style='width:500px'><img src='img/editor_typing.gif'></div>"
+      + "<div class='btn-group'>"
+      + "<a class='btn' href='javascript: tutorialProgramEditor2()'>Back</a>"
+      + "<a class='btn btn-primary' href='javascript: tutorialProgramEditor4()'>Continue</a>"
       + "</div>"
   })
 
@@ -1054,6 +1069,30 @@ function stepButtonClick() {
   }
 }
 
+function disableButton(button) {
+  assert(button in MENU_BUTTONS, "disableButton: button in MENU_BUTTONS")
+  $(button).addClass("disabled")
+}
+
+function enableButton(button) {
+  assert(button in MENU_BUTTONS, "enableButton: button in MENU_BUTTONS")
+  $(button).removeClass("disabled")
+}
+
+function setPrimaryButton(button) {
+
+  assert(button in MENU_BUTTONS, "setPrimaryButton: button in MENU_BUTTONS")
+
+  for (b in MENU_BUTTONS) {
+    if (b == button) {
+      $(b).addClass("btn-primary")
+    } else {
+      $(b).removeClass("btn-primary")
+    }
+  }
+
+}
+
 // TODO: take codeMirrorBox parameter
 function compile() {
   var programText = CODE_MIRROR_BOX.getValue()
@@ -1063,16 +1102,16 @@ function compile() {
   // Enable or disable the #pausePlay and #stepButton buttons
   if (PLAY_STATUS == PlayStatus.INITAL_STATE_PAUSED) {
     if (program.instructions == null) {
-      d3.select("#pauseplay").attr("class", "btn disabled menu-button")
-      d3.select("#stepButton").attr("class", "btn disabled menu-button")
+      disableButton("#pauseplay")
+      disableButton("#stepButton")
     } else {
+      enableButton("#pauseplay")
+      enableButton("#stepButton")
       if (HELP_BUTTON_CLICKED) {
-        d3.select("#pauseplay").attr("class", "btn btn-primary menu-button")
-        d3.select("#helpButton").attr("class", "btn help-button menu-button")
+        setPrimaryButton("#pauseplay")
       } else {
-        d3.select("#pauseplay").attr("class", "btn menu-button")
+        setPrimaryButton("#helpButton")
       }
-      d3.select("#stepButton").attr("class", "btn menu-button")
     }
   } else {
     console.error("I don't expect compile to be called unless board is reset")
@@ -1151,7 +1190,9 @@ function clearTutorial(show) {
     "#helpButton",
     "#boardDiv",
     "#code-mirror-wrapper",
-    "#code-mirror-wrapper2"
+    "#code-mirror-wrapper2",
+    "#code-mirror-wrapper3",
+
   ]
   for (i in POPOVERS) {
     var popover = POPOVERS[i]
@@ -1162,7 +1203,8 @@ function clearTutorial(show) {
 
   $("#boardDiv").attr("class", "board")
   $("#code-mirror-wrapper").attr("class", "code-mirror-wrapper")
-  compile()
+
+  TUTORIAL_ACTIVE = false
 }
 
 // TODO: when player clicks help, make sure the message box is visible
@@ -1177,20 +1219,31 @@ function helpButtonClick() {
 // TODO: consistent names for tutorial funcions
 function beginTutorial() {
   clearTutorial("#boardDiv")
+  TUTORIAL_ACTIVE = true
   $("#boardDiv").attr("class", "board glow-focus")
   $('#boardDiv').popover('show')
 }
 
 function tutorialProgramEditor1() {
   clearTutorial("#code-mirror-wrapper")
+  TUTORIAL_ACTIVE = true
   $("#code-mirror-wrapper").attr("class", "glow-focus code-mirror-wrapper")
   $('#code-mirror-wrapper').popover('show')
 }
 
 function tutorialProgramEditor2() {
   clearTutorial("#code-mirror-wrapper2")
+  TUTORIAL_ACTIVE = true
   $("#code-mirror-wrapper").attr("class", "glow-focus code-mirror-wrapper")
   $('#code-mirror-wrapper2').popover('show')
+}
+
+function tutorialProgramEditor3() {
+  clearTutorial("#code-mirror-wrapper3")
+  TUTORIAL_ACTIVE = true
+
+  $("#code-mirror-wrapper").attr("class", "glow-focus code-mirror-wrapper")
+  $('#code-mirror-wrapper3').popover('show')
 }
 
 
@@ -3061,6 +3114,13 @@ var PUZZLE_CAMPAIGN_STATE = {
 
 // set to true once the help button has been clicked
 var HELP_BUTTON_CLICKED = false 
+var TUTORIAL_ACTIVE = false
+
+var MENU_BUTTONS = {
+  "#pauseplay": true,
+  "#stepButton": true,
+  "#helpButton": true
+}
 
 var BOARD = undefined
 
