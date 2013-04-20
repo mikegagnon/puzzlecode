@@ -33,15 +33,16 @@ function registerEventHandlers() {
     .getElementById("restart")
     .addEventListener("click", restartSimulation);
 
-  document
+  /*document
     .getElementById("helpButton")
-    .addEventListener("click", helpButtonClick);
+    .addEventListener("click", helpButtonClick);*/
 }
 
 // These event handlers are registered in main.js and in index.html
 function windowOnLoad() {
   setupCodeMirrorBox()
   registerEventHandlers()
+  setupTutorial()
 
   // TODO: where should i put this?
   ANIMATE_INTERVAL = setInterval("animate()", CYCLE_DUR)
@@ -59,7 +60,7 @@ function windowOnLoad() {
   // TODO: the tutorial is a mess. Reorganize and make clean.
   // Also, there are some bugs. Need to test corner cases.
   // TODO: add a hint button
-  $("#helpButton").popover({
+  /*$("#helpButton").popover({
     html : true,
     trigger : "manual",
     title : "<h4>How to play Puzzle Code</h4>",
@@ -169,7 +170,7 @@ function windowOnLoad() {
       + "<div class='btn-group'>"
       + "<a class='btn btn-primary' href='javascript: clearTutorial()'>Exit tutorial</a>"
       + "</div>"
-  })
+  })*/
 
 }
 

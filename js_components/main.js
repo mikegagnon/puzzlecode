@@ -403,8 +403,11 @@ var RESERVED_WORDS = _(reservedWords.split(" "))
   .object()
   .value()
 
+// TODO: this belongs somewhere in visualize.js as non-global variables
 var COIN_RADIUS = 6
 var COIN_EXPLODE_RADIUS = 100
+
+var TUTORIAL = undefined
 
 window.onload = windowOnLoad
 
