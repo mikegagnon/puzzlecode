@@ -1138,6 +1138,11 @@ function restartSimulation() {
  * When the user clicks a level
  *****************************************************************************/
 function clickLevel(world_index, level_index) {
+
+  PLAYER_HAS_SEEN_LEVEL_MENU = true
+
+  $("#accordionLevelSelect").removeClass("glow-focus")
+
   $("#victoryModal").modal('hide')
   cleanUpVisualization()
 
@@ -1958,6 +1963,8 @@ function setupTutorialObject() {
     // setup is immutable
     setup: setup,
     // state is mutable
+    // TODO: I ended up not using the state property. delete it and replace
+    // tutorial with setup
     state: {}
   }
 
@@ -2904,6 +2911,8 @@ var WinCondition = {
 
 // TODO: when reveaing level menu for first, time highlight it somehow
 // until after the user clicks it for the first time
+// BUG: there seems to be a race condition. If you beat the first level
+// on fast speed this function doesn't work properly
 function showOrHideLevelMenu(state) {
 
   var hide = false
@@ -2920,6 +2929,8 @@ function showOrHideLevelMenu(state) {
     if (getVisibilityIndices(world).length == 1) {
       // then hide the level menu
       hide = true
+      PLAYER_HAS_SEEN_LEVEL_MENU = false
+      console.log("PLAYER_HAS_SEEN_LEVEL_MENU = false")
     }
   }
 
@@ -2930,7 +2941,9 @@ function showOrHideLevelMenu(state) {
 
     // TODO: only glow the level menu if the player has never clicked on it
     // before. As soon as the player clicks the level menu, un-glow it
-    $("#accordionLevelSelect").addClass("glow-focus")
+    if (!PLAYER_HAS_SEEN_LEVEL_MENU) {
+      $("#accordionLevelSelect").addClass("glow-focus")
+    }
   }
 
 }
@@ -3483,6 +3496,10 @@ var COIN_RADIUS = 6
 var COIN_EXPLODE_RADIUS = 100
 
 var TUTORIAL = undefined
+
+// set to true once the player has seen (and clicked on) the level menu
+// at least once
+var PLAYER_HAS_SEEN_LEVEL_MENU = true
 
 window.onload = windowOnLoad
 

@@ -413,6 +413,8 @@ function setupTutorialObject() {
     // setup is immutable
     setup: setup,
     // state is mutable
+    // TODO: I ended up not using the state property. delete it and replace
+    // tutorial with setup
     state: {}
   }
 

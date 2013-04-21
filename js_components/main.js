@@ -418,5 +418,9 @@ var COIN_EXPLODE_RADIUS = 100
 
 var TUTORIAL = undefined
 
+// set to true once the player has seen (and clicked on) the level menu
+// at least once
+var PLAYER_HAS_SEEN_LEVEL_MENU = true
+
 window.onload = windowOnLoad
 

@@ -302,6 +302,11 @@ function restartSimulation() {
  * When the user clicks a level
  *****************************************************************************/
 function clickLevel(world_index, level_index) {
+
+  PLAYER_HAS_SEEN_LEVEL_MENU = true
+
+  $("#accordionLevelSelect").removeClass("glow-focus")
+
   $("#victoryModal").modal('hide')
   cleanUpVisualization()
 
