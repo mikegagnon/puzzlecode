@@ -1954,12 +1954,18 @@ function setupTutorialObject() {
 
       // This function is called to active this tutorial-step
       activate: function() {
+        restartSimulation()
+
+        // BOOKMARK TODO: get this worked out. 
         HELP_BUTTON_CLICKED = true
+        TUTORIAL_ACTIVE = true
         $("#helpButton").popover("show")
+        noPrimaryButtons()
       },
 
       // This function os called to deactivate this tutorial-step
       deactivate: function() {
+        TUTORIAL_ACTIVE = false
         $("#helpButton").popover("hide")
       }
     },
@@ -1984,6 +1990,7 @@ function setupTutorialObject() {
         $("#boardDiv").popover('show')
       },
       deactivate: function() {
+        TUTORIAL_ACTIVE = false
         $("#boardDiv").popover("hide")
         $("#boardDiv").removeClass("glow-focus")
       }
@@ -2017,6 +2024,7 @@ function setupTutorialObject() {
         $("#code-mirror-wrapper").popover('show')
       },
       deactivate: function() {
+        TUTORIAL_ACTIVE = false
         $("#code-mirror-wrapper").popover("hide")
         $("#code-mirror-wrapper").removeClass("glow-focus")
       }
@@ -2044,6 +2052,7 @@ function setupTutorialObject() {
         $("#code-mirror-wrapper2").popover('show')
       },
       deactivate: function() {
+        TUTORIAL_ACTIVE = false
         $("#code-mirror-wrapper2").popover("hide")
         $("#code-mirror-wrapper").removeClass("glow-focus")
       }
@@ -2079,6 +2088,7 @@ function setupTutorialObject() {
         setPrimaryButton("#stepButton")
       },
       deactivate: function() {
+        TUTORIAL_ACTIVE = false
         TUTORIAL_STEP_BUTTON_ACTIVE = false
         TUTORIAL_STEP_BUTTON_ACTIVE_STEP_CLICKED = false
         noPrimaryButtons()
@@ -2112,6 +2122,7 @@ function setupTutorialObject() {
         setPrimaryButton("#stepButton")
       },
       deactivate: function() {
+        TUTORIAL_ACTIVE = false
         TUTORIAL_STEP_BUTTON_ACTIVE = false
         TUTORIAL_STEP_BUTTON_ACTIVE_STEP_CLICKED = false
         noPrimaryButtons()
@@ -2134,6 +2145,12 @@ function setupTutorialObject() {
           + "<p><strong>To try again, click the <strong>Reset</strong> button, edit "
           + "your program and run it again.</strong></p>"
           + "<p>You have now completed the tutorial!</p>"
+          + getNavigation(
+            "cancel",
+            "programEditor5",
+            undefined,
+            "Exit tutorial")
+
       }),
       activate: function() {
         $("#code-mirror-wrapper").addClass("glow-focus")
@@ -2149,6 +2166,7 @@ function setupTutorialObject() {
         setPrimaryButton("#restart")
       },
       deactivate: function() {
+        TUTORIAL_ACTIVE = false
         $("#code-mirror-wrapper5").popover("hide")
         $("#code-mirror-wrapper").removeClass("glow-focus")
       }
