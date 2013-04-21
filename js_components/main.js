@@ -370,8 +370,17 @@ var PUZZLE_CAMPAIGN_STATE = {
 
 // set to true once the help button has been clicked
 var HELP_BUTTON_CLICKED = false 
+
+// TODO: do we still need this?
 var TUTORIAL_ACTIVE = false
+
+// set to true when the tutorial begins a demonstration of the Step button
+// (see tutorial.js)
 var TUTORIAL_STEP_BUTTON_ACTIVE = false
+
+// set to true when TUTORIAL_STEP_BUTTON_ACTIVE is true and the player
+// has clicked step at least once
+var TUTORIAL_STEP_BUTTON_ACTIVE_STEP_CLICKED = false
 
 var MENU_BUTTONS = {
   "#pauseplay": true,

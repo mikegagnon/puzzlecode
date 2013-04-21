@@ -227,6 +227,8 @@ function doRun() {
 // handles clicks on the #pauseplay button
 function togglePausePlay() {
 
+  // If we are in the middle of demonstrating the step button (see tutorial.js)
+  // then disable the pause/play button
   if (TUTORIAL_STEP_BUTTON_ACTIVE) {
     return
   }
@@ -280,12 +282,22 @@ function stepButtonClick() {
     doStep()
   }
 
+  // If we are in the middle of demonstrating the step button (see tutorial.js)
+  // then we need to update the tutorial state
   if (TUTORIAL_STEP_BUTTON_ACTIVE) {
-    // if the bot has finished
+
+    // if the bot has finished, then we should transition out of the step
+    // button demo
     if ("encourage_reset" in BOARD.visualize.step.general) {
-      tutorialProgramEditor5()
-    } else {
-      tutorialProgramEditor4NoPopover()
+      assert(TUTORIAL_STEP_BUTTON_ACTIVE_STEP_CLICKED,
+        "stepButtonClick: TUTORIAL_STEP_BUTTON_ACTIVE_STEP_CLICKED")
+      tutorialTransition("programEditor4", "programEditor5")
+    }
+    // if this is the first time the player has clicked the Step button
+    // during the step button demo
+    else if (!TUTORIAL_STEP_BUTTON_ACTIVE_STEP_CLICKED) {
+      // TODO: programEditor4 needs to set TUTORIAL_STEP_BUTTON_ACTIVE_STEP_CLICKED = true
+      tutorialTransition("programEditor3", "programEditor4")
     }
   }
 }
