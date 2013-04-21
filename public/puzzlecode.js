@@ -1774,10 +1774,29 @@ function step(board, campaign, state) {
  *****************************************************************************/
 
 // Can be called at any time to abort the tutorial
-function cancelTutorial() {
+/*function cancelTutorial() {
   var tutorial = TUTORIAL
+}*/
 
+/**
+ * transition from current tutorial-step to next tutorial-step
+ * current and next are keys into the TUTORIAL.setup object
+ * if next == "cancel", then next is ignored (it is not activated)
+ * a next value of "cancel" signifies that the tutorial should be aborted,
+ * and therefore nothing should be activated after the current step is
+ * deactivated
+ */
+function tutorialTransition(current, next) {
+  var setup = TUTORIAL.setup
+  assert(current in setup && (next == "cancel" || next in setup),
+    "tutorialTransition: current in setup && "
+    + "(next == 'cancel' || next in setup)")
 
+  setup[current].deactivate()
+
+  if (next != "cancel") {
+    setup[next].activate()
+  }
 
 }
 
@@ -1806,6 +1825,14 @@ function setupTutorial() {
     })
 }
 
+function getCloseButton(current) {
+  return " <a "
+    + "class='close' "
+    + "href='javascript: tutorialTransition(\"" + current + "\", \"cancel\")'>"    
+    + "&times;"
+    + "</a>"
+}
+
 function setupTutorialObject() {
 
   var DEFAULT_POPOVER = {
@@ -1814,46 +1841,65 @@ function setupTutorialObject() {
     placement: "top"
   }
 
-  var CLOSE_BUTTON = " <a "
-    + "class='close' "
-    + "href='javascript: clearTutorial()'>"
-    + "&times;"
-    + "</a>"
-
-  function getTitle(text) {
-    return "<h4>" + text + CLOSE_BUTTON + "</h4>"
+  function getTitle(current, text) {
+    return "<h4>" + text + getCloseButton(current) + "</h4>"
   }
 
   /**
-   * elements is an array of "navigation element" objects.
-   * Each navigation element looks like: {
-   *    text: string presented to the user for this element
-   *    tutorialStep: a key from setup, e.g. "#boardDiv"
-   *    primary: optional property. if present, then set this element
-   *      as the primary
-   * }  
+   * current and next are keys into TUTORIAL.setup
+   * they represent the current and next tutorial steps for tutorialTransition
+   * text is the text of the button
+   * primary is true iff the button is the primary button
+   */
+  function getNavButton(current, next, text, primary) {
+    if (primary) {
+      var primaryClass = " btn-primary"
+    } else {
+      var primaryClass = ""
+    }
+    return "<a "
+      + "class='btn" + primaryClass + "' "
+      + "href='javascript: tutorialTransition(\""
+          + current + "\", \""
+          + next + "\")'>"
+      + text
+      + "</a>"
+  }
+
+  /**
+   * prev, current, and next are keys into TUTORIAL.setup
+   * they represent the previous, current, and next tutorial-steps 
+   *
+   * if prevText is given, it is used as the text to display to the user
+   *    for the button to go to the previous step
+   * and similarly, for nextText
+   *
+   * prev must always be given
+   * current must always be given
+   * if next is not given, then there is no next step
+   * if prevText is not given, then prevText becomes "Back"
+   * if nextText is not given, then prevText becomes "Continue"
    ***************************************************************************/
-  function getNavigation(elements) {
+  function getNavigation(prev, current, next, prevText, nextText) {
     var begin = "<div class='btn-group'>"
     var end = "</div>"
-    
-    // TODO: is there a better way to do this?
-    var middle = _(elements)
-      .map(function(element){
-        if ("primary" in element) {
-          var primary = " btn-primary"
-        } else {
-          var primary = ""
-        }
-        var functionCall = "TUTORIAL.setup." + element.tutorialStep + "()"
-        return "<a "
-          + "class='btn" + primary + "' "
-          + "href='javascript: " + functionCall + "'>"
-          + element.text
-          + "</a>"
-      })
 
-    return begin + middle + end
+    if (typeof prevText == "undefined") {
+      prevText = "Back"
+    }
+    if (typeof nextText == "undefined") {
+      nextText = "Continue"
+    }
+
+    var prevButton = getNavButton(current, prev, prevText, false)
+
+    if (typeof next == "undefined") {
+      var nextButton = ""
+    } else {
+      var nextButton = getNavButton(current, next, nextText, true)
+    }
+
+    return begin + prevButton + nextButton + end
   }
 
   var setup = {
@@ -1863,19 +1909,24 @@ function setupTutorialObject() {
      *************************************************************************/
 
     // This object describes the 'helpButton' tutoria step 
-    "helpButton": {
+    "startTutorialPrompt": {
 
       // A Bootstrap popover will be attached to the #helpButton html element
       popover_attach: "#helpButton",
 
       // Options for initializing the Bootstrap popover
       popover: cloneDeep(DEFAULT_POPOVER, {
-        title: getTitle("How to play Puzzle Code"),
-        content: getNavigation([
-          { text: "Cancel", tutorialStep: "cancel" },
-          { text: "Begin tutorial", tutorialStep: "gameBoardOverview",
-            primary: true }
-        ])
+        title: getTitle("startTutorialPrompt", "How to play Puzzle Code"),
+        // HACK: the style-width is a hack to make sure the close button in the 
+        // title renders well
+        content: "<div style='width: 250px'>"
+         + getNavigation(
+            "cancel",
+            "startTutorialPrompt",
+            "gameBoardOverview",
+            "Cancel",
+            "Begin tutorial")
+         + "</div>"
       }),
 
       // the windowOnLoad fuction will call this initialize function exactly once
@@ -1906,15 +1957,14 @@ function setupTutorialObject() {
     "gameBoardOverview": {
       popover_attach: "#boardDiv",
       popover: cloneDeep(DEFAULT_POPOVER, {
-        title: getTitle("This is the game board"),
+        title: getTitle("gameBoardOverview", "This is the game board"),
         content: 
           "<p>Try to collect the <strong>gold coins</strong> "
           + "using your <strong>robot</strong>. <img src='img/bot.png'></p>"
-          + getNavigation([
-              { text: "Back", tutorialStep: "helpButton" },
-              { text: "Continue", tutorialStep: "tutorialProgramEditor1",
-                primary: true }
-            ])
+          + getNavigation(
+            "startTutorialPrompt",
+            "gameBoardOverview",
+            "tutorialProgramEditor1")
       }),
       activate: function() {
         $("#boardDiv").addClass("glow-focus")
