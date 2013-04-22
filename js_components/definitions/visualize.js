@@ -693,16 +693,17 @@ function drawTraps(board) {
 }
 
 function drawBlocks() {
+
   VIS.selectAll(".block")
     .data(BOARD.blocks)
-    .enter().append("svg:rect")
+    .enter().append("svg:use")
     .attr("class", "block")
-    .attr("stroke", "darkgray")
-    .attr("fill", "darkgray")
-    .attr("width", CELL_SIZE)
-    .attr("height", CELL_SIZE)
-    .attr("x", function(d){ return d.x * CELL_SIZE } )
-    .attr("y", function(d){ return d.y * CELL_SIZE } )
+    .attr("xlink:href", "#blockTemplate")
+    .attr("transform", function(block) {
+      var x = block.x * CELL_SIZE
+      var y = block.y * CELL_SIZE
+      return "translate(" + x + ", " + y + ") "
+    })
 }
 
 function drawBots() {

@@ -321,7 +321,7 @@ var WORLD_1 = {
   name: "Move &amp; Turn",
   levels: [
     INTRO_PUZZLE,
-    PUZZLE_2
+    PUZZLE_2,
   ]
 }
 
