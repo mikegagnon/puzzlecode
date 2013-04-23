@@ -14,6 +14,32 @@
  * limitations under the License.
  */
 
+// TODO: split this up into several files. Right now this file includes
+// simulation animations as well as other visualizations (e.g. buttons)
+
+// Determines which button on the GUI should be highlighted
+function getPrimaryButton() {
+
+  if (TUTORIAL_ACTIVE) {
+    return undefined
+  }
+  else if (!HELP_BUTTON_CLICKED) {
+    return "#helpButton"
+  }
+  else if (!HINT_BUTTON_CLICKED) {
+    return "#hintButton"
+  }
+  else {
+    return "#pauseplay"
+  }
+}
+
+function updatePrimaryButton() {
+  var primaryButton = getPrimaryButton()
+  if (typeof primaryButton != "undefined") {
+    setPrimaryButton(primaryButton)
+  }
+}
 // Maps each BotColor to a hue 
 // The hue value (between 0 and 100)
 var BotColorHue = {

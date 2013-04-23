@@ -61,9 +61,6 @@
       .menu-button {
         width: 100px;
       }
-      .help-button {
-        width: 400px;
-      }
       /* TODO: document where this came from */
       .code-mirror-wrapper {
         line-height: 1.3em;
@@ -205,13 +202,22 @@
                     <li><a href="javascript: setSpeed(PlaySpeed.SUPER_FAST)">Super fast</a></li>
                   </ul>
               </div>
-              <button
-                class="btn help-button btn-primary"
-                type="button"
-                style="width: 200px"
-                id="helpButton">
-                Help</button>
+              <div class="btn-group">
+                <button
+                  class="btn btn-primary menu-button"
+                  type="button"
+                  id="helpButton"
+                  onClick="TUTORIAL.setup.startTutorialPrompt.activate()">
+                  Help</button>
 
+                <a
+                  href="#hintModal"
+                  role="button" 
+                  class="btn menu-button"
+                  id="hintButton"
+                  data-toggle="modal">
+                  Hint</a>
+              </div>
             </p>
           </div><!-- END: buttons, message box and code editor -->
 
@@ -288,22 +294,16 @@
             </div>
           </div>
           
-
-
-            <!-- Help button
-            <button type="button" class="close" data-dismiss="alert">&times;</button>
-            <h2><a href="#helpModal" role="button" data-toggle="modal">Help</a></h2>
-            -->
-            <!-- BEGIN: help modal -->
+            <!-- BEGIN: hint modal -->
             <div
-              id="helpModal"
+              id="hintModal"
               class="modal hide fade"
               tabindex="-1"
               role="dialog"
-              aria-labelledby="helpModalLabel"
+              aria-labelledby="hintModalLabel"
               aria-hidden="true">
               <div class="modal-header">
-                <h3 id="helpModalLabel">How to play <i>Puzzle Code</i> </h3>
+                <h3 id="helpModalLabel">Hint for Level 1.1 Welcome to Puzzle Code!</h3>
               </div>
               <div class="modal-body">
                 <p>
@@ -346,7 +346,9 @@
               <div class="modal-footer">
                 <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
               </div>
-            </div> <!-- END: help modal -->
+            </div> <!-- END: hint modal -->
+
+
           </div> <!-- END: right  column -->
 
           <!-- BEGIN: victory modal -->

@@ -372,6 +372,7 @@ var PUZZLE_CAMPAIGN_STATE = {
 
 // set to true once the help button has been clicked
 var HELP_BUTTON_CLICKED = false 
+var HINT_BUTTON_CLICKED = false 
 
 // TODO: do we still need this?
 var TUTORIAL_ACTIVE = false
@@ -388,7 +389,8 @@ var MENU_BUTTONS = {
   "#pauseplay": true,
   "#stepButton": true,
   "#restart": true,
-  "#helpButton": true
+  "#helpButton": true,
+  "#hintButton": true
 }
 
 var BOARD = undefined
@@ -422,7 +424,7 @@ var TUTORIAL = undefined
 
 // set to true once the player has seen (and clicked on) the level menu
 // at least once
-var PLAYER_HAS_SEEN_LEVEL_MENU = true
+var PLAYER_HAS_USED_LEVEL_MENU = true
 
 window.onload = windowOnLoad
 

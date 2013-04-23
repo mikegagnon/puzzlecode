@@ -20,11 +20,6 @@
  * TODO: document
  *****************************************************************************/
 
-// Can be called at any time to abort the tutorial
-/*function cancelTutorial() {
-  var tutorial = TUTORIAL
-}*/
-
 /**
  * transition from current tutorial-step to next tutorial-step
  * current and next are keys into the TUTORIAL.setup object
@@ -41,13 +36,13 @@ function tutorialTransition(current, next) {
 
   setup[current].deactivate()
 
-  if (next != "cancel") {
+  if (next == "cancel") {
+    compile()
+  } else {
     setup[next].activate()
   }
 
 }
-
-
 
 // Called once during windowOnLoad to initialize the tutorial
 // returns a "Tutorial" object
@@ -57,10 +52,6 @@ function setupTutorial() {
 
   _(tutorial.setup)
     .forEach(function(tutorialStep) {
-      if ("initialize" in tutorialStep) {
-        tutorialStep.initialize()
-      }
-
       // attach the popover to the specified html element
       if ("popover_attach" in tutorialStep ||
           "popover" in tutorialStep) {
@@ -152,7 +143,7 @@ function setupTutorialObject() {
      * The greeting that is presented when the user clicks the help button
      *************************************************************************/
 
-    // This object describes the 'helpButton' tutoria step 
+    // This object describes the 'helpButton' tutorial step
     "startTutorialPrompt": {
 
       // A Bootstrap popover will be attached to the #helpButton html element
@@ -172,17 +163,6 @@ function setupTutorialObject() {
             "Begin tutorial")
          + "</div>"
       }),
-
-      // the windowOnLoad fuction will call this initialize function exactly once
-      // to setup this tutorial step
-      initialize: function() {
-
-        // TODO: is there a jquery method that would be better?
-        // TODO: does this.activate work?
-        document
-          .getElementById("helpButton")
-          .addEventListener("click", this.activate)
-      },
 
       // This function is called to active this tutorial-step
       activate: function() {

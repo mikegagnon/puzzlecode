@@ -856,6 +856,7 @@ function oppositeDirection(direction) {
  * Code for the windowOnLoad event
  *****************************************************************************/
 
+// TODO: delete this and use onClick instead
 function registerEventHandlers() {
   pausePlay = document.getElementById("pauseplay")
   pausePlay
@@ -869,10 +870,13 @@ function registerEventHandlers() {
     .getElementById("restart")
     .addEventListener("click", restartSimulation);
 
+  $('#hintModal').on('shown', hintClick)
+
 }
 
 // These event handlers are registered in main.js and in index.html
 function windowOnLoad() {
+
   setupCodeMirrorBox()
   registerEventHandlers()
   setupTutorial()
@@ -1019,6 +1023,11 @@ function stepButtonClick() {
   }
 }
 
+function hintClick() {
+  HINT_BUTTON_CLICKED = true
+  compile()
+}
+
 function disableButton(button) {
   assert(button in MENU_BUTTONS, "disableButton: button in MENU_BUTTONS")
   $(button).addClass("disabled")
@@ -1063,13 +1072,8 @@ function compile() {
     } else {
       enableButton("#pauseplay")
       enableButton("#stepButton")
-      if (HELP_BUTTON_CLICKED) {
-        if (!TUTORIAL_ACTIVE) {
-          setPrimaryButton("#pauseplay")
-        }
-      } else {
-        setPrimaryButton("#helpButton")
-      }
+
+      updatePrimaryButton()
     }
   } else {
     console.error("I don't expect compile to be called unless board is reset")
@@ -1090,6 +1094,8 @@ function compile() {
       .attr("class", "alert alert-block alert-success")
     d3.select("#messageBoxHeader")
       .text("Tip:")
+
+    // TODO: give a tip to click the hint button (when it is highlighted)
     if (HELP_BUTTON_CLICKED) {
       d3.select("#messageBox")
         .html("<h3>Click the 'Run!' button to run your program</h3>")
@@ -1139,7 +1145,7 @@ function restartSimulation() {
  *****************************************************************************/
 function clickLevel(world_index, level_index) {
 
-  PLAYER_HAS_SEEN_LEVEL_MENU = true
+  PLAYER_HAS_USED_LEVEL_MENU = true
 
   $("#accordionLevelSelect").removeClass("glow-focus")
 
@@ -1570,11 +1576,6 @@ function step(board, campaign, state) {
  * TODO: document
  *****************************************************************************/
 
-// Can be called at any time to abort the tutorial
-/*function cancelTutorial() {
-  var tutorial = TUTORIAL
-}*/
-
 /**
  * transition from current tutorial-step to next tutorial-step
  * current and next are keys into the TUTORIAL.setup object
@@ -1591,13 +1592,13 @@ function tutorialTransition(current, next) {
 
   setup[current].deactivate()
 
-  if (next != "cancel") {
+  if (next == "cancel") {
+    compile()
+  } else {
     setup[next].activate()
   }
 
 }
-
-
 
 // Called once during windowOnLoad to initialize the tutorial
 // returns a "Tutorial" object
@@ -1607,10 +1608,6 @@ function setupTutorial() {
 
   _(tutorial.setup)
     .forEach(function(tutorialStep) {
-      if ("initialize" in tutorialStep) {
-        tutorialStep.initialize()
-      }
-
       // attach the popover to the specified html element
       if ("popover_attach" in tutorialStep ||
           "popover" in tutorialStep) {
@@ -1702,7 +1699,7 @@ function setupTutorialObject() {
      * The greeting that is presented when the user clicks the help button
      *************************************************************************/
 
-    // This object describes the 'helpButton' tutoria step 
+    // This object describes the 'helpButton' tutorial step
     "startTutorialPrompt": {
 
       // A Bootstrap popover will be attached to the #helpButton html element
@@ -1722,17 +1719,6 @@ function setupTutorialObject() {
             "Begin tutorial")
          + "</div>"
       }),
-
-      // the windowOnLoad fuction will call this initialize function exactly once
-      // to setup this tutorial step
-      initialize: function() {
-
-        // TODO: is there a jquery method that would be better?
-        // TODO: does this.activate work?
-        document
-          .getElementById("helpButton")
-          .addEventListener("click", this.activate)
-      },
 
       // This function is called to active this tutorial-step
       activate: function() {
@@ -2033,6 +2019,32 @@ function newArray(length, defaultValue) {
  * limitations under the License.
  */
 
+// TODO: split this up into several files. Right now this file includes
+// simulation animations as well as other visualizations (e.g. buttons)
+
+// Determines which button on the GUI should be highlighted
+function getPrimaryButton() {
+
+  if (TUTORIAL_ACTIVE) {
+    return undefined
+  }
+  else if (!HELP_BUTTON_CLICKED) {
+    return "#helpButton"
+  }
+  else if (!HINT_BUTTON_CLICKED) {
+    return "#hintButton"
+  }
+  else {
+    return "#pauseplay"
+  }
+}
+
+function updatePrimaryButton() {
+  var primaryButton = getPrimaryButton()
+  if (typeof primaryButton != "undefined") {
+    setPrimaryButton(primaryButton)
+  }
+}
 // Maps each BotColor to a hue 
 // The hue value (between 0 and 100)
 var BotColorHue = {
@@ -2961,7 +2973,7 @@ function showOrHideLevelMenu(state) {
     if (getVisibilityIndices(world).length == 1) {
       // then hide the level menu
       hide = true
-      PLAYER_HAS_SEEN_LEVEL_MENU = false
+      PLAYER_HAS_USED_LEVEL_MENU = false
     }
   }
 
@@ -2972,7 +2984,7 @@ function showOrHideLevelMenu(state) {
 
     // TODO: only glow the level menu if the player has never clicked on it
     // before. As soon as the player clicks the level menu, un-glow it
-    if (!PLAYER_HAS_SEEN_LEVEL_MENU) {
+    if (!PLAYER_HAS_USED_LEVEL_MENU) {
       $("#accordionLevelSelect").addClass("glow-focus")
     }
   }
@@ -3482,6 +3494,7 @@ var PUZZLE_CAMPAIGN_STATE = {
 
 // set to true once the help button has been clicked
 var HELP_BUTTON_CLICKED = false 
+var HINT_BUTTON_CLICKED = false 
 
 // TODO: do we still need this?
 var TUTORIAL_ACTIVE = false
@@ -3498,7 +3511,8 @@ var MENU_BUTTONS = {
   "#pauseplay": true,
   "#stepButton": true,
   "#restart": true,
-  "#helpButton": true
+  "#helpButton": true,
+  "#hintButton": true
 }
 
 var BOARD = undefined
@@ -3532,7 +3546,7 @@ var TUTORIAL = undefined
 
 // set to true once the player has seen (and clicked on) the level menu
 // at least once
-var PLAYER_HAS_SEEN_LEVEL_MENU = true
+var PLAYER_HAS_USED_LEVEL_MENU = true
 
 window.onload = windowOnLoad
 

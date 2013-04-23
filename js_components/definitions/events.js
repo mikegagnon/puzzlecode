@@ -20,6 +20,7 @@
  * Code for the windowOnLoad event
  *****************************************************************************/
 
+// TODO: delete this and use onClick instead
 function registerEventHandlers() {
   pausePlay = document.getElementById("pauseplay")
   pausePlay
@@ -33,10 +34,13 @@ function registerEventHandlers() {
     .getElementById("restart")
     .addEventListener("click", restartSimulation);
 
+  $('#hintModal').on('shown', hintClick)
+
 }
 
 // These event handlers are registered in main.js and in index.html
 function windowOnLoad() {
+
   setupCodeMirrorBox()
   registerEventHandlers()
   setupTutorial()
@@ -183,6 +187,11 @@ function stepButtonClick() {
   }
 }
 
+function hintClick() {
+  HINT_BUTTON_CLICKED = true
+  compile()
+}
+
 function disableButton(button) {
   assert(button in MENU_BUTTONS, "disableButton: button in MENU_BUTTONS")
   $(button).addClass("disabled")
@@ -227,13 +236,8 @@ function compile() {
     } else {
       enableButton("#pauseplay")
       enableButton("#stepButton")
-      if (HELP_BUTTON_CLICKED) {
-        if (!TUTORIAL_ACTIVE) {
-          setPrimaryButton("#pauseplay")
-        }
-      } else {
-        setPrimaryButton("#helpButton")
-      }
+
+      updatePrimaryButton()
     }
   } else {
     console.error("I don't expect compile to be called unless board is reset")
@@ -254,6 +258,8 @@ function compile() {
       .attr("class", "alert alert-block alert-success")
     d3.select("#messageBoxHeader")
       .text("Tip:")
+
+    // TODO: give a tip to click the hint button (when it is highlighted)
     if (HELP_BUTTON_CLICKED) {
       d3.select("#messageBox")
         .html("<h3>Click the 'Run!' button to run your program</h3>")
@@ -303,7 +309,7 @@ function restartSimulation() {
  *****************************************************************************/
 function clickLevel(world_index, level_index) {
 
-  PLAYER_HAS_SEEN_LEVEL_MENU = true
+  PLAYER_HAS_USED_LEVEL_MENU = true
 
   $("#accordionLevelSelect").removeClass("glow-focus")
 
