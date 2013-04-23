@@ -819,7 +819,7 @@ function animateVictoryModalAndMenu(board, campaign, state) {
           if (!set_playNextButton) {
             set_playNextButton = true
             $("#victoryModal_playNextButton")
-              .attr("href", "javascript: clickLevel("
+              .attr("href", "javascript: transitionLevel("
                 + delta.world_index
                 + ","
                 + delta.level_unlock

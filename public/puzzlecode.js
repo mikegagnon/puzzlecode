@@ -1143,10 +1143,15 @@ function restartSimulation() {
 /**
  * When the user clicks a level
  *****************************************************************************/
+
 function clickLevel(world_index, level_index) {
-
   PLAYER_HAS_USED_LEVEL_MENU = true
+  transitionLevel(world_index, level_index)
+}
 
+// TODO: PLAYER_HAS_USED_LEVEL_MENU is still set to true even if clickLevel
+// is not called directly
+function transitionLevel(world_index, level_index) {
   $("#accordionLevelSelect").removeClass("glow-focus")
 
   $("#victoryModal").modal('hide')
@@ -1160,8 +1165,7 @@ function clickLevel(world_index, level_index) {
 
   loadLevel(campaign, state)
   restartSimulation()
-}
-/**
+}/**
  * Copyright 2013 Michael N. Gagnon
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -2824,7 +2828,7 @@ function animateVictoryModalAndMenu(board, campaign, state) {
           if (!set_playNextButton) {
             set_playNextButton = true
             $("#victoryModal_playNextButton")
-              .attr("href", "javascript: clickLevel("
+              .attr("href", "javascript: transitionLevel("
                 + delta.world_index
                 + ","
                 + delta.level_unlock

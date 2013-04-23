@@ -307,10 +307,15 @@ function restartSimulation() {
 /**
  * When the user clicks a level
  *****************************************************************************/
+
 function clickLevel(world_index, level_index) {
-
   PLAYER_HAS_USED_LEVEL_MENU = true
+  transitionLevel(world_index, level_index)
+}
 
+// TODO: PLAYER_HAS_USED_LEVEL_MENU is still set to true even if clickLevel
+// is not called directly
+function transitionLevel(world_index, level_index) {
   $("#accordionLevelSelect").removeClass("glow-focus")
 
   $("#victoryModal").modal('hide')
