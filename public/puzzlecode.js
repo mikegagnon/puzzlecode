@@ -2754,14 +2754,25 @@ function cleanUpVisualization() {
   }
 }
 
-// TODO: have links to levels work
+// BUG: victoryModal does not appear when you've beaten the game
 function animateVictoryModalAndMenu(board, campaign, state) {
 
   if (!("campaign_deltas" in board.visualize.step.general)) {
     return
   }
 
-  console.log("animate victory")
+  /**
+   * NOTE: I assign this campaign_deltas var here because board is a mutable
+   * object. The Victory Modal and Level menu are changed after some time has
+   * passed. There is a race condition, whereby
+   * board.visualize.step.general.campaign_deltas might dissapear by the time
+   * the setTimeout function is called. So we save the campaign_deltas value
+   * here.
+   *
+   * TODO: determine if assigning campaign_deltas like this is a good way
+   * to avoid the race condition
+   */
+  var campaign_deltas = board.visualize.step.general.campaign_deltas
 
   // wait until after the victoryBalls animation is done
   setTimeout(function(){
@@ -2769,13 +2780,16 @@ function animateVictoryModalAndMenu(board, campaign, state) {
     // the html contents of the modal
     var html = ""
 
+    // set to true once victoryModal_playNextButton has been set
+    var set_playNextButton = false
+
     // TODO: sort announcements some way?
     /**
      * NOTE: this approach assumes that world_unlock deltas always occurs before
      * level_unlock. This assumption is necessary because a level can only 
      * be added to a menu after the world has been added to the menu.
      */
-    _(board.visualize.step.general.campaign_deltas)
+    _(campaign_deltas)
       .forEach(function(delta) {
         // if a level has been unlocked
         if ("level_unlock" in delta) {
@@ -2786,14 +2800,24 @@ function animateVictoryModalAndMenu(board, campaign, state) {
               delta.level_unlock,
               name)
 
-          html += '<p>'
+          html += '<h4>'
             + '<span class="label label-info victory-label">New level</span> '
             + 'You unlocked <a href="'
             + levelLink(delta.world_index, delta.level_unlock)
             + '">'
             + level_name
             + '</a>'
-            + '</p>'
+            + '</h4>'
+
+          if (!set_playNextButton) {
+            set_playNextButton = true
+            $("#victoryModal_playNextButton")
+              .attr("href", "javascript: clickLevel("
+                + delta.world_index
+                + ","
+                + delta.level_unlock
+                + ")")
+          }
 
           addLevelToMenu(campaign, state, delta.world_index, delta.level_unlock)
         }
@@ -2801,13 +2825,13 @@ function animateVictoryModalAndMenu(board, campaign, state) {
         else if ("world_unlock" in delta) {
           var next_world_name = campaign[delta.world_unlock].name
 
-          html += '<p>'
+          html += '<h4>'
             + '<span class="label label-success victory-label">New world</span> '
             + 'You unlocked World '
             + (delta.world_unlock + 1)
             + ': '
             + next_world_name
-            + '</p>'
+            + '</h4>'
 
           addWorldToMenu(campaign, state, delta.world_unlock)
         } else if ("level_complete" in delta) {
@@ -2826,6 +2850,14 @@ function animateVictoryModalAndMenu(board, campaign, state) {
     }
 
     showOrHideLevelMenu(state)
+
+    if (set_playNextButton) {
+      $("#victoryModal_playNextButton").removeClass("disabled")
+    } else {
+      $("#victoryModal_playNextButton").addClass("disabled")
+      $("#victoryModal_playNextButton").attr("href", "#")
+    }
+
   }, VICTORY_DUR * 2)
 
 }
@@ -3124,7 +3156,7 @@ var CELL_SIZE = 32,
     VIS = null,
     ANIMATE_INTERVAL = null,
     PLAY_STATUS = PlayStatus.INITAL_STATE_PAUSED,
-    INIT_PLAY_SPEED = PlaySpeed.NORMAL,
+    INIT_PLAY_SPEED = PlaySpeed.FAST,
     ANIMATION_DUR = INIT_PLAY_SPEED[0]
     CYCLE_DUR = INIT_PLAY_SPEED[1],
     VICTORY_DUR = 400
