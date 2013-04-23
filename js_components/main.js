@@ -303,6 +303,7 @@ var PUZZLE_2 = {
 
 
 var PUZZLE_3 = cloneDeep(PUZZLE_1, {
+  id: "p3",
   name: "Foobar",
   unlock: function(campaign, state) {
     return levelCompleted(state, 0, 1)
@@ -310,6 +311,7 @@ var PUZZLE_3 = cloneDeep(PUZZLE_1, {
 })
 
 var PUZZLE_4 = cloneDeep(PUZZLE_1, {
+  id: "p4",
   name: "Baz",
   unlock: function(campaign, state) {
     return levelCompleted(state, 1, 0)
@@ -337,7 +339,7 @@ var WORLD_2 = {
 // simply a list of all worlds
 // This data structure is intended to be 100% immutable
 // TODO: write a campaign sanity checker that verified that every level
-// is accessible, the campaign is beatable, etc.
+// is accessible, the campaign is beatable, each puzzle has a unique id, etc.
 var PUZZLE_CAMPAIGN = [
   WORLD_1,
   WORLD_2]
