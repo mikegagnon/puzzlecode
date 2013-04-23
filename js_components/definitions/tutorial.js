@@ -53,14 +53,11 @@ function tutorialTransition(current, next) {
 // returns a "Tutorial" object
 function setupTutorial() {
   TUTORIAL = setupTutorialObject()
-  console.dir(TUTORIAL)
   var tutorial = TUTORIAL
 
   _(tutorial.setup)
     .forEach(function(tutorialStep) {
       if ("initialize" in tutorialStep) {
-        console.log("initialize")
-        console.dir(tutorialStep)
         tutorialStep.initialize()
       }
 

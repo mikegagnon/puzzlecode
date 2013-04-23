@@ -742,6 +742,8 @@ function animateVictoryModalAndMenu(board, campaign, state) {
     return
   }
 
+  console.log("animate victory")
+
   // wait until after the victoryBalls animation is done
   setTimeout(function(){
 

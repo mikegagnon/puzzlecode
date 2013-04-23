@@ -40,7 +40,6 @@ function showOrHideLevelMenu(state) {
       // then hide the level menu
       hide = true
       PLAYER_HAS_SEEN_LEVEL_MENU = false
-      console.log("PLAYER_HAS_SEEN_LEVEL_MENU = false")
     }
   }
 

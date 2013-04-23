@@ -1603,14 +1603,11 @@ function tutorialTransition(current, next) {
 // returns a "Tutorial" object
 function setupTutorial() {
   TUTORIAL = setupTutorialObject()
-  console.dir(TUTORIAL)
   var tutorial = TUTORIAL
 
   _(tutorial.setup)
     .forEach(function(tutorialStep) {
       if ("initialize" in tutorialStep) {
-        console.log("initialize")
-        console.dir(tutorialStep)
         tutorialStep.initialize()
       }
 
@@ -2764,6 +2761,8 @@ function animateVictoryModalAndMenu(board, campaign, state) {
     return
   }
 
+  console.log("animate victory")
+
   // wait until after the victoryBalls animation is done
   setTimeout(function(){
 
@@ -2931,7 +2930,6 @@ function showOrHideLevelMenu(state) {
       // then hide the level menu
       hide = true
       PLAYER_HAS_SEEN_LEVEL_MENU = false
-      console.log("PLAYER_HAS_SEEN_LEVEL_MENU = false")
     }
   }
 
@@ -3141,7 +3139,7 @@ var CELL_SIZE = 32,
     DISABLED_CODE_THEME = "eclipse-dim"
 
 // if true, then loads the solution program when loading new levels
-var AUTO_SOLVE_DEBUG = false
+var AUTO_SOLVE_DEBUG = true
 
 var INTRO_PUZZLE = {
   id: "intro_puzzle",
@@ -3160,7 +3158,7 @@ var INTRO_PUZZLE = {
   },
 
   solutions: [
-    "move\nmove\nturn left\nmove\nmove\nmove\nmove\n",
+    "move\nmove\nmove\nturn left\nmove\nmove\nmove\nmove\n",
   ],
   num_cols: 9,
   num_rows: 7,

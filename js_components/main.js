@@ -61,7 +61,7 @@ var CELL_SIZE = 32,
     DISABLED_CODE_THEME = "eclipse-dim"
 
 // if true, then loads the solution program when loading new levels
-var AUTO_SOLVE_DEBUG = false
+var AUTO_SOLVE_DEBUG = true
 
 var INTRO_PUZZLE = {
   id: "intro_puzzle",
@@ -80,7 +80,7 @@ var INTRO_PUZZLE = {
   },
 
   solutions: [
-    "move\nmove\nturn left\nmove\nmove\nmove\nmove\n",
+    "move\nmove\nmove\nturn left\nmove\nmove\nmove\nmove\n",
   ],
   num_cols: 9,
   num_rows: 7,
