@@ -869,8 +869,21 @@ function animateVictoryModalAndMenu(board, campaign, state) {
 
 }
 
+function initHintModal(board) {
+  var persist = board.visualize.persist
+  if ("hint" in persist) {
+    $("#hintModalBody").html(persist.hint)
+  } else {
+    // TODO: also disable the hint button
+    $("#hintModalBody").html("No hint")    
+  }
+}
+
 // assumes board has already been initialized
 function initializeVisualization(campaign, state, board) {
+
+  initHintModal(board)
+
   drawBoardContainer(board)
   drawCells(board)
   drawInitMarkers(board)
@@ -881,6 +894,8 @@ function initializeVisualization(campaign, state, board) {
   drawBots()
   drawBlocks()
 }
+
+
 
 // called periodically by a timer
 function stepAndAnimate() {

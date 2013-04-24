@@ -67,7 +67,45 @@ var INTRO_PUZZLE = {
   id: "intro_puzzle",
   name: "Welcome to Puzzle Code!",
   description: "Collect all the coins on the board.",
-  hint: "tbd",
+
+  // TODO: add read-only code mirror boxes to the hint
+  hint: 
+    "<p>"
+    + "In Puzzle Code there are many <strong>instructions</strong> you "
+    + "can use to <strong>program</strong> your robot."
+    + "</p>"
+    + "<p>"
+    + "This level introduces you to <strong>two instructions</strong>:"
+    + "<ol>"
+    +   "<li><span class='keyword'>move</span></li>"
+    +   "<li><span class='keyword'>turn</span> <i>direction</i></li>"
+    +   "<ul>"
+    +     "<li><i>direction</i> can be either "
+    +         "<span class='keyword'>left</span> or "
+    +         "<span class='keyword'>right</span></li>"
+    +   "</ul>"
+    + "</ol>"
+    + "<h3>Help pages</h3>"
+    +   "<p>All help pages open in a new window.</p>"
+    +   "<ul>"
+    +     "<li><a href='#'>"
+    +       "Help for <span class='keyword-link'>move</span> instruction"
+    +     "</a></li>"
+    +     "<li><a href='#'>"
+    +       "Help for <span class='keyword-link'>turn</span> instruction"
+    +     "</a></li>"
+    +     "<li><a href='#'>"
+    +       "Learn how to play Puzzle Code"
+    +     "</a></li>"
+    +   "</ul>"
+    // TODO: put this on Puzzlecode Doc pages
+    /*+ "<h3>The <span class='cm-keyword'>move</span> instruction</h3>"
+    + "<p>The <span class='cm-keyword'>move</span> instruction moves the "
+    +    "robot forward <strong>one square</strong>.</p>"
+    + "<p>For example the following program would move the robot forward "
+    + "three squares</p>"
+    + "<p><span class='cm-keyword'>move</span><br><span class='cm-keyword'>move</span><br><span class='cm-keyword'>move</span> </p>"*/
+  ,
   win_conditions: [
     {type: WinCondition.COLLECT_COINS}
   ],

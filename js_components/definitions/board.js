@@ -52,6 +52,10 @@ function loadBoard(campaign, state) {
     step: {}
   }
 
+  if ("hint" in boardConfig) {
+    board.visualize.persist.hint = boardConfig.hint
+  }
+  
   // the index of the bot being programmed by the code editor
   board.visualize.programming_bot_index = boardConfig.programming_bot_index
 

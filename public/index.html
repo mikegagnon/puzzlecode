@@ -61,6 +61,20 @@
       .menu-button {
         width: 100px;
       }
+      /* taken from eclipse.css and codemirror.css */
+      span.keyword {
+        font-family: monospace;
+        font-size: 120%;
+        line-height: 1em;
+        font-weight: bold;
+        color: #7F0055;
+      }
+      span.keyword-link {
+        font-family: monospace;
+        font-size: 120%;
+        line-height: 1em;
+        font-weight: bold;
+      }
       /* TODO: document where this came from */
       .code-mirror-wrapper {
         line-height: 1.3em;
@@ -303,45 +317,9 @@
               aria-labelledby="hintModalLabel"
               aria-hidden="true">
               <div class="modal-header">
-                <h3 id="helpModalLabel">Hint for Level 1.1 Welcome to Puzzle Code!</h3>
+                <h3 id="hintModalTitle">Hint</h3>
               </div>
-              <div class="modal-body">
-                <p>
-                  Try to collect all the <strong>gold coins</strong>
-                  using your <strong>blue robot</strong>.
-                </p>
-                <p>
-                  You cannot move your robot using your mouse or keyboard.
-                </p>
-                <p>
-                  Instead, you must tell your robot what to do by
-                  writing a <strong>"program"</strong>.</p>
-                <p>
-                  A program is just
-                  <strong>
-                    a list of instructions that your robot will follow exactly.
-                  </strong></p>
-                <p>
-                  Write your instructions in the text box on the right side.
-                </p>
-                <p>
-                  To run your program, click the <strong>Run!</strong> button.
-                </p>
-                <p>
-                  You can edit your program by clicking the <strong>Reset</strong>
-                  button.
-                </p>
-                <p>
-                  If you want to run your program, one step at a time, press the
-                  <strong>Step</strong> button.
-                </p>
-                <br>
-                <br>
-                <br>
-                <p>If you have any questions, or suggestions on how to improve these
-                  instructions, please email me at
-                  <a href="mailto:mikegagnon@gmail.com">mikegagnon@gmail.com</a>
-                </p>
+              <div id="hintModalBody" class="modal-body">
               </div>
               <div class="modal-footer">
                 <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
