@@ -63,14 +63,6 @@ var CELL_SIZE = 32,
 // if true, then loads the solution program when loading new levels
 var AUTO_SOLVE_DEBUG = true
 
-function keyword(str) {
-  return "<span class='keyword'>" + str + "</span>"
-}
-
-function keyword_link(str) {
-  return "<span class='keyword-link'>" + str + "</span>"
-}
-
 var INTRO_PUZZLE = {
   id: "intro_puzzle",
   name: "Welcome to Puzzle Code!",
