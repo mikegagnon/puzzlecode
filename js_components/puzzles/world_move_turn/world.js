@@ -20,6 +20,7 @@ function world_moveTurn() {
     name: "Move &amp; Turn",
     levels: [
       puzzle_welcome(),
+      puzzle_torus(),
       puzzle_wrapAround(),
     ]
   }
