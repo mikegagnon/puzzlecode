@@ -1719,6 +1719,11 @@ function setupTutorialObject() {
         // HACK: the style-width is a hack to make sure the close button in the 
         // title renders well
         content: "<div style='width: 250px'>"
+         + "<p>To learn the basics, click the "
+         + "<strong>Begin Tutorial</strong> button.</p>"
+         + "<p>For more in-depth help, visit our "
+         + "<a href='#'>Help Page</a> (opens in a new "
+         + "window).</p>"
          + getNavigation(
             "cancel",
             "startTutorialPrompt",
@@ -1921,6 +1926,9 @@ function setupTutorialObject() {
           + "<p><strong>To try again, click the <strong>Reset</strong> button, edit "
           + "your program and run it again.</strong></p>"
           + "<p>You have now completed the tutorial!</p>"
+          + "<p>For more in-depth help, visit our "
+          + "<a href='#'>Help Page</a> (opens in a new "
+          + "window).</p>"
           + getNavigation(
             "cancel",
             "programEditor5",
@@ -3208,6 +3216,14 @@ var CELL_SIZE = 32,
 // if true, then loads the solution program when loading new levels
 var AUTO_SOLVE_DEBUG = true
 
+function keyword(str) {
+  return "<span class='keyword'>" + str + "</span>"
+}
+
+function keyword_link(str) {
+  return "<span class='keyword-link'>" + str + "</span>"
+}
+
 var INTRO_PUZZLE = {
   id: "intro_puzzle",
   name: "Welcome to Puzzle Code!",
@@ -3220,36 +3236,41 @@ var INTRO_PUZZLE = {
     + "can use to <strong>program</strong> your robot."
     + "</p>"
     + "<p>"
-    + "This level introduces you to <strong>two instructions</strong>:"
-    + "<ol>"
-    +   "<li><span class='keyword'>move</span></li>"
-    +   "<li><span class='keyword'>turn</span> <i>direction</i></li>"
-    +   "<ul>"
-    +     "<li><i>direction</i> can be either "
-    +         "<span class='keyword'>left</span> or "
-    +         "<span class='keyword'>right</span></li>"
-    +   "</ul>"
-    + "</ol>"
-    + "<h3>Help pages</h3>"
-    +   "<p>All help pages open in a new window.</p>"
-    +   "<ul>"
+    + "This level introduces you to <strong>two instructions</strong>: "
+    + keyword("move") + " and " + keyword("turn") + "."
+    + "</p>" 
+    + "<h3>Move</h3>"
+    + "<ul>"
+    +   "<li>The " + keyword("move") + " instruction moves the "
+    +       "robot forward one square.</li>"
+    +   "<li>The robot can only move forward. It cannot move backwards or "
+    +   "sideways.</li>"
     +     "<li><a href='#'>"
-    +       "Help for <span class='keyword-link'>move</span> instruction"
+    +       "Learn more about the " + keyword_link("move") + " instruction."
     +     "</a></li>"
+    + "</ul>"
+    + "<h3>Turn</h3>"
+    + "<ul>"
+    +   "<li>" + keyword("turn left") + " will rotate the robot to the left." 
+    +   "<li>" + keyword("turn right") + " will rotate the robot to the right."
     +     "<li><a href='#'>"
-    +       "Help for <span class='keyword-link'>turn</span> instruction"
+    +       "Learn more about the " + keyword_link("turn") + " instruction."
     +     "</a></li>"
-    +     "<li><a href='#'>"
-    +       "Learn how to play Puzzle Code"
-    +     "</a></li>"
-    +   "</ul>"
-    // TODO: put this on Puzzlecode Doc pages
-    /*+ "<h3>The <span class='cm-keyword'>move</span> instruction</h3>"
-    + "<p>The <span class='cm-keyword'>move</span> instruction moves the "
-    +    "robot forward <strong>one square</strong>.</p>"
-    + "<p>For example the following program would move the robot forward "
-    + "three squares</p>"
-    + "<p><span class='cm-keyword'>move</span><br><span class='cm-keyword'>move</span><br><span class='cm-keyword'>move</span> </p>"*/
+    + "</ul>"
+    + "<h3>Example program</h3>"
+    + "<pre>"
+    + keyword("move") + "<br>"
+    + keyword("move") + "<br>"
+    + keyword("turn right") + "<br>"
+    + keyword("move")
+    + "</pre>"
+    + "<p>This program tells the robot to:</p>"
+    + "<ul>"
+    +   "<li>move forward twice</li>"
+    +   "<li>rotate to the right 90 degrees</li>"
+    +   "<li>move forward once</li>"
+    + "</ul>"
+
   ,
   win_conditions: [
     {type: WinCondition.COLLECT_COINS}

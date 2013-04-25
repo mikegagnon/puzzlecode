@@ -155,6 +155,11 @@ function setupTutorialObject() {
         // HACK: the style-width is a hack to make sure the close button in the 
         // title renders well
         content: "<div style='width: 250px'>"
+         + "<p>To learn the basics, click the "
+         + "<strong>Begin Tutorial</strong> button.</p>"
+         + "<p>For more in-depth help, visit our "
+         + "<a href='#'>Help Page</a> (opens in a new "
+         + "window).</p>"
          + getNavigation(
             "cancel",
             "startTutorialPrompt",
@@ -357,6 +362,9 @@ function setupTutorialObject() {
           + "<p><strong>To try again, click the <strong>Reset</strong> button, edit "
           + "your program and run it again.</strong></p>"
           + "<p>You have now completed the tutorial!</p>"
+          + "<p>For more in-depth help, visit our "
+          + "<a href='#'>Help Page</a> (opens in a new "
+          + "window).</p>"
           + getNavigation(
             "cancel",
             "programEditor5",
