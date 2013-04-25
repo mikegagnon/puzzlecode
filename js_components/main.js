@@ -63,93 +63,7 @@ var CELL_SIZE = 32,
 // if true, then loads the solution program when loading new levels
 var AUTO_SOLVE_DEBUG = true
 
-var INTRO_PUZZLE = {
-  id: "intro_puzzle",
-  name: "Welcome to Puzzle Code!",
-  description: "Collect all the coins on the board.",
 
-  // TODO: add read-only code mirror boxes to the hint
-  hint: 
-    "<p>"
-    + "In Puzzle Code there are many <strong>instructions</strong> you "
-    + "can use to <strong>program</strong> your robot."
-    + "</p>"
-    + "<p>"
-    + "This level introduces you to <strong>two instructions</strong>: "
-    + keyword("move") + " and " + keyword("turn") + "."
-    + "</p>" 
-    + "<h3>Move</h3>"
-    + "<ul>"
-    +   "<li>The " + keyword("move") + " instruction moves the "
-    +       "robot forward one square.</li>"
-    +   "<li>The robot can only move forward. It cannot move backwards or "
-    +   "sideways.</li>"
-    +     "<li><a href='#'>"
-    +       "Learn more about the " + keyword_link("move") + " instruction."
-    +     "</a></li>"
-    + "</ul>"
-    + "<h3>Turn</h3>"
-    + "<ul>"
-    +   "<li>" + keyword("turn left") + " will rotate the robot to the left." 
-    +   "<li>" + keyword("turn right") + " will rotate the robot to the right."
-    +     "<li><a href='#'>"
-    +       "Learn more about the " + keyword_link("turn") + " instruction."
-    +     "</a></li>"
-    + "</ul>"
-    + "<h3>Example program</h3>"
-    + "<pre>"
-    + keyword("move") + "<br>"
-    + keyword("move") + "<br>"
-    + keyword("turn right") + "<br>"
-    + keyword("move")
-    + "</pre>"
-    + "<p>This program tells the robot to:</p>"
-    + "<ul>"
-    +   "<li>move forward twice</li>"
-    +   "<li>rotate to the right 90 degrees</li>"
-    +   "<li>move forward once</li>"
-    + "</ul>"
-
-  ,
-  win_conditions: [
-    {type: WinCondition.COLLECT_COINS}
-  ],
-  constraints: [],
-
-  // what conditions need to be met to unlock this level?
-  // the unlock returns true if this level should be unlocked
-  unlock: function(campaign, state) {
-    return true
-  },
-
-  solutions: [
-    "move\nmove\nmove\nturn left\nmove\nmove\nmove\nmove\n",
-  ],
-  num_cols: 9,
-  num_rows: 7,
-  // BUG: this should be programming_bot_id, not index
-  programming_bot_index: 0,
-  bots : [
-    {
-      botColor: BotColor.BLUE,
-      cellX: 4,
-      cellY: 4,
-      facing: Direction.UP,
-      program: "move\nmove\nturn left\nmove\nmove\n",
-    },
-  ],
-  coins: [
-    {x:0, y:1},
-    {x:1, y:1},
-    {x:2, y:1},
-    {x:3, y:1},
-  ],
-  // TODO: make it so that you can omit empty properties from a puzzle
-  blocks: [],
-  traps: [
-    //{x:3, y:0}
-  ]
-}
 
 var PUZZLE_1 = {
   id: "puzzle1",
@@ -284,65 +198,7 @@ var AVOID_THE_TRAPS = {
 }
 
 
-var PUZZLE_2 = {
-  id: "puzzle1",
-  name: "Wrap around",
-  description: "tbd",
-  hint: "tbd",
-  win_conditions: [
-    {type: WinCondition.COLLECT_COINS}
-  ],
-  constraints: [],
 
-  // what conditions need to be met to unlock this level?
-  // the unlock returns true if this level should be unlocked
-  unlock: function(campaign, state) {
-    // TODO: implement level completed that operates on puzzle.id
-    // this way it is resilient to level index changing
-    return levelCompleted(state, 0, 0)
-  },
-
-  solutions: [
-    _(["turn left", "turn left",
-     "move",
-     "turn right",
-     "move", "move", "move", "move", "move", "move"]).join("\n")
-  ],
-  num_cols: 8,
-  num_rows: 8,
-  programming_bot_index: 0,
-  bots : [
-    {
-      botColor: BotColor.BLUE,
-      cellX: 3,
-      cellY: 3,
-      facing: Direction.UP,
-      program: "",
-    }
-  ],
-  coins: [
-    {x:0, y:4},
-    {x:1, y:4},
-    {x:2, y:4},
-    {x:3, y:4},
-    {x:5, y:4},
-    {x:6, y:4},
-    {x:7, y:4},
-  ],
-  blocks: [
-    {x:4, y:0},
-    {x:4, y:1},
-    {x:4, y:2},
-    {x:4, y:3},
-    {x:4, y:4},
-    {x:4, y:5},
-    {x:4, y:6},
-    {x:4, y:7},
-  ],
-  traps: [
-    //{x:3, y:0}
-  ]
-}
 
 
 var PUZZLE_3 = cloneDeep(PUZZLE_1, {
@@ -361,14 +217,7 @@ var PUZZLE_4 = cloneDeep(PUZZLE_1, {
   }
 })
 
-var WORLD_1 = {
-  id: "world1",
-  name: "Move &amp; Turn",
-  levels: [
-    INTRO_PUZZLE,
-    PUZZLE_2,
-  ]
-}
+
 
 var WORLD_2 = {
   id: "world2",
@@ -384,7 +233,7 @@ var WORLD_2 = {
 // TODO: write a campaign sanity checker that verified that every level
 // is accessible, the campaign is beatable, each puzzle has a unique id, etc.
 var PUZZLE_CAMPAIGN = [
-  WORLD_1,
+  world_moveTurn(),
   WORLD_2]
 
 var PUZZLE_CAMPAIGN_STATE = {

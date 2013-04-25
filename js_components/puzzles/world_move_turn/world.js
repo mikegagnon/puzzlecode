@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
-function keyword(str) {
-  return "<span class='keyword'>" + str + "</span>"
-}
-
-function keyword_link(str) {
-  return "<span class='keyword-link'>" + str + "</span>"
+function world_moveTurn() {
+  return {
+    id: "world1",
+    name: "Move &amp; Turn",
+    levels: [
+      puzzle_welcome(),
+      puzzle_wrapAround(),
+    ]
+  }
 }

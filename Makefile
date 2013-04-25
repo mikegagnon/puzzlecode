@@ -23,7 +23,7 @@ js=js_components
 dest=public
 puzzlecode_js=$(dest)/puzzlecode.js
 js_test=js_test/*/*.js
-definitions = $(js)/definitions/*.js
+definitions = $(js)/definitions/*.js $(js)/puzzles/*/*.js
 tmp_file=/tmp/puzzlecode_tmp
 
 # compiles a special version of puzzlecode.js that also runs a bunch of js tests
