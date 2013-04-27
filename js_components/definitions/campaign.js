@@ -29,6 +29,36 @@ function levelCompleted(state, world_index, level_index) {
 }
 
 /**
+ * If there is a previous level, returns {
+ *    world_index: int
+ *    level_index: int 
+ *   }
+ * Otherwise, returns {}
+ */
+function getPrevLevel(campaign, world_index, level_index) {
+  if (world_index == 0 && level_index == 0) {
+    return {}
+  } else if (level_index == 0) {
+    return {
+      world_index: world_index - 1,
+      level_index: campaign[world_index - 1].levels.length - 1
+    }
+  } else {
+    return {
+      world_index: world_index,
+      level_index: level_index - 1
+    }
+  }
+}
+
+// returns true iff the previous level has been completed
+function prevLevelCompleted(campaign, state, world_index, level_index) {
+  var prevLevel = getPrevLevel(campaign, world_index, level_index)
+  return levelCompleted(state, prevLevel.world_index,
+      prevLevel.level_index)
+}
+
+/**
  * a "visibilityObject" comes from board.visibility
  * it is an object, where each key is either an index or "complete"
  * returns the index keys from visibilityObject
@@ -137,7 +167,7 @@ function updateLevelVisibility(board, campaign, state) {
 
         var level = campaign[lev.world_index].levels[lev.level_index]
         // should this level be unlocked?
-        if (level.unlock(campaign, state)) {
+        if (level.unlock(campaign, state, lev.world_index, lev.level_index)) {
 
           // if the unlocked level is in a new world
           if (!(lev.world_index in state.visibility)) {

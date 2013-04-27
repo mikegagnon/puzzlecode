@@ -61,6 +61,12 @@ function loadBoard(campaign, state) {
 
   board.win_conditions = cloneDeep(boardConfig.win_conditions)
 
+  /**
+   * The awards that will be given to the player once the level is
+   * completed.
+   */
+  board.badges = cloneDeep(boardConfig.badges)
+
   // set to true once victory has been achieved
   board.victory = false
 

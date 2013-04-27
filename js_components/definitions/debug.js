@@ -51,6 +51,11 @@ var RESULT = undefined
 // the filename of the current test
 var TEST_FILENAME = undefined
 
+
+/**
+ * Usage: assign appropriate values to TC_NAME, TC, RESULT, and TEST_FILENAME
+ * The test fails if bool == false
+ */
 function test(bool) {
   if (!bool) {
     alert("Failed test. See console logs for error messages.")

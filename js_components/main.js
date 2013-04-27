@@ -237,6 +237,30 @@ var PUZZLE_CAMPAIGN = [
   WORLD_2]
 
 var PUZZLE_CAMPAIGN_STATE = {
+
+  /**
+   * The player's set of accomplishments.
+   * TODO: visualize badges in Victory modal and trophy page.
+   */
+  badges: {
+
+    /**
+     * Badges relating to instruction usage.
+     * The set of instructions the player has used effectively
+     */
+    instruction: {},
+
+    /**
+     * what worlds has the player completed
+     */
+    world: {},
+
+    /**
+     * misc badges
+     */
+    misc: {}
+  },
+
   current_level: {
     world_index: 0,
     level_index: 0

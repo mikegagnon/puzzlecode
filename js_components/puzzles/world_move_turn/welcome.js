@@ -66,6 +66,17 @@ function puzzle_welcome() {
     win_conditions: [
       {type: WinCondition.COLLECT_COINS}
     ],
+
+    /**
+     * The awards that will be given to the player once the level is
+     * completed.
+     */
+    badges: {
+      instruction: {
+        "move": true,
+        "turn": true
+      }
+    },
     constraints: [],
 
     // what conditions need to be met to unlock this level?

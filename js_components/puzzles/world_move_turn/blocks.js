@@ -14,31 +14,35 @@
  * limitations under the License.
  */
 
-function puzzle_torus() {
+function puzzle_blocks() {
   return {
-    id: "torus",
-    name: "Torus",
+    id: "blocks",
+    name: "Blocks",
     description: "Collect all the coins on the board.",
 
     // TODO: add read-only code mirror boxes to the hint
     hint: 
       "<p>"
-      + "If your robot goes off the board, it will wrap around -- and come "
-      + "back on the opposite side."
+      + "Your robot cannot move through blocks. It must go around them."
       + "</p>"
 
     ,
     win_conditions: [
       {type: WinCondition.COLLECT_COINS}
     ],
+    badges: {},
     constraints: [],
 
+    // what conditions need to be met to unlock this level?
+    // the unlock returns true if this level should be unlocked
+    // TODO: come up with better unlock functions. e.g.
+    //    return USED_MOVE && USED_TURN && levelCompleted(LevelEnum.Previous)
     unlock: function(campaign, state, world_index, level_index) {
       return prevLevelCompleted(campaign, state, world_index, level_index)
     },
 
     solutions: [
-      "move\nmove\nmove\nturn left\nmove\nmove\nmove\nmove\n",
+      "move\nmove\nturn left\nmove\nmove\nturn right\nmove\nmove\nturn right\nmove\nmove",
     ],
     num_cols: 9,
     num_rows: 7,
@@ -47,30 +51,19 @@ function puzzle_torus() {
     bots : [
       {
         botColor: BotColor.BLUE,
-        cellX: 4,
-        cellY: 2,
-        facing: Direction.UP,
-        program: "move\nmove\nturn left\nmove\nmove\n",
+        cellX: 2,
+        cellY: 3,
+        facing: Direction.RIGHT,
+        program: "",
       },
     ],
     coins: [
-      {x:4, y:0},
-      {x:4, y:1},
-      {x:4, y:4},
-      {x:4, y:4},
-      {x:4, y:5},
-      {x:4, y:6},
+      {x:6, y:3},
     ],
     blocks: [
-      {x:0, y:3},
-      {x:1, y:3},
-      {x:2, y:3},
-      {x:3, y:3},
-      {x:4, y:3},
+      {x:5, y:2},
       {x:5, y:3},
-      {x:6, y:3},
-      {x:7, y:3},
-      {x:8, y:3},
+      {x:5, y:4},
     ],
     traps: [
       //{x:3, y:0}

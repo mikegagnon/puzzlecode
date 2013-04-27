@@ -27,10 +27,8 @@ function puzzle_wrapAround() {
 
     // what conditions need to be met to unlock this level?
     // the unlock returns true if this level should be unlocked
-    unlock: function(campaign, state) {
-      // TODO: implement level completed that operates on puzzle.id
-      // this way it is resilient to level index changing
-      return levelCompleted(state, 0, 0)
+    unlock: function(campaign, state, world_index, level_index) {
+      return prevLevelCompleted(campaign, state, world_index, level_index)
     },
 
     solutions: [

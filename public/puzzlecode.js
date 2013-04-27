@@ -67,6 +67,12 @@ function loadBoard(campaign, state) {
 
   board.win_conditions = cloneDeep(boardConfig.win_conditions)
 
+  /**
+   * The awards that will be given to the player once the level is
+   * completed.
+   */
+  board.badges = cloneDeep(boardConfig.badges)
+
   // set to true once victory has been achieved
   board.victory = false
 
@@ -135,6 +141,36 @@ function isLevelAccessible(state, world_index, level_index) {
 function levelCompleted(state, world_index, level_index) {
   return isLevelAccessible(state, world_index, level_index) &&
     state.visibility[world_index][level_index].complete
+}
+
+/**
+ * If there is a previous level, returns {
+ *    world_index: int
+ *    level_index: int 
+ *   }
+ * Otherwise, returns {}
+ */
+function getPrevLevel(campaign, world_index, level_index) {
+  if (world_index == 0 && level_index == 0) {
+    return {}
+  } else if (level_index == 0) {
+    return {
+      world_index: world_index - 1,
+      level_index: campaign[world_index - 1].levels.length - 1
+    }
+  } else {
+    return {
+      world_index: world_index,
+      level_index: level_index - 1
+    }
+  }
+}
+
+// returns true iff the previous level has been completed
+function prevLevelCompleted(campaign, state, world_index, level_index) {
+  var prevLevel = getPrevLevel(campaign, world_index, level_index)
+  return levelCompleted(state, prevLevel.world_index,
+      prevLevel.level_index)
 }
 
 /**
@@ -246,7 +282,7 @@ function updateLevelVisibility(board, campaign, state) {
 
         var level = campaign[lev.world_index].levels[lev.level_index]
         // should this level be unlocked?
-        if (level.unlock(campaign, state)) {
+        if (level.unlock(campaign, state, lev.world_index, lev.level_index)) {
 
           // if the unlocked level is in a new world
           if (!(lev.world_index in state.visibility)) {
@@ -763,6 +799,11 @@ var RESULT = undefined
 // the filename of the current test
 var TEST_FILENAME = undefined
 
+
+/**
+ * Usage: assign appropriate values to TC_NAME, TC, RESULT, and TEST_FILENAME
+ * The test fails if bool == false
+ */
 function test(bool) {
   if (!bool) {
     alert("Failed test. See console logs for error messages.")
@@ -3190,6 +3231,77 @@ function loadWorldMenu(campaign, state) {
  * limitations under the License.
  */
 
+function puzzle_blocks() {
+  return {
+    id: "blocks",
+    name: "Blocks",
+    description: "Collect all the coins on the board.",
+
+    // TODO: add read-only code mirror boxes to the hint
+    hint: 
+      "<p>"
+      + "Your robot cannot move through blocks. It must go around them."
+      + "</p>"
+
+    ,
+    win_conditions: [
+      {type: WinCondition.COLLECT_COINS}
+    ],
+    badges: {},
+    constraints: [],
+
+    // what conditions need to be met to unlock this level?
+    // the unlock returns true if this level should be unlocked
+    // TODO: come up with better unlock functions. e.g.
+    //    return USED_MOVE && USED_TURN && levelCompleted(LevelEnum.Previous)
+    unlock: function(campaign, state, world_index, level_index) {
+      return prevLevelCompleted(campaign, state, world_index, level_index)
+    },
+
+    solutions: [
+      "move\nmove\nturn left\nmove\nmove\nturn right\nmove\nmove\nturn right\nmove\nmove",
+    ],
+    num_cols: 9,
+    num_rows: 7,
+    // BUG: this should be programming_bot_id, not index
+    programming_bot_index: 0,
+    bots : [
+      {
+        botColor: BotColor.BLUE,
+        cellX: 2,
+        cellY: 3,
+        facing: Direction.RIGHT,
+        program: "",
+      },
+    ],
+    coins: [
+      {x:6, y:3},
+    ],
+    blocks: [
+      {x:5, y:2},
+      {x:5, y:3},
+      {x:5, y:4},
+    ],
+    traps: [
+      //{x:3, y:0}
+    ]
+  }
+}/**
+ * Copyright 2013 Michael N. Gagnon
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 function puzzle_torus() {
   return {
     id: "torus",
@@ -3209,12 +3321,8 @@ function puzzle_torus() {
     ],
     constraints: [],
 
-    // what conditions need to be met to unlock this level?
-    // the unlock returns true if this level should be unlocked
-    // TODO: come up with better unlock functions. e.g.
-    //    return USED_MOVE && USED_TURN && levelCompleted(LevelEnum.Previous)
-    unlock: function(campaign, state) {
-      return levelCompleted(state, 0, 0)
+    unlock: function(campaign, state, world_index, level_index) {
+      return prevLevelCompleted(campaign, state, world_index, level_index)
     },
 
     solutions: [
@@ -3324,6 +3432,17 @@ function puzzle_welcome() {
     win_conditions: [
       {type: WinCondition.COLLECT_COINS}
     ],
+
+    /**
+     * The awards that will be given to the player once the level is
+     * completed.
+     */
+    badges: {
+      instruction: {
+        "move": true,
+        "turn": true
+      }
+    },
     constraints: [],
 
     // what conditions need to be met to unlock this level?
@@ -3382,6 +3501,7 @@ function world_moveTurn() {
     name: "Move &amp; Turn",
     levels: [
       puzzle_welcome(),
+      puzzle_blocks(),
       puzzle_torus(),
       puzzle_wrapAround(),
     ]
@@ -3415,10 +3535,8 @@ function puzzle_wrapAround() {
 
     // what conditions need to be met to unlock this level?
     // the unlock returns true if this level should be unlocked
-    unlock: function(campaign, state) {
-      // TODO: implement level completed that operates on puzzle.id
-      // this way it is resilient to level index changing
-      return levelCompleted(state, 0, 0)
+    unlock: function(campaign, state, world_index, level_index) {
+      return prevLevelCompleted(campaign, state, world_index, level_index)
     },
 
     solutions: [
@@ -3702,6 +3820,30 @@ var PUZZLE_CAMPAIGN = [
   WORLD_2]
 
 var PUZZLE_CAMPAIGN_STATE = {
+
+  /**
+   * The player's set of accomplishments.
+   * TODO: visualize badges in Victory modal and trophy page.
+   */
+  badges: {
+
+    /**
+     * Badges relating to instruction usage.
+     * The set of instructions the player has used effectively
+     */
+    instruction: {},
+
+    /**
+     * what worlds has the player completed
+     */
+    world: {},
+
+    /**
+     * misc badges
+     */
+    misc: {}
+  },
+
   current_level: {
     world_index: 0,
     level_index: 0
@@ -3785,6 +3927,119 @@ var PLAYER_HAS_USED_LEVEL_MENU = true
 
 window.onload = windowOnLoad
 
+/**
+ * Copyright 2013 Michael N. Gagnon
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+var TEST_FILENAME = "js_test/campaign/test_campaign.js"
+
+// For now a level is just some placeholder value, but I expect in the future
+// tests these dummy levels will need to have the actual structure of real
+// levels
+var DUMMY_LEV_1_1 = true
+var DUMMY_LEV_1_2 = true
+var DUMMY_LEV_1_3 = true
+var DUMMY_LEV_2_1 = true
+var DUMMY_LEV_3_1 = true
+var DUMMY_LEV_3_2 = true
+
+var DUMMY_WORLD_1 = {
+  id: "world1",
+  name: "foo",
+  levels: [
+    DUMMY_LEV_1_1,
+    DUMMY_LEV_1_2,
+    DUMMY_LEV_1_3,
+  ]
+}
+
+var DUMMY_WORLD_2 = {
+  id: "world2",
+  name: "bar",
+  levels: [
+    DUMMY_LEV_2_1,
+  ]
+}
+
+var DUMMY_WORLD_3 = {
+  id: "world3",
+  name: "baz",
+  levels: [
+    DUMMY_LEV_3_1,
+    DUMMY_LEV_3_2,
+  ]
+}
+
+var DUMMY_CAMPAIGN = [
+  DUMMY_WORLD_1,
+  DUMMY_WORLD_2,
+  DUMMY_WORLD_3]
+
+var testGetPrevLevel = {
+  "0.0": {
+    world_index: 0,
+    level_index: 0,
+    expected: {}
+  },
+  "0.1": {
+    world_index: 0,
+    level_index: 1,
+    expected: {
+      world_index: 0,
+      level_index: 0
+    }
+  },
+  "0.2": {
+    world_index: 0,
+    level_index: 2,
+    expected: {
+      world_index: 0,
+      level_index: 1
+    }
+  },
+  "1.0": {
+    world_index: 1,
+    level_index: 0,
+    expected: {
+      world_index: 0,
+      level_index: 2
+    }
+  },
+  "2.0": {
+    world_index: 2,
+    level_index: 0,
+    expected: {
+      world_index: 1,
+      level_index: 0
+    }
+  },
+  "2.1": {
+    world_index: 2,
+    level_index: 1,
+    expected: {
+      world_index: 2,
+      level_index: 0
+    }
+  },
+}
+
+for (TC_NAME in testGetPrevLevel) {
+  TC = testGetPrevLevel[TC_NAME]
+  RESULT = getPrevLevel(DUMMY_CAMPAIGN, TC.world_index, TC.level_index)
+  test(_.isEqual(RESULT, TC.expected))
+}
 /**
  * Copyright 2013 Michael N. Gagnon
  *
