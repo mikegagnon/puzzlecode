@@ -222,10 +222,12 @@ function setPrimaryButton(button) {
 
 }
 
-// TODO: take codeMirrorBox parameter
+// TODO: take codeMirrorBox parameter and board param
 function compile() {
+  var board = BOARD
+
   var programText = CODE_MIRROR_BOX.getValue()
-  var program = compileRobocom(programText)
+  var program = compilePuzzleCode(programText, board)
   addLineComments(CODE_MIRROR_BOX, program.lineComments)
 
   // Enable or disable the #pausePlay and #stepButton buttons

@@ -27,12 +27,12 @@
  */
 var testInstructions = [
 
-    ["move", new RobocomInstruction(Opcode.MOVE, null)],
+    ["move", new PuzzleCodeInstruction(Opcode.MOVE, null)],
     ["move foo", null],
     ["move foo bar", null],
 
-    ["turn left", new RobocomInstruction(Opcode.TURN, Direction.LEFT)],
-    ["turn right", new RobocomInstruction(Opcode.TURN, Direction.RIGHT)],
+    ["turn left", new PuzzleCodeInstruction(Opcode.TURN, Direction.LEFT)],
+    ["turn right", new PuzzleCodeInstruction(Opcode.TURN, Direction.RIGHT)],
     ["turn up", null],
     ["turn down", null],
     ["turn", null],
@@ -41,7 +41,7 @@ var testInstructions = [
     ["turn left right", null],
     ["turn left foo", null],
 
-    ["goto foo_1", new RobocomInstruction(Opcode.GOTO, "foo_1")],
+    ["goto foo_1", new PuzzleCodeInstruction(Opcode.GOTO, "foo_1")],
     ["goto foo bar", null],
     ["goto 1foo", null],
     ["goto _foo", null],

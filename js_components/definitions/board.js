@@ -58,9 +58,13 @@ function loadBoard(campaign, state) {
   }
   
   // the index of the bot being programmed by the code editor
+  // TODO: this should be bot __id__ not bot __index__
+  // TODO: this should go into board.visualize.persist
   board.visualize.programming_bot_index = boardConfig.programming_bot_index
 
   board.win_conditions = cloneDeep(boardConfig.win_conditions)
+
+  board.constraints = cloneDeep(boardConfig.constraints)
 
   /**
    * The awards that will be given to the player once the level is
@@ -84,7 +88,7 @@ function loadBoard(campaign, state) {
 
   for (var i = 0; i < boardConfig.bots.length; i++) {
     var configBot = boardConfig.bots[i]
-    var program = compileRobocom(configBot.program)
+    var program = compilePuzzleCode(configBot.program)
     if (program.instructions == null) {
       // TODO: handle this error better
       console.error("Could not compile: " + configBot.program)

@@ -38,8 +38,8 @@ function addLineComments(codeMirrorBox, lineComments) {
 
 function setupCodeMirrorBox() {
 
-  // Defines a syntax highlighter for the robocom language
-  CodeMirror.defineMIME("text/x-robocom", {
+  // Defines a syntax highlighter for the PuzzleCode language
+  CodeMirror.defineMIME("text/x-puzzlecode", {
     name: "clike",
     keywords: RESERVED_WORDS,
     blockKeywords: {},
@@ -54,7 +54,7 @@ function setupCodeMirrorBox() {
 
   var settings = {
     gutters: ["note-gutter", "CodeMirror-linenumbers"],
-    mode:  "text/x-robocom",
+    mode:  "text/x-puzzlecode",
     theme: "eclipse",
     smartIndent: false,
     lineNumbers: true,

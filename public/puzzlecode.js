@@ -64,9 +64,13 @@ function loadBoard(campaign, state) {
   }
   
   // the index of the bot being programmed by the code editor
+  // TODO: this should be bot __id__ not bot __index__
+  // TODO: this should go into board.visualize.persist
   board.visualize.programming_bot_index = boardConfig.programming_bot_index
 
   board.win_conditions = cloneDeep(boardConfig.win_conditions)
+
+  board.constraints = cloneDeep(boardConfig.constraints)
 
   /**
    * The awards that will be given to the player once the level is
@@ -90,7 +94,7 @@ function loadBoard(campaign, state) {
 
   for (var i = 0; i < boardConfig.bots.length; i++) {
     var configBot = boardConfig.bots[i]
-    var program = compileRobocom(configBot.program)
+    var program = compilePuzzleCode(configBot.program)
     if (program.instructions == null) {
       // TODO: handle this error better
       console.error("Could not compile: " + configBot.program)
@@ -386,8 +390,8 @@ function addLineComments(codeMirrorBox, lineComments) {
 
 function setupCodeMirrorBox() {
 
-  // Defines a syntax highlighter for the robocom language
-  CodeMirror.defineMIME("text/x-robocom", {
+  // Defines a syntax highlighter for the PuzzleCode language
+  CodeMirror.defineMIME("text/x-puzzlecode", {
     name: "clike",
     keywords: RESERVED_WORDS,
     blockKeywords: {},
@@ -402,7 +406,7 @@ function setupCodeMirrorBox() {
 
   var settings = {
     gutters: ["note-gutter", "CodeMirror-linenumbers"],
-    mode:  "text/x-robocom",
+    mode:  "text/x-puzzlecode",
     theme: "eclipse",
     smartIndent: false,
     lineNumbers: true,
@@ -458,7 +462,7 @@ Opcode = {
   GOTO: 2
 }
 
-function RobocomInstruction(
+function PuzzleCodeInstruction(
     // value must be in the Opcode enum
     opcode,
     // data object, whose type is determined by opcode
@@ -471,7 +475,7 @@ function RobocomInstruction(
   this.lineIndex = lineIndex
 }
 
-function RobocomProgram(
+function PuzzleCodeProgram(
     // string
     programText,
     // array of instruction objects (or null if there was an error)
@@ -546,7 +550,7 @@ function compileMove(tokens) {
 
   // assert tokens[0] == "move"
   if (tokens.length == 1) {
-    instruction = new RobocomInstruction(Opcode.MOVE, null)
+    instruction = new PuzzleCodeInstruction(Opcode.MOVE, null)
     comment = newComment("") //Move forward one square")
   } else {
     instruction = null
@@ -570,10 +574,10 @@ function compileTurn(tokens) {
   } else {
     var direction = tokens[1]
     if (direction == "left") {
-      instruction = new RobocomInstruction(Opcode.TURN, Direction.LEFT)
+      instruction = new PuzzleCodeInstruction(Opcode.TURN, Direction.LEFT)
       comment = newComment("")//Rotate to the left ↰")
     } else if (direction == "right") {
-      instruction = new RobocomInstruction(Opcode.TURN, Direction.RIGHT)
+      instruction = new PuzzleCodeInstruction(Opcode.TURN, Direction.RIGHT)
       comment = newComment("")//Rotate to the right ↱")
     } else {
       instruction = null
@@ -606,7 +610,7 @@ function compileGoto(tokens) {
       comment = newErrorComment("'" + label + "' is not a valid label", "#")
       error = true
     } else {
-      instruction = new RobocomInstruction(Opcode.GOTO, label)
+      instruction = new PuzzleCodeInstruction(Opcode.GOTO, label)
       // this comment is filled in on the second pass
       comment = null
       error = false
@@ -631,7 +635,7 @@ function isValidLabel(label) {
 
 /**
  * Returns [instruction, comment, error, label], where:
- *  instruction is a RobocomInstruction and comment is a string
+ *  instruction is a PuzzleCodeInstruction and comment is a string
  *    instruction is set to null if there was an error compiling the
  *    instruction, or if the line is a no-op
  *  label is a string or null
@@ -683,8 +687,8 @@ function compileLine(line, lineIndex, labels) {
 
 }
 
-// Compiles a programText into a RobocomProgram object
-function compileRobocom(programText) {
+// Compiles a programText into a PuzzleCodeProgram object
+function compilePuzzleCode(programText, board) {
   var lines = programText.split("\n")
   var instructions = []
   var lineComments = {}
@@ -744,9 +748,9 @@ function compileRobocom(programText) {
   }
 
   if (error) {
-    return new RobocomProgram(programText, null, lineComments)
+    return new PuzzleCodeProgram(programText, null, lineComments)
   } else {
-    return new RobocomProgram(programText, instructions, lineComments)
+    return new PuzzleCodeProgram(programText, instructions, lineComments)
   }
 }
 /**
@@ -1106,10 +1110,12 @@ function setPrimaryButton(button) {
 
 }
 
-// TODO: take codeMirrorBox parameter
+// TODO: take codeMirrorBox parameter and board param
 function compile() {
+  var board = BOARD
+
   var programText = CODE_MIRROR_BOX.getValue()
-  var program = compileRobocom(programText)
+  var program = compilePuzzleCode(programText, board)
   addLineComments(CODE_MIRROR_BOX, program.lineComments)
 
   // Enable or disable the #pausePlay and #stepButton buttons
@@ -2891,10 +2897,6 @@ function animateVictoryModalAndMenu(board, campaign, state) {
       .forEach(function(delta) {
         // if a level has been unlocked
         if ("level_unlock" in delta) {
-          console.log(delta.world_index)
-          console.log(delta.level_unlock)
-          console.dir(campaign[delta.world_index]
-            .levels[delta.level_unlock])
 
           var name = campaign[delta.world_index]
             .levels[delta.level_unlock].level.name
@@ -4511,12 +4513,12 @@ for (TC_NAME in testGetPrevLevel) {
  */
 var testInstructions = [
 
-    ["move", new RobocomInstruction(Opcode.MOVE, null)],
+    ["move", new PuzzleCodeInstruction(Opcode.MOVE, null)],
     ["move foo", null],
     ["move foo bar", null],
 
-    ["turn left", new RobocomInstruction(Opcode.TURN, Direction.LEFT)],
-    ["turn right", new RobocomInstruction(Opcode.TURN, Direction.RIGHT)],
+    ["turn left", new PuzzleCodeInstruction(Opcode.TURN, Direction.LEFT)],
+    ["turn right", new PuzzleCodeInstruction(Opcode.TURN, Direction.RIGHT)],
     ["turn up", null],
     ["turn down", null],
     ["turn", null],
@@ -4525,7 +4527,7 @@ var testInstructions = [
     ["turn left right", null],
     ["turn left foo", null],
 
-    ["goto foo_1", new RobocomInstruction(Opcode.GOTO, "foo_1")],
+    ["goto foo_1", new PuzzleCodeInstruction(Opcode.GOTO, "foo_1")],
     ["goto foo bar", null],
     ["goto 1foo", null],
     ["goto _foo", null],

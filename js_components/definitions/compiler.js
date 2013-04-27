@@ -22,7 +22,7 @@ Opcode = {
   GOTO: 2
 }
 
-function RobocomInstruction(
+function PuzzleCodeInstruction(
     // value must be in the Opcode enum
     opcode,
     // data object, whose type is determined by opcode
@@ -35,7 +35,7 @@ function RobocomInstruction(
   this.lineIndex = lineIndex
 }
 
-function RobocomProgram(
+function PuzzleCodeProgram(
     // string
     programText,
     // array of instruction objects (or null if there was an error)
@@ -110,7 +110,7 @@ function compileMove(tokens) {
 
   // assert tokens[0] == "move"
   if (tokens.length == 1) {
-    instruction = new RobocomInstruction(Opcode.MOVE, null)
+    instruction = new PuzzleCodeInstruction(Opcode.MOVE, null)
     comment = newComment("") //Move forward one square")
   } else {
     instruction = null
@@ -134,10 +134,10 @@ function compileTurn(tokens) {
   } else {
     var direction = tokens[1]
     if (direction == "left") {
-      instruction = new RobocomInstruction(Opcode.TURN, Direction.LEFT)
+      instruction = new PuzzleCodeInstruction(Opcode.TURN, Direction.LEFT)
       comment = newComment("")//Rotate to the left ↰")
     } else if (direction == "right") {
-      instruction = new RobocomInstruction(Opcode.TURN, Direction.RIGHT)
+      instruction = new PuzzleCodeInstruction(Opcode.TURN, Direction.RIGHT)
       comment = newComment("")//Rotate to the right ↱")
     } else {
       instruction = null
@@ -170,7 +170,7 @@ function compileGoto(tokens) {
       comment = newErrorComment("'" + label + "' is not a valid label", "#")
       error = true
     } else {
-      instruction = new RobocomInstruction(Opcode.GOTO, label)
+      instruction = new PuzzleCodeInstruction(Opcode.GOTO, label)
       // this comment is filled in on the second pass
       comment = null
       error = false
@@ -195,7 +195,7 @@ function isValidLabel(label) {
 
 /**
  * Returns [instruction, comment, error, label], where:
- *  instruction is a RobocomInstruction and comment is a string
+ *  instruction is a PuzzleCodeInstruction and comment is a string
  *    instruction is set to null if there was an error compiling the
  *    instruction, or if the line is a no-op
  *  label is a string or null
@@ -247,8 +247,8 @@ function compileLine(line, lineIndex, labels) {
 
 }
 
-// Compiles a programText into a RobocomProgram object
-function compileRobocom(programText) {
+// Compiles a programText into a PuzzleCodeProgram object
+function compilePuzzleCode(programText, board) {
   var lines = programText.split("\n")
   var instructions = []
   var lineComments = {}
@@ -308,8 +308,8 @@ function compileRobocom(programText) {
   }
 
   if (error) {
-    return new RobocomProgram(programText, null, lineComments)
+    return new PuzzleCodeProgram(programText, null, lineComments)
   } else {
-    return new RobocomProgram(programText, instructions, lineComments)
+    return new PuzzleCodeProgram(programText, instructions, lineComments)
   }
 }
