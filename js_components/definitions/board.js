@@ -25,7 +25,7 @@ function setBotProgram(board, botIndex, program) {
  */
 function loadBoard(campaign, state) {
   var lev = state.current_level
-  var boardConfig = campaign[lev.world_index].levels[lev.level_index]
+  var boardConfig = campaign[lev.world_index].levels[lev.level_index].level
 
   var board = {
     num_cols: boardConfig.num_cols,

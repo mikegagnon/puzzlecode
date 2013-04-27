@@ -14,15 +14,31 @@
  * limitations under the License.
  */
 
-function world_moveTurn() {
+function world_goto() {
   return {
-    id: "world1",
-    name: "Move &amp; Turn",
+    id: "world2",
+    name: "Goto",
     levels: [
-      puzzle_welcome(),
-      puzzle_blocks(),
-      puzzle_torus(),
-      puzzle_wrapAround(),
+      {
+        level: puzzle_welcome(),
+        badges: {},
+        unlock: prevLevelCompleted
+      },
+      {
+        level: puzzle_blocks(),
+        badges: {},
+        unlock: prevLevelCompleted
+      },
+      {
+        level: puzzle_torus(),
+        badges: {},
+        unlock: prevLevelCompleted
+      },
+      {
+        level: puzzle_wrapAround(),
+        badges: {},
+        unlock: prevLevelCompleted
+      },
     ]
   }
 }

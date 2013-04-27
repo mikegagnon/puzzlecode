@@ -217,24 +217,13 @@ var PUZZLE_4 = cloneDeep(PUZZLE_1, {
   }
 })
 
-
-
-var WORLD_2 = {
-  id: "world2",
-  name: "Goto",
-  levels: [
-    PUZZLE_3,
-    PUZZLE_4
-  ]
-}
-
 // simply a list of all worlds
 // This data structure is intended to be 100% immutable
 // TODO: write a campaign sanity checker that verified that every level
 // is accessible, the campaign is beatable, each puzzle has a unique id, etc.
 var PUZZLE_CAMPAIGN = [
   world_moveTurn(),
-  WORLD_2]
+  world_goto()]
 
 var PUZZLE_CAMPAIGN_STATE = {
 

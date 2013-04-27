@@ -800,8 +800,13 @@ function animateVictoryModalAndMenu(board, campaign, state) {
       .forEach(function(delta) {
         // if a level has been unlocked
         if ("level_unlock" in delta) {
+          console.log(delta.world_index)
+          console.log(delta.level_unlock)
+          console.dir(campaign[delta.world_index]
+            .levels[delta.level_unlock])
+
           var name = campaign[delta.world_index]
-            .levels[delta.level_unlock].name
+            .levels[delta.level_unlock].level.name
           var level_name = getLevelName(
               delta.world_index,
               delta.level_unlock,

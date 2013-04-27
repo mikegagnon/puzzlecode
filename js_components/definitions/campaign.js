@@ -165,9 +165,11 @@ function updateLevelVisibility(board, campaign, state) {
     .forEach(function(lev) {
       if (!isLevelAccessible(state, lev.world_index, lev.level_index)) {
 
-        var level = campaign[lev.world_index].levels[lev.level_index]
+        // Grab the "unlock function" for this level
+        var unlockFn = campaign[lev.world_index].levels[lev.level_index].unlock
+
         // should this level be unlocked?
-        if (level.unlock(campaign, state, lev.world_index, lev.level_index)) {
+        if (unlockFn(campaign, state, lev.world_index, lev.level_index)) {
 
           // if the unlocked level is in a new world
           if (!(lev.world_index in state.visibility)) {
@@ -213,7 +215,7 @@ function updateLevelVisibility(board, campaign, state) {
 function loadLevel(campaign, state) {
   var world_i = state.current_level.world_index
   var level_i = state.current_level.level_index
-  var level = campaign[world_i].levels[level_i]
+  var level = campaign[world_i].levels[level_i].level
 
   if (AUTO_SOLVE_DEBUG) {
     var programText = level.solutions[0]

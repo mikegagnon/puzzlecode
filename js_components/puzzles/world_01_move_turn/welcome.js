@@ -67,23 +67,7 @@ function puzzle_welcome() {
       {type: WinCondition.COLLECT_COINS}
     ],
 
-    /**
-     * The awards that will be given to the player once the level is
-     * completed.
-     */
-    badges: {
-      instruction: {
-        "move": true,
-        "turn": true
-      }
-    },
     constraints: [],
-
-    // what conditions need to be met to unlock this level?
-    // the unlock returns true if this level should be unlocked
-    unlock: function(campaign, state) {
-      return true
-    },
 
     solutions: [
       "move\nmove\nmove\nturn left\nmove\nmove\nmove\nmove\n",

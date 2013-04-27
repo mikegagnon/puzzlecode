@@ -139,7 +139,7 @@ function addLevelToMenu(campaign, state, world_index, level_index) {
   var completed = state.visibility[world_index][level_index].complete
 
   var world = campaign[world_index]
-  var level = world.levels[level_index]
+  var level = world.levels[level_index].level
 
   $("#" + world.id)
     .find(".dropdown-menu")
@@ -156,7 +156,7 @@ function addLevelToMenu(campaign, state, world_index, level_index) {
  * Add a check mark to a level
  */
 function worldMenuCheckLevel(campaign, world_index, level_index) {
-  var level = campaign[world_index].levels[level_index]
+  var level = campaign[world_index].levels[level_index].level
 
   $("#" + level.id)
     .find(".level-link")

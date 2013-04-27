@@ -32,11 +32,6 @@ function puzzle_torus() {
       {type: WinCondition.COLLECT_COINS}
     ],
     constraints: [],
-
-    unlock: function(campaign, state, world_index, level_index) {
-      return prevLevelCompleted(campaign, state, world_index, level_index)
-    },
-
     solutions: [
       "move\nmove\nmove\nturn left\nmove\nmove\nmove\nmove\n",
     ],

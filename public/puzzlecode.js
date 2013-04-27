@@ -31,7 +31,7 @@ function setBotProgram(board, botIndex, program) {
  */
 function loadBoard(campaign, state) {
   var lev = state.current_level
-  var boardConfig = campaign[lev.world_index].levels[lev.level_index]
+  var boardConfig = campaign[lev.world_index].levels[lev.level_index].level
 
   var board = {
     num_cols: boardConfig.num_cols,
@@ -280,9 +280,11 @@ function updateLevelVisibility(board, campaign, state) {
     .forEach(function(lev) {
       if (!isLevelAccessible(state, lev.world_index, lev.level_index)) {
 
-        var level = campaign[lev.world_index].levels[lev.level_index]
+        // Grab the "unlock function" for this level
+        var unlockFn = campaign[lev.world_index].levels[lev.level_index].unlock
+
         // should this level be unlocked?
-        if (level.unlock(campaign, state, lev.world_index, lev.level_index)) {
+        if (unlockFn(campaign, state, lev.world_index, lev.level_index)) {
 
           // if the unlocked level is in a new world
           if (!(lev.world_index in state.visibility)) {
@@ -328,7 +330,7 @@ function updateLevelVisibility(board, campaign, state) {
 function loadLevel(campaign, state) {
   var world_i = state.current_level.world_index
   var level_i = state.current_level.level_index
-  var level = campaign[world_i].levels[level_i]
+  var level = campaign[world_i].levels[level_i].level
 
   if (AUTO_SOLVE_DEBUG) {
     var programText = level.solutions[0]
@@ -2885,8 +2887,13 @@ function animateVictoryModalAndMenu(board, campaign, state) {
       .forEach(function(delta) {
         // if a level has been unlocked
         if ("level_unlock" in delta) {
+          console.log(delta.world_index)
+          console.log(delta.level_unlock)
+          console.dir(campaign[delta.world_index]
+            .levels[delta.level_unlock])
+
           var name = campaign[delta.world_index]
-            .levels[delta.level_unlock].name
+            .levels[delta.level_unlock].level.name
           var level_name = getLevelName(
               delta.world_index,
               delta.level_unlock,
@@ -3168,7 +3175,7 @@ function addLevelToMenu(campaign, state, world_index, level_index) {
   var completed = state.visibility[world_index][level_index].complete
 
   var world = campaign[world_index]
-  var level = world.levels[level_index]
+  var level = world.levels[level_index].level
 
   $("#" + world.id)
     .find(".dropdown-menu")
@@ -3185,7 +3192,7 @@ function addLevelToMenu(campaign, state, world_index, level_index) {
  * Add a check mark to a level
  */
 function worldMenuCheckLevel(campaign, world_index, level_index) {
-  var level = campaign[world_index].levels[level_index]
+  var level = campaign[world_index].levels[level_index].level
 
   $("#" + level.id)
     .find(".level-link")
@@ -3320,11 +3327,6 @@ function puzzle_torus() {
       {type: WinCondition.COLLECT_COINS}
     ],
     constraints: [],
-
-    unlock: function(campaign, state, world_index, level_index) {
-      return prevLevelCompleted(campaign, state, world_index, level_index)
-    },
-
     solutions: [
       "move\nmove\nmove\nturn left\nmove\nmove\nmove\nmove\n",
     ],
@@ -3433,23 +3435,7 @@ function puzzle_welcome() {
       {type: WinCondition.COLLECT_COINS}
     ],
 
-    /**
-     * The awards that will be given to the player once the level is
-     * completed.
-     */
-    badges: {
-      instruction: {
-        "move": true,
-        "turn": true
-      }
-    },
     constraints: [],
-
-    // what conditions need to be met to unlock this level?
-    // the unlock returns true if this level should be unlocked
-    unlock: function(campaign, state) {
-      return true
-    },
 
     solutions: [
       "move\nmove\nmove\nturn left\nmove\nmove\nmove\nmove\n",
@@ -3500,10 +3486,41 @@ function world_moveTurn() {
     id: "world1",
     name: "Move &amp; Turn",
     levels: [
-      puzzle_welcome(),
-      puzzle_blocks(),
-      puzzle_torus(),
-      puzzle_wrapAround(),
+      {
+        level: puzzle_welcome(),
+        /**
+         * The awards that will be given to the player once the level is
+         * completed.
+         */
+        badges: {
+          instruction: {
+            "move": true,
+            "turn": true
+          }
+        },
+        /**
+         * what conditions need to be met to unlock this level?
+         * the unlock returns true if this level should be unlocked
+         */
+        unlock: function() {
+          return true
+        },
+      },
+      {
+        level: puzzle_blocks(),
+        badges: {},
+        unlock: prevLevelCompleted
+      },
+      /*{
+        level: puzzle_torus(),
+        badges: {},
+        unlock: prevLevelCompleted
+      },*/
+      {
+        level: puzzle_wrapAround(),
+        badges: {},
+        unlock: prevLevelCompleted
+      },
     ]
   }
 }/**
@@ -3532,13 +3549,6 @@ function puzzle_wrapAround() {
       {type: WinCondition.COLLECT_COINS}
     ],
     constraints: [],
-
-    // what conditions need to be met to unlock this level?
-    // the unlock returns true if this level should be unlocked
-    unlock: function(campaign, state, world_index, level_index) {
-      return prevLevelCompleted(campaign, state, world_index, level_index)
-    },
-
     solutions: [
       _(["turn left", "turn left",
        "move",
@@ -3582,6 +3592,49 @@ function puzzle_wrapAround() {
   }
 }
 /**
+ * Copyright 2013 Michael N. Gagnon
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+function world_goto() {
+  return {
+    id: "world2",
+    name: "Goto",
+    levels: [
+      {
+        level: puzzle_welcome(),
+        badges: {},
+        unlock: prevLevelCompleted
+      },
+      {
+        level: puzzle_blocks(),
+        badges: {},
+        unlock: prevLevelCompleted
+      },
+      {
+        level: puzzle_torus(),
+        badges: {},
+        unlock: prevLevelCompleted
+      },
+      {
+        level: puzzle_wrapAround(),
+        badges: {},
+        unlock: prevLevelCompleted
+      },
+    ]
+  }
+}/**
  * Copyright 2013 Michael N. Gagnon
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -3800,24 +3853,13 @@ var PUZZLE_4 = cloneDeep(PUZZLE_1, {
   }
 })
 
-
-
-var WORLD_2 = {
-  id: "world2",
-  name: "Goto",
-  levels: [
-    PUZZLE_3,
-    PUZZLE_4
-  ]
-}
-
 // simply a list of all worlds
 // This data structure is intended to be 100% immutable
 // TODO: write a campaign sanity checker that verified that every level
 // is accessible, the campaign is beatable, each puzzle has a unique id, etc.
 var PUZZLE_CAMPAIGN = [
   world_moveTurn(),
-  WORLD_2]
+  world_goto()]
 
 var PUZZLE_CAMPAIGN_STATE = {
 

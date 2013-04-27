@@ -24,13 +24,6 @@ function puzzle_wrapAround() {
       {type: WinCondition.COLLECT_COINS}
     ],
     constraints: [],
-
-    // what conditions need to be met to unlock this level?
-    // the unlock returns true if this level should be unlocked
-    unlock: function(campaign, state, world_index, level_index) {
-      return prevLevelCompleted(campaign, state, world_index, level_index)
-    },
-
     solutions: [
       _(["turn left", "turn left",
        "move",
