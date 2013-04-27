@@ -3344,7 +3344,7 @@ function puzzle_torus() {
         cellX: 4,
         cellY: 2,
         facing: Direction.UP,
-        program: "move\nmove\nturn left\nmove\nmove\n",
+        program: "",
       },
     ],
     coins: [
