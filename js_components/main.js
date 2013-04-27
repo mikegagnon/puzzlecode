@@ -46,7 +46,7 @@ var CELL_SIZE = 32,
     VIS = null,
     ANIMATE_INTERVAL = null,
     PLAY_STATUS = PlayStatus.INITAL_STATE_PAUSED,
-    INIT_PLAY_SPEED = PlaySpeed.FAST,
+    INIT_PLAY_SPEED = PlaySpeed.NORMAL,
     ANIMATION_DUR = INIT_PLAY_SPEED[0]
     CYCLE_DUR = INIT_PLAY_SPEED[1],
     VICTORY_DUR = 400
@@ -61,7 +61,7 @@ var CELL_SIZE = 32,
     DISABLED_CODE_THEME = "eclipse-dim"
 
 // if true, then loads the solution program when loading new levels
-var AUTO_SOLVE_DEBUG = true
+var AUTO_SOLVE_DEBUG = false
 
 
 

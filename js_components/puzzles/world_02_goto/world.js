@@ -27,17 +27,12 @@ function world_goto() {
         }
       },
       {
-        level: puzzle_blocks(),
+        level: puzzle_small_steps(),
         badges: {},
         unlock: prevLevelCompleted
       },
       {
-        level: puzzle_torus(),
-        badges: {},
-        unlock: prevLevelCompleted
-      },
-      {
-        level: puzzle_wrapAround(),
+        level: puzzle_spiral(),
         badges: {},
         unlock: prevLevelCompleted
       },

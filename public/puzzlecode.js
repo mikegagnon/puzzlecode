@@ -3932,6 +3932,238 @@ function puzzle_goto() {
  * limitations under the License.
  */
 
+function puzzle_small_steps() {
+  return {
+    id: "small_steps",
+    name: "Small Steps",
+
+    hint: 
+      "<p>"
+      + "Take one step forward, then use a " + keyword("goto") + " instruction "
+      + "to do it again. "
+      + "</p>"
+      + "<p>"
+      +   "<a href='#'>"
+      +   "Learn more about the " + keyword_link("goto") + " instruction."
+      +   "</a>"
+      + "</p>"
+    ,
+    win_conditions: [
+      {type: WinCondition.COLLECT_COINS}
+    ],
+
+    // TODO: add a constraint that you can only use 1 move instruction
+    constraints: [],
+
+    solutions: [
+      "again: move\ngoto again"
+    ],
+    num_cols: 9,
+    num_rows: 7,
+    // BUG: this should be programming_bot_id, not index
+    programming_bot_index: 0,
+    bots : [
+      {
+        botColor: BotColor.BLUE,
+        cellX: 1,
+        cellY: 3,
+        facing: Direction.RIGHT,
+        program: "",
+      },
+    ],
+    coins: [
+      {x:2, y:3},
+      {x:3, y:3},
+      {x:4, y:3},
+      {x:5, y:3},
+      {x:6, y:3},
+      {x:7, y:3},
+
+    ],
+    blocks: [],
+    traps: []
+  }
+}/**
+ * Copyright 2013 Michael N. Gagnon
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+function puzzle_spiral() {
+  return {
+    id: "spiral",
+    name: "Spiral",
+
+    hint: 
+      "<p>"
+      + "It's OK if your robot bumps into a wall."
+      + "</p>"
+      + "<p>"
+      +   "<a href='#'>"
+      +   "Learn more about the " + keyword_link("goto") + " instruction."
+      +   "</a>"
+      + "</p>"
+    ,
+    win_conditions: [
+      {type: WinCondition.COLLECT_COINS}
+    ],
+
+    // TODO: add a constraint that you can only use 1 move instruction
+    constraints: [],
+
+    solutions: [
+      "start:\nmove\nmove\nmove\nmove\nmove\nmove\nturn right\ngoto start\n"
+    ],
+    num_cols: 9,
+    num_rows: 8,
+    // BUG: this should be programming_bot_id, not index
+    programming_bot_index: 0,
+    bots : [
+      {
+        botColor: BotColor.BLUE,
+        cellX: 3,
+        cellY: 4,
+        facing: Direction.UP,
+        program: "",
+      },
+    ],
+    coins: [
+      {x:1, y:1},
+      {x:2, y:1},
+      {x:3, y:1},
+      {x:4, y:1},
+      {x:5, y:1},
+      {x:6, y:1},
+      {x:7, y:1},
+      {x:1, y:2},
+      {x:7, y:2},
+      {x:1, y:3},
+      {x:3, y:3},
+      {x:4, y:3},
+      {x:5, y:3},
+      {x:7, y:3},
+      {x:1, y:4},
+      {x:5, y:4},
+      {x:7, y:4},
+      {x:1, y:5},
+      {x:5, y:5},
+      {x:7, y:5},
+      {x:1, y:6},
+      {x:2, y:6},
+      {x:3, y:6},
+      {x:4, y:6},
+      {x:5, y:6},
+      {x:7, y:6},
+    ],
+    blocks: [
+      {x:0, y:0},
+      {x:1, y:0},
+      {x:2, y:0},
+      {x:3, y:0},
+      {x:4, y:0},
+      {x:5, y:0},
+      {x:6, y:0},
+      {x:7, y:0},
+      {x:8, y:0},
+
+      {x:0, y:1},
+      /*{x:1, y:1},
+      {x:2, y:1},
+      {x:3, y:1},
+      {x:4, y:1},
+      {x:5, y:1},
+      {x:6, y:1},
+      {x:7, y:1},*/
+      {x:8, y:1},
+
+      {x:0, y:2},
+      //{x:1, y:2},
+      {x:2, y:2},
+      {x:3, y:2},
+      {x:4, y:2},
+      {x:5, y:2},
+      {x:6, y:2},
+      //{x:7, y:2},
+      {x:8, y:2},
+
+      {x:0, y:3},
+      //{x:1, y:3},
+      {x:2, y:3},
+      //{x:3, y:3},
+      //{x:4, y:3},
+      //{x:5, y:3},
+      {x:6, y:3},
+      //{x:7, y:3},
+      {x:8, y:3},
+
+      {x:0, y:4},
+      //{x:1, y:4},
+      {x:2, y:4},
+      //{x:3, y:4},
+      {x:4, y:4},
+      //{x:5, y:4},
+      {x:6, y:4},
+      //{x:7, y:4},
+      {x:8, y:4},
+
+      {x:0, y:5},
+      //{x:1, y:5},
+      {x:2, y:5},
+      {x:3, y:5},
+      {x:4, y:5},
+      //{x:5, y:5},
+      {x:6, y:5},
+      //{x:7, y:5},
+      {x:8, y:5},
+
+      {x:0, y:6},
+      /*{x:1, y:6},
+      {x:2, y:6},
+      {x:3, y:6},
+      {x:4, y:6},
+      {x:5, y:6},*/
+      {x:6, y:6},
+      //{x:7, y:6},
+      {x:8, y:6},
+
+      {x:0, y:7},
+      {x:1, y:7},
+      {x:2, y:7},
+      {x:3, y:7},
+      {x:4, y:7},
+      {x:5, y:7},
+      {x:6, y:7},
+      {x:7, y:7},
+      {x:8, y:7},
+    ],
+    traps: []
+  }
+}/**
+ * Copyright 2013 Michael N. Gagnon
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 function world_goto() {
   return {
     id: "world2",
@@ -3945,17 +4177,12 @@ function world_goto() {
         }
       },
       {
-        level: puzzle_blocks(),
+        level: puzzle_small_steps(),
         badges: {},
         unlock: prevLevelCompleted
       },
       {
-        level: puzzle_torus(),
-        badges: {},
-        unlock: prevLevelCompleted
-      },
-      {
-        level: puzzle_wrapAround(),
+        level: puzzle_spiral(),
         badges: {},
         unlock: prevLevelCompleted
       },
@@ -4009,7 +4236,7 @@ var CELL_SIZE = 32,
     VIS = null,
     ANIMATE_INTERVAL = null,
     PLAY_STATUS = PlayStatus.INITAL_STATE_PAUSED,
-    INIT_PLAY_SPEED = PlaySpeed.FAST,
+    INIT_PLAY_SPEED = PlaySpeed.NORMAL,
     ANIMATION_DUR = INIT_PLAY_SPEED[0]
     CYCLE_DUR = INIT_PLAY_SPEED[1],
     VICTORY_DUR = 400
@@ -4024,7 +4251,7 @@ var CELL_SIZE = 32,
     DISABLED_CODE_THEME = "eclipse-dim"
 
 // if true, then loads the solution program when loading new levels
-var AUTO_SOLVE_DEBUG = true
+var AUTO_SOLVE_DEBUG = false
 
 
 
