@@ -22,6 +22,7 @@ function setBotProgram(board, botIndex, program) {
 
 /**
  * Given a "board-configuration object," yields a new board object
+ * TODO: ensure board.id is prefixed with puzzle_
  */
 function loadBoard(campaign, state) {
   var lev = state.current_level

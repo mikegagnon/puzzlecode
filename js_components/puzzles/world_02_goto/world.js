@@ -20,9 +20,11 @@ function world_goto() {
     name: "Goto",
     levels: [
       {
-        level: puzzle_welcome(),
+        level: puzzle_goto(),
         badges: {},
-        unlock: prevLevelCompleted
+        unlock: function(campaign, state, world_index, level_index) {
+          return levelCompleted(state, world_index - 1, 1) 
+        }
       },
       {
         level: puzzle_blocks(),

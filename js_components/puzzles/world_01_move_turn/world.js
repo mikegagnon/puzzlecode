@@ -40,6 +40,11 @@ function world_moveTurn() {
         },
       },
       {
+        level: puzzle_uturn(),
+        badges: {},
+        unlock: prevLevelCompleted
+      },
+      {
         level: puzzle_blocks(),
         badges: {},
         unlock: prevLevelCompleted
