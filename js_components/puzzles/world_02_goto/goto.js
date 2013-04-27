@@ -70,6 +70,7 @@ function puzzle_goto() {
       {type: WinCondition.COLLECT_COINS}
     ],
 
+    // TODO: add a constraint that you can only use 4 move instructions
     constraints: [],
 
     solutions: [

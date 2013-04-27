@@ -764,6 +764,9 @@ function cleanUpVisualization() {
 // BUG: victoryModal does not appear when you've beaten the game
 function animateVictoryModalAndMenu(board, campaign, state) {
 
+  // TODO: show victory modal every time you beat a level, even if you haven't
+  // unlocked any new levels. This way it gives the player the option
+  // to go to the next level, even if the next level is already unlocked.
   if (!("campaign_deltas" in board.visualize.step.general)) {
     return
   }
