@@ -33,7 +33,7 @@ function puzzle_torus() {
     ],
     constraints: [],
     solutions: [
-      "move\nmove\nmove\nturn left\nmove\nmove\nmove\nmove\n",
+      "move\nmove\nmove\nmove\nmove\nmove\nmove\n",
     ],
     num_cols: 9,
     num_rows: 7,
@@ -51,7 +51,6 @@ function puzzle_torus() {
     coins: [
       {x:4, y:0},
       {x:4, y:1},
-      {x:4, y:4},
       {x:4, y:4},
       {x:4, y:5},
       {x:4, y:6},
