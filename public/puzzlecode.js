@@ -2964,12 +2964,8 @@ function displayConstrains(constraints) {
   }
 }
 
-// BUG: victoryModal does not appear when you've beaten the game
 function animateVictoryModalAndMenu(board, campaign, state) {
 
-  // TODO: show victory modal every time you beat a level, even if you haven't
-  // unlocked any new levels. This way it gives the player the option
-  // to go to the next level, even if the next level is already unlocked.
   if (!("campaign_deltas" in board.visualize.step.general)) {
     return
   }
@@ -2983,7 +2979,7 @@ function animateVictoryModalAndMenu(board, campaign, state) {
    * here.
    *
    * TODO: determine if assigning campaign_deltas like this is a good way
-   * to avoid the race condition
+   * to avoid the race condition. It seems to work in practice.
    */
   var campaign_deltas = board.visualize.step.general.campaign_deltas
 
