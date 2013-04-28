@@ -16,8 +16,11 @@
 
 // TODO: what other code should go in this file?
 
+// TODO: botIndex should be botId
 function setBotProgram(board, botIndex, program) {
-  board.bots[botIndex].program = program
+  if (typeof board.bots[botIndex] != "undefined") {
+    board.bots[botIndex].program = program
+  }
 }
 
 /**
@@ -88,7 +91,11 @@ function loadBoard(campaign, state) {
 
   for (var i = 0; i < boardConfig.bots.length; i++) {
     var configBot = boardConfig.bots[i]
-    var program = compilePuzzleCode(configBot.program)
+    var program = compilePuzzleCode(configBot.program, board)
+
+    assert(program.constraintViolation == false,
+      "loadBoard: program.constraintViolation == false")
+
     if (program.instructions == null) {
       // TODO: handle this error better
       console.error("Could not compile: " + configBot.program)

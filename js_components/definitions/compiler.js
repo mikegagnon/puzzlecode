@@ -41,10 +41,13 @@ function PuzzleCodeProgram(
     // array of instruction objects (or null if there was an error)
     instructions,
     // maps lineNumber to comment for that line
-    lineComments) {
+    lineComments,
+    // true iff the program violates a constraint
+    constraintViolation) {
   this.programText = programText
   this.instructions = instructions
   this.lineComments = lineComments
+  this.constraintViolation = constraintViolation
 }
 
 function newErrorComment(text, uri) {
@@ -249,7 +252,9 @@ function compileLine(line, lineIndex, labels) {
 
 // Compiles a programText into a PuzzleCodeProgram object
 function compilePuzzleCode(programText, board) {
+
   var lines = programText.split("\n")
+
   var instructions = []
   var lineComments = {}
 
@@ -260,6 +265,7 @@ function compilePuzzleCode(programText, board) {
   var labelLineNumbers = {}
 
   var error = false
+  var constraintViolation = false
 
   // first pass: do everything except finalize GOTO statements
   for (var i = 0; i < lines.length; i++) {
@@ -288,6 +294,21 @@ function compilePuzzleCode(programText, board) {
     error = error || lineError
   }
 
+  // ensure max_instructions is not exceeded
+  if (!error && "max_instructions" in board.constraints) {
+    var max_instructions = board.constraints.max_instructions
+    if (instructions.length > max_instructions) {
+      error = true
+      constraintViolation = true
+      // add an error message at each instruction past the limit
+      for (var i = max_instructions; i < instructions.length; i++) {
+        var instruction = instructions[i]
+        lineComments[instruction.lineIndex] =
+          newErrorComment("Too many instructions", "#")
+      }
+    }
+  }
+
   // second pass: finalize GOTO statements
   for (var i = 0; i < instructions.length; i++) {
     var instruction = instructions[i]
@@ -308,8 +329,10 @@ function compilePuzzleCode(programText, board) {
   }
 
   if (error) {
-    return new PuzzleCodeProgram(programText, null, lineComments)
+    return new PuzzleCodeProgram(programText, null, lineComments,
+      constraintViolation)
   } else {
-    return new PuzzleCodeProgram(programText, instructions, lineComments)
+    return new PuzzleCodeProgram(programText, instructions, lineComments,
+      constraintViolation)
   }
 }

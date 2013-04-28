@@ -34,8 +34,9 @@ function puzzle_small_steps() {
       {type: WinCondition.COLLECT_COINS}
     ],
 
-    // TODO: add a constraint that you can only use 1 move instruction
-    constraints: [],
+    constraints: {
+      "max_instructions": 2
+    },
 
     solutions: [
       "again: move\ngoto again"

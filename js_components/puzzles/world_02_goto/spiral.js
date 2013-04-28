@@ -33,8 +33,9 @@ function puzzle_spiral() {
       {type: WinCondition.COLLECT_COINS}
     ],
 
-    // TODO: add a constraint that you can only use 1 move instruction
-    constraints: [],
+    constraints: {
+      "max_instructions": 8
+    },
 
     solutions: [
       "start:\nmove\nmove\nmove\nmove\nmove\nmove\nturn right\ngoto start\n"

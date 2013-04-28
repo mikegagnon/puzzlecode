@@ -22,8 +22,11 @@ function remove(array, from, to) {
 
 // TODO: what other code should go in this file?
 
+// TODO: botIndex should be botId
 function setBotProgram(board, botIndex, program) {
-  board.bots[botIndex].program = program
+  if (typeof board.bots[botIndex] != "undefined") {
+    board.bots[botIndex].program = program
+  }
 }
 
 /**
@@ -94,7 +97,11 @@ function loadBoard(campaign, state) {
 
   for (var i = 0; i < boardConfig.bots.length; i++) {
     var configBot = boardConfig.bots[i]
-    var program = compilePuzzleCode(configBot.program)
+    var program = compilePuzzleCode(configBot.program, board)
+
+    assert(program.constraintViolation == false,
+      "loadBoard: program.constraintViolation == false")
+
     if (program.instructions == null) {
       // TODO: handle this error better
       console.error("Could not compile: " + configBot.program)
@@ -346,9 +353,12 @@ function loadLevel(campaign, state) {
   var levelName = getLevelName(world_i, level_i, level.name)
 
   $("#leveltitle").text(levelName)
+
+  displayConstrains(level.constraints)
+
   PLAY_STATUS = PlayStatus.INITAL_STATE_PAUSED
   CODE_MIRROR_BOX.setValue(programText)
-  compile()
+  
 }
 /**
  * Copyright 2013 Michael N. Gagnon
@@ -481,10 +491,13 @@ function PuzzleCodeProgram(
     // array of instruction objects (or null if there was an error)
     instructions,
     // maps lineNumber to comment for that line
-    lineComments) {
+    lineComments,
+    // true iff the program violates a constraint
+    constraintViolation) {
   this.programText = programText
   this.instructions = instructions
   this.lineComments = lineComments
+  this.constraintViolation = constraintViolation
 }
 
 function newErrorComment(text, uri) {
@@ -689,7 +702,9 @@ function compileLine(line, lineIndex, labels) {
 
 // Compiles a programText into a PuzzleCodeProgram object
 function compilePuzzleCode(programText, board) {
+
   var lines = programText.split("\n")
+
   var instructions = []
   var lineComments = {}
 
@@ -700,6 +715,7 @@ function compilePuzzleCode(programText, board) {
   var labelLineNumbers = {}
 
   var error = false
+  var constraintViolation = false
 
   // first pass: do everything except finalize GOTO statements
   for (var i = 0; i < lines.length; i++) {
@@ -728,6 +744,21 @@ function compilePuzzleCode(programText, board) {
     error = error || lineError
   }
 
+  // ensure max_instructions is not exceeded
+  if (!error && "max_instructions" in board.constraints) {
+    var max_instructions = board.constraints.max_instructions
+    if (instructions.length > max_instructions) {
+      error = true
+      constraintViolation = true
+      // add an error message at each instruction past the limit
+      for (var i = max_instructions; i < instructions.length; i++) {
+        var instruction = instructions[i]
+        lineComments[instruction.lineIndex] =
+          newErrorComment("Too many instructions", "#")
+      }
+    }
+  }
+
   // second pass: finalize GOTO statements
   for (var i = 0; i < instructions.length; i++) {
     var instruction = instructions[i]
@@ -748,9 +779,11 @@ function compilePuzzleCode(programText, board) {
   }
 
   if (error) {
-    return new PuzzleCodeProgram(programText, null, lineComments)
+    return new PuzzleCodeProgram(programText, null, lineComments,
+      constraintViolation)
   } else {
-    return new PuzzleCodeProgram(programText, instructions, lineComments)
+    return new PuzzleCodeProgram(programText, instructions, lineComments,
+      constraintViolation)
   }
 }
 /**
@@ -1117,6 +1150,12 @@ function compile() {
   var programText = CODE_MIRROR_BOX.getValue()
   var program = compilePuzzleCode(programText, board)
   addLineComments(CODE_MIRROR_BOX, program.lineComments)
+
+  if (program.constraintViolation) {
+    $("#constraintBoxDiv").addClass("glow-focus")
+  } else {
+    $("#constraintBoxDiv").removeClass("glow-focus")    
+  }
 
   // Enable or disable the #pausePlay and #stepButton buttons
   if (PLAY_STATUS == PlayStatus.INITAL_STATE_PAUSED) {
@@ -2855,6 +2894,35 @@ function cleanUpVisualization() {
   }
 }
 
+function displayConstrains(constraints) {
+  if (_(constraints).isEmpty()) {
+    $("#constraintBoxDiv").attr("style", "display: none;")
+  } else {
+    $("#constraintBoxDiv").removeAttr("style")
+
+    var numConstraints = _(constraints).keys().value().length
+    assert(numConstraints > 0, "numConstraints > 0")
+
+    if (numConstraints == 1) {
+      $("#constraintBoxHeader").text("Constraint for this level:")
+    } else {
+      $("#constraintBoxHeader").text("Constraints for this level:")      
+    }
+
+    // TODO: should I sort the keys to ensure consistent ordering?
+    var html = ""
+
+    if ("max_instructions" in constraints) {
+      html += "<li>Your program may contain <strong>at most "
+        + constraints.max_instructions + " instructions</strong>."
+        + "</li>"
+    }
+
+    $("#constraintBoxList").html(html)
+
+  }
+}
+
 // BUG: victoryModal does not appear when you've beaten the game
 function animateVictoryModalAndMenu(board, campaign, state) {
 
@@ -3877,7 +3945,9 @@ function puzzle_goto() {
     ],
 
     // TODO: add a constraint that you can only use 4 move instructions
-    constraints: [],
+    constraints: {
+      "max_instructions": 8,
+    },
 
     solutions: [
       "start: move\nmove\nmove\nmove\nturn right\ngoto start"
@@ -3954,8 +4024,9 @@ function puzzle_small_steps() {
       {type: WinCondition.COLLECT_COINS}
     ],
 
-    // TODO: add a constraint that you can only use 1 move instruction
-    constraints: [],
+    constraints: {
+      "max_instructions": 2
+    },
 
     solutions: [
       "again: move\ngoto again"
@@ -4020,8 +4091,9 @@ function puzzle_spiral() {
       {type: WinCondition.COLLECT_COINS}
     ],
 
-    // TODO: add a constraint that you can only use 1 move instruction
-    constraints: [],
+    constraints: {
+      "max_instructions": 8
+    },
 
     solutions: [
       "start:\nmove\nmove\nmove\nmove\nmove\nmove\nturn right\ngoto start\n"

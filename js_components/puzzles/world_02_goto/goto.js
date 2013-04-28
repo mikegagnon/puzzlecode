@@ -71,7 +71,9 @@ function puzzle_goto() {
     ],
 
     // TODO: add a constraint that you can only use 4 move instructions
-    constraints: [],
+    constraints: {
+      "max_instructions": 8,
+    },
 
     solutions: [
       "start: move\nmove\nmove\nmove\nturn right\ngoto start"

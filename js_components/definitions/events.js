@@ -230,6 +230,12 @@ function compile() {
   var program = compilePuzzleCode(programText, board)
   addLineComments(CODE_MIRROR_BOX, program.lineComments)
 
+  if (program.constraintViolation) {
+    $("#constraintBoxDiv").addClass("glow-focus")
+  } else {
+    $("#constraintBoxDiv").removeClass("glow-focus")    
+  }
+
   // Enable or disable the #pausePlay and #stepButton buttons
   if (PLAY_STATUS == PlayStatus.INITAL_STATE_PAUSED) {
     if (program.instructions == null) {

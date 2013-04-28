@@ -226,7 +226,10 @@ function loadLevel(campaign, state) {
   var levelName = getLevelName(world_i, level_i, level.name)
 
   $("#leveltitle").text(levelName)
+
+  displayConstrains(level.constraints)
+
   PLAY_STATUS = PlayStatus.INITAL_STATE_PAUSED
   CODE_MIRROR_BOX.setValue(programText)
-  compile()
+  
 }

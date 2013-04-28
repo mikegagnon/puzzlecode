@@ -761,6 +761,35 @@ function cleanUpVisualization() {
   }
 }
 
+function displayConstrains(constraints) {
+  if (_(constraints).isEmpty()) {
+    $("#constraintBoxDiv").attr("style", "display: none;")
+  } else {
+    $("#constraintBoxDiv").removeAttr("style")
+
+    var numConstraints = _(constraints).keys().value().length
+    assert(numConstraints > 0, "numConstraints > 0")
+
+    if (numConstraints == 1) {
+      $("#constraintBoxHeader").text("Constraint for this level:")
+    } else {
+      $("#constraintBoxHeader").text("Constraints for this level:")      
+    }
+
+    // TODO: should I sort the keys to ensure consistent ordering?
+    var html = ""
+
+    if ("max_instructions" in constraints) {
+      html += "<li>Your program may contain <strong>at most "
+        + constraints.max_instructions + " instructions</strong>."
+        + "</li>"
+    }
+
+    $("#constraintBoxList").html(html)
+
+  }
+}
+
 // BUG: victoryModal does not appear when you've beaten the game
 function animateVictoryModalAndMenu(board, campaign, state) {
 
