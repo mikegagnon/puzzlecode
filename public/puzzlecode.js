@@ -181,7 +181,7 @@ function getPrevLevel(campaign, world_index, level_index) {
 /**
  * If there is a next level, returns {
  *    world_index: int
- *    level_index: int 
+ *    level_index: int
  *   }
  * Otherwise, returns {}
  */
@@ -292,6 +292,10 @@ function unlockLevel(state, world_index, level_index) {
  *    {
  *      world_complete: number
  *    }  
+ * (5) for completing the game for the first time
+ *    {
+ *      game_complete: true
+ *    }  
  *
  * TODO: unit tests
  * TBD: beating the game and other awards / badges
@@ -356,6 +360,15 @@ function updateLevelVisibility(board, campaign, state) {
     deltas.push({
         world_complete: world_index
     })
+
+    var nextLevel = getNextLevel(campaign, world_index, level_index)
+
+    // If there is no next level
+    if (_(nextLevel).isEmpty) {
+      deltas.push({
+        game_complete: true
+      })
+    }
   }
 
   return deltas
@@ -3065,6 +3078,13 @@ function animateVictoryModalAndMenu(board, campaign, state) {
             + (delta.world_complete + 1)
             + ': '
             + world_name
+            + '</h5>'
+
+        } else if ("game_complete" in delta) {
+
+          html += '<h5>'
+            + '<span class="label label-inverse victory-label">Game Complete</span> '
+            + "You have completed the game!"
             + '</h5>'
 
         } else {

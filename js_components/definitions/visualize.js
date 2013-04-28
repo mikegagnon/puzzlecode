@@ -906,6 +906,13 @@ function animateVictoryModalAndMenu(board, campaign, state) {
             + world_name
             + '</h5>'
 
+        } else if ("game_complete" in delta) {
+
+          html += '<h5>'
+            + '<span class="label label-inverse victory-label">Game Complete</span> '
+            + "You have completed the game!"
+            + '</h5>'
+
         } else {
           console.error("Unexpected delta: ")
           console.dir(delta)
