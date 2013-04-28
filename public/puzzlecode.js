@@ -1232,16 +1232,19 @@ function compile() {
     d3.select("#messageBox")
     d3.select("#messageBoxDiv")
       .attr("class", "alert alert-block alert-success")
-    d3.select("#messageBoxHeader")
-      .text("Tip:")
+
 
     // TODO: give a tip to click the hint button (when it is highlighted)
     if (HELP_BUTTON_CLICKED) {
+      d3.select("#messageBoxHeader")
+        .text("Tip:")
       d3.select("#messageBox")
         .html("<h3>Click the 'Run!' button to run your program</h3>")
     } else {
+      d3.select("#messageBoxHeader")
+        .text("")
       d3.select("#messageBox")
-        .html("<h3>Click the blue 'Help' button, below</h3>")
+        .html("<br><h3>To begin, click the blue 'Help' button below</h3><br>")
     }
   }
 
