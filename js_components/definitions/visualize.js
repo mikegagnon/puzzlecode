@@ -819,9 +819,6 @@ function animateVictoryModalAndMenu(board, campaign, state) {
     // the html contents of the modal
     var html = ""
 
-    // set to true once victoryModal_playNextButton has been set
-    var set_playNextButton = false
-
     // TODO: sort announcements some way?
     /**
      * NOTE: this approach assumes that world_unlock deltas always occurs before
@@ -840,24 +837,14 @@ function animateVictoryModalAndMenu(board, campaign, state) {
               delta.level_unlock,
               name)
 
-          html += '<h4>'
+          html += '<h5>'
             + '<span class="label label-info victory-label">New level</span> '
             + 'You unlocked <a href="'
             + levelLink(delta.world_index, delta.level_unlock)
             + '">'
             + level_name
             + '</a>'
-            + '</h4>'
-
-          if (!set_playNextButton) {
-            set_playNextButton = true
-            $("#victoryModal_playNextButton")
-              .attr("href", "javascript: transitionLevel("
-                + delta.world_index
-                + ","
-                + delta.level_unlock
-                + ")")
-          }
+            + '</h5>'
 
           addLevelToMenu(campaign, state, delta.world_index, delta.level_unlock)
         }
@@ -865,38 +852,71 @@ function animateVictoryModalAndMenu(board, campaign, state) {
         else if ("world_unlock" in delta) {
           var next_world_name = campaign[delta.world_unlock].name
 
-          html += '<h4>'
+          html += '<h5>'
             + '<span class="label label-success victory-label">New world</span> '
             + 'You unlocked World '
             + (delta.world_unlock + 1)
             + ': '
             + next_world_name
-            + '</h4>'
+            + '</h5>'
 
           addWorldToMenu(campaign, state, delta.world_unlock)
         } else if ("level_complete" in delta) {
-          worldMenuCheckLevel(campaign, delta.world_index, delta.level_complete)        
+          worldMenuCheckLevel(campaign, delta.world_index, delta.level_complete)
+
+          var name = campaign[delta.world_index]
+            .levels[delta.level_complete].level.name
+          var level_name = getLevelName(
+            delta.world_index,
+            delta.level_complete,
+            name)
+
+          html += '<h5>'
+            + '<span class="label label-warning victory-label">Level complete</span> '
+            + 'You completed '
+            + level_name
+            + '</h5>'
+
+          var nextLevel = getNextLevel(campaign, delta.world_index,
+            delta.level_complete)
+
+          // if there is a next level, then update the play-next-level button
+          if (!_(nextLevel).isEmpty()) {
+            $("#victoryModal_playNextButton")
+              .attr("href", "javascript: transitionLevel("
+                + nextLevel.world_index
+                + ","
+                + nextLevel.level_index
+                + ")")
+            $("#victoryModal_playNextButton").removeAttr("style")
+          } else {
+            $("#victoryModal_playNextButton").attr("style", "display: none;")
+          }
+
         } else if ("world_complete" in delta) {
           worldMenuCheckWorld(campaign, delta.world_complete)
+
+          var world_name = campaign[delta.world_complete].name
+
+          html += '<h5>'
+            + '<span class="label label-important victory-label">World Complete</span> '
+            + 'You completed World '
+            + (delta.world_complete + 1)
+            + ': '
+            + world_name
+            + '</h5>'
+
         } else {
           console.error("Unexpected delta: ")
           console.dir(delta)
         }
+
       })
 
-    if (html != "") {
-      $("#victoryModalBody").html(html)
-      $("#victoryModal").modal('show')
-    }
+    $("#victoryModalBody").html(html)
+    $("#victoryModal").modal('show')
 
     showOrHideLevelMenu(state)
-
-    if (set_playNextButton) {
-      $("#victoryModal_playNextButton").removeClass("disabled")
-    } else {
-      $("#victoryModal_playNextButton").addClass("disabled")
-      $("#victoryModal_playNextButton").attr("href", "#")
-    }
 
   }, VICTORY_DUR * 2)
 

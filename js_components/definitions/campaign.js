@@ -51,6 +51,34 @@ function getPrevLevel(campaign, world_index, level_index) {
   }
 }
 
+/**
+ * If there is a next level, returns {
+ *    world_index: int
+ *    level_index: int
+ *   }
+ * Otherwise, returns {}
+ */
+function getNextLevel(campaign, world_index, level_index) {
+  var lastLevelInThisWorld = campaign[world_index].levels.length - 1
+
+  if (level_index == lastLevelInThisWorld) {
+    var lastWorldIndex = campaign.length - 1
+    if (world_index == lastWorldIndex) {
+      return {}
+    } else {
+      return {
+        world_index: world_index + 1,
+        level_index: 0
+      }
+    }
+  } else {
+    return {
+      world_index: world_index,
+      level_index: level_index + 1
+    }
+  }
+}
+
 // returns true iff the previous level has been completed
 function prevLevelCompleted(campaign, state, world_index, level_index) {
   var prevLevel = getPrevLevel(campaign, world_index, level_index)

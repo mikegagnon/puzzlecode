@@ -58,6 +58,10 @@ var DUMMY_CAMPAIGN = [
   DUMMY_WORLD_2,
   DUMMY_WORLD_3]
 
+/**
+ * test for getPrevLevel
+ *****************************************************************************/
+
 var testGetPrevLevel = {
   "0.0": {
     world_index: 0,
@@ -109,5 +113,63 @@ var testGetPrevLevel = {
 for (TC_NAME in testGetPrevLevel) {
   TC = testGetPrevLevel[TC_NAME]
   RESULT = getPrevLevel(DUMMY_CAMPAIGN, TC.world_index, TC.level_index)
+  test(_.isEqual(RESULT, TC.expected))
+}
+
+/**
+ * test for getNextLevel
+ *****************************************************************************/
+
+var testGetNextLevel = {
+  "0.0": {
+    world_index: 0,
+    level_index: 0,
+    expected: {
+      world_index: 0,
+      level_index: 1
+    }
+  },
+  "0.1": {
+    world_index: 0,
+    level_index: 1,
+    expected: {
+      world_index: 0,
+      level_index: 2
+    }
+  },
+  "0.2": {
+    world_index: 0,
+    level_index: 2,
+    expected: {
+      world_index: 1,
+      level_index: 0
+    }
+  },
+  "1.0": {
+    world_index: 1,
+    level_index: 0,
+    expected: {
+      world_index: 2,
+      level_index: 0
+    }
+  },
+  "2.0": {
+    world_index: 2,
+    level_index: 0,
+    expected: {
+      world_index: 2,
+      level_index: 1
+    }
+  },
+  "2.1": {
+    world_index: 2,
+    level_index: 1,
+    expected: {}
+  },
+}
+
+for (TC_NAME in testGetNextLevel) {
+  TC = testGetNextLevel[TC_NAME]
+  RESULT = getNextLevel(DUMMY_CAMPAIGN, TC.world_index, TC.level_index)
   test(_.isEqual(RESULT, TC.expected))
 }

@@ -45,15 +45,15 @@ function puzzle_uturn() {
       {
         botColor: BotColor.BLUE,
         cellX: 4,
-        cellY: 4,
+        cellY: 3,
         facing: Direction.RIGHT,
-        program: "move\nmove\nmove\n",
+        program: "turn right\nmove\nmove\nmove\n",
       },
     ],
     coins: [
-      {x:3, y:4},
-      {x:2, y:4},
-      {x:1, y:4},
+      {x:3, y:3},
+      {x:2, y:3},
+      {x:1, y:3},
     ],
     // TODO: make it so that you can omit empty properties from a puzzle
     blocks: [],

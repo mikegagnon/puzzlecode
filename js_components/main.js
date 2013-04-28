@@ -61,7 +61,7 @@ var CELL_SIZE = 32,
     DISABLED_CODE_THEME = "eclipse-dim"
 
 // if true, then loads the solution program when loading new levels
-var AUTO_SOLVE_DEBUG = false
+var AUTO_SOLVE_DEBUG = true
 
 // simply a list of all worlds
 // This data structure is intended to be 100% immutable
