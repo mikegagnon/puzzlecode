@@ -36,6 +36,11 @@ function registerEventHandlers() {
 
   $('#hintModal').on('shown', hintClick)
 
+  $("#choose-level-button").click(function() {
+    PLAYER_HAS_USED_LEVEL_MENU = true
+    $("#accordionLevelSelect").removeClass("glow-focus")
+  });
+
 }
 
 // These event handlers are registered in main.js and in index.html
@@ -57,6 +62,7 @@ function windowOnLoad() {
 
   loadLevel(campaign, state)
   restartSimulation()
+
 }
 
 /**
@@ -317,14 +323,10 @@ function restartSimulation() {
  *****************************************************************************/
 
 function clickLevel(world_index, level_index) {
-  PLAYER_HAS_USED_LEVEL_MENU = true
   transitionLevel(world_index, level_index)
 }
 
-// TODO: PLAYER_HAS_USED_LEVEL_MENU is still set to true even if clickLevel
-// is not called directly
 function transitionLevel(world_index, level_index) {
-  $("#accordionLevelSelect").removeClass("glow-focus")
 
   $("#victoryModal").modal('hide')
   cleanUpVisualization()

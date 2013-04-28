@@ -39,7 +39,6 @@ function showOrHideLevelMenu(state) {
     if (getVisibilityIndices(world).length == 1) {
       // then hide the level menu
       hide = true
-      PLAYER_HAS_USED_LEVEL_MENU = false
     }
   }
 
@@ -47,9 +46,7 @@ function showOrHideLevelMenu(state) {
     $("#accordionLevelSelect").attr("style", "display: none;")
   } else {
     $("#accordionLevelSelect").removeAttr("style")
-
-    // TODO: only glow the level menu if the player has never clicked on it
-    // before. As soon as the player clicks the level menu, un-glow it
+    
     if (!PLAYER_HAS_USED_LEVEL_MENU) {
       $("#accordionLevelSelect").addClass("glow-focus")
     }

@@ -237,7 +237,7 @@ function updateLevelVisibility(board, campaign, state) {
     var nextLevel = getNextLevel(campaign, world_index, level_index)
 
     // If there is no next level
-    if (_(nextLevel).isEmpty) {
+    if (_(nextLevel).isEmpty()) {
       deltas.push({
         game_complete: true
       })

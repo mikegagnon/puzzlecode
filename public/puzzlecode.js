@@ -364,7 +364,7 @@ function updateLevelVisibility(board, campaign, state) {
     var nextLevel = getNextLevel(campaign, world_index, level_index)
 
     // If there is no next level
-    if (_(nextLevel).isEmpty) {
+    if (_(nextLevel).isEmpty()) {
       deltas.push({
         game_complete: true
       })
@@ -998,6 +998,11 @@ function registerEventHandlers() {
 
   $('#hintModal').on('shown', hintClick)
 
+  $("#choose-level-button").click(function() {
+    PLAYER_HAS_USED_LEVEL_MENU = true
+    $("#accordionLevelSelect").removeClass("glow-focus")
+  });
+
 }
 
 // These event handlers are registered in main.js and in index.html
@@ -1019,6 +1024,7 @@ function windowOnLoad() {
 
   loadLevel(campaign, state)
   restartSimulation()
+
 }
 
 /**
@@ -1279,14 +1285,10 @@ function restartSimulation() {
  *****************************************************************************/
 
 function clickLevel(world_index, level_index) {
-  PLAYER_HAS_USED_LEVEL_MENU = true
   transitionLevel(world_index, level_index)
 }
 
-// TODO: PLAYER_HAS_USED_LEVEL_MENU is still set to true even if clickLevel
-// is not called directly
 function transitionLevel(world_index, level_index) {
-  $("#accordionLevelSelect").removeClass("glow-focus")
 
   $("#victoryModal").modal('hide')
   cleanUpVisualization()
@@ -3213,7 +3215,6 @@ function showOrHideLevelMenu(state) {
     if (getVisibilityIndices(world).length == 1) {
       // then hide the level menu
       hide = true
-      PLAYER_HAS_USED_LEVEL_MENU = false
     }
   }
 
@@ -3221,9 +3222,7 @@ function showOrHideLevelMenu(state) {
     $("#accordionLevelSelect").attr("style", "display: none;")
   } else {
     $("#accordionLevelSelect").removeAttr("style")
-
-    // TODO: only glow the level menu if the player has never clicked on it
-    // before. As soon as the player clicks the level menu, un-glow it
+    
     if (!PLAYER_HAS_USED_LEVEL_MENU) {
       $("#accordionLevelSelect").addClass("glow-focus")
     }
@@ -4389,7 +4388,7 @@ var CELL_SIZE = 32,
     DISABLED_CODE_THEME = "eclipse-dim"
 
 // if true, then loads the solution program when loading new levels
-var AUTO_SOLVE_DEBUG = true
+var AUTO_SOLVE_DEBUG = false
 
 // simply a list of all worlds
 // This data structure is intended to be 100% immutable
@@ -4503,7 +4502,7 @@ var TUTORIAL = undefined
 
 // set to true once the player has seen (and clicked on) the level menu
 // at least once
-var PLAYER_HAS_USED_LEVEL_MENU = true
+var PLAYER_HAS_USED_LEVEL_MENU = false
 
 window.onload = windowOnLoad
 
