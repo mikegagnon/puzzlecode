@@ -32,6 +32,11 @@ function world_goto() {
         unlock: prevLevelCompleted
       },
       {
+        level: puzzle_coins_everywhere(),
+        badges: {},
+        unlock: prevLevelCompleted
+      },
+      {
         level: puzzle_spiral(),
         badges: {},
         unlock: prevLevelCompleted
