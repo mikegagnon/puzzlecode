@@ -1891,7 +1891,11 @@ function setupTutorialObject() {
          + "<p>To learn the basics, click the "
          + "<strong>Begin Tutorial</strong> button.</p>"
          + "<p>For more in-depth help, visit our "
-         + "<a href='#'>Help Page</a> (opens in a new "
+         + "<a "
+         + "target='_blank' "
+         + "href='"
+         + WIKI_URL + "Help-for-Puzzle-Code"
+         + "'>Help Page</a> (opens in a new "
          + "window).</p>"
          + getNavigation(
             "cancel",
@@ -2096,8 +2100,12 @@ function setupTutorialObject() {
           + "your program and run it again.</strong></p>"
           + "<p>You have now completed the tutorial!</p>"
           + "<p>For more in-depth help, visit our "
-          + "<a href='#'>Help Page</a> (opens in a new "
-          + "window).</p>"
+          + "<a "
+          + "target='_blank' "
+          + "href='"
+          + WIKI_URL + "Help-for-Puzzle-Code"
+          + "'>Help Page</a> (opens in a new "
+          + "window)</p>"
           + getNavigation(
             "cancel",
             "programEditor5",
@@ -3683,7 +3691,9 @@ function puzzle_uturn() {
       + "<p>To perform a u-turn you need to <strong>turn twice</strong> (to "
       + "the left twice, or to the right twice).</p>"
       + "<p>If you need help on turning, checkout "
-      + "<a href='#'>this help page</a>.</p>"
+      + "<a target='_blank' href='"
+      + WIKI_URL + "turn%20instruction"
+      + "'>this help page</a>.</p>"
 
     ,
     win_conditions: [
@@ -3755,7 +3765,10 @@ function puzzle_welcome() {
       +       "robot forward one square.</li>"
       +   "<li>The robot can only move forward. It cannot move backwards or "
       +   "sideways.</li>"
-      +     "<li><a href='#'>"
+      +     "<li>"
+      +         "<a target='_blank' href='"
+      +         WIKI_URL + "Move-instruction"
+      +         "'>"
       +       "Learn more about the " + keyword_link("move") + " instruction."
       +     "</a></li>"
       + "</ul>"
@@ -3763,7 +3776,10 @@ function puzzle_welcome() {
       + "<ul>"
       +   "<li>" + keyword("turn left") + " will rotate the robot to the left." 
       +   "<li>" + keyword("turn right") + " will rotate the robot to the right."
-      +     "<li><a href='#'>"
+      +     "<li>"
+      +         "<a target='_blank' href='"
+      +         WIKI_URL + "Turn-instruction"
+      +         "'>"
       +       "Learn more about the " + keyword_link("turn") + " instruction."
       +     "</a></li>"
       + "</ul>"
@@ -4010,7 +4026,10 @@ function puzzle_goto() {
       +   "<li>The label you give for an instruction doesn't really matter. "
       +     "It can be almost anything."
       +   "</li>"
-      +     "<li><a href='#'>"
+      +     "<li>"
+      +       "<a target='_blank' href='"
+      +         WIKI_URL + "Goto-instruction"
+      +         "'>"
       +       "Learn more about the " + keyword_link("goto") + " instruction."
       +     "</a></li>"
       + "</ul>"
@@ -4091,7 +4110,9 @@ function puzzle_small_steps() {
       + "to do it again. "
       + "</p>"
       + "<p>"
-      +   "<a href='#'>"
+      +       "<a target='_blank' href='"
+      +         WIKI_URL + "Goto-instruction"
+      +         "'>"
       +   "Learn more about the " + keyword_link("goto") + " instruction."
       +   "</a>"
       + "</p>"
@@ -4158,7 +4179,9 @@ function puzzle_spiral() {
       + "It's OK if your robot bumps into a wall."
       + "</p>"
       + "<p>"
-      +   "<a href='#'>"
+      +       "<a target='_blank' href='"
+      +         WIKI_URL + "Goto-instruction"
+      +         "'>"
       +   "Learn more about the " + keyword_link("goto") + " instruction."
       +   "</a>"
       + "</p>"
@@ -4358,6 +4381,9 @@ function world_goto() {
  * Holds all top-level variables, function invocations etc.
  */
 
+var WIKI_URL = "https://github.com/mikegagnon/puzzlecode/wiki/"
+
+
 // if CYCLE_DUR < MAX_HIGHLIGHT_SPEED, lines will not be highlighted
 // to show program execution
 var MAX_HIGHLIGHT_SPEED = 150
@@ -4401,14 +4427,13 @@ var CELL_SIZE = 32,
     DISABLED_CODE_THEME = "eclipse-dim"
 
 // if true, then loads the solution program when loading new levels
-var AUTO_SOLVE_DEBUG = true
+var AUTO_SOLVE_DEBUG = false
 
 // simply a list of all worlds
 // This data structure is intended to be 100% immutable
 // TODO: write a campaign sanity checker that verified that every level
 // is accessible, the campaign is beatable, each puzzle has a unique id, etc.
 var PUZZLE_CAMPAIGN = [
-  world_goto(),
   world_moveTurn(),
   world_goto()]
 
@@ -4518,13 +4543,6 @@ var TUTORIAL = undefined
 // at least once
 var PLAYER_HAS_USED_LEVEL_MENU = false
 
-var WIKI_URL = "https://github.com/mikegagnon/puzzlecode/wiki/"
-var URLS = {
-  help_index: WIKI_URL + "Help-for-Puzzle-Code",
-  help_move: WIKI_URL + "move%20instruction",
-  help_turn: WIKI_URL + "turn%20instruction",
-  help_goto: WIKI_URL + "goto%20instruction",
-}
 
 window.onload = windowOnLoad
 

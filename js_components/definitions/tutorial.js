@@ -158,7 +158,11 @@ function setupTutorialObject() {
          + "<p>To learn the basics, click the "
          + "<strong>Begin Tutorial</strong> button.</p>"
          + "<p>For more in-depth help, visit our "
-         + "<a href='#'>Help Page</a> (opens in a new "
+         + "<a "
+         + "target='_blank' "
+         + "href='"
+         + WIKI_URL + "Help-for-Puzzle-Code"
+         + "'>Help Page</a> (opens in a new "
          + "window).</p>"
          + getNavigation(
             "cancel",
@@ -363,8 +367,12 @@ function setupTutorialObject() {
           + "your program and run it again.</strong></p>"
           + "<p>You have now completed the tutorial!</p>"
           + "<p>For more in-depth help, visit our "
-          + "<a href='#'>Help Page</a> (opens in a new "
-          + "window).</p>"
+          + "<a "
+          + "target='_blank' "
+          + "href='"
+          + WIKI_URL + "Help-for-Puzzle-Code"
+          + "'>Help Page</a> (opens in a new "
+          + "window)</p>"
           + getNavigation(
             "cancel",
             "programEditor5",

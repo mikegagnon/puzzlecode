@@ -25,7 +25,9 @@ function puzzle_uturn() {
       + "<p>To perform a u-turn you need to <strong>turn twice</strong> (to "
       + "the left twice, or to the right twice).</p>"
       + "<p>If you need help on turning, checkout "
-      + "<a href='#'>this help page</a>.</p>"
+      + "<a target='_blank' href='"
+      + WIKI_URL + "turn%20instruction"
+      + "'>this help page</a>.</p>"
 
     ,
     win_conditions: [

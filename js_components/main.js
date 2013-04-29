@@ -18,6 +18,9 @@
  * Holds all top-level variables, function invocations etc.
  */
 
+var WIKI_URL = "https://github.com/mikegagnon/puzzlecode/wiki/"
+
+
 // if CYCLE_DUR < MAX_HIGHLIGHT_SPEED, lines will not be highlighted
 // to show program execution
 var MAX_HIGHLIGHT_SPEED = 150
@@ -61,14 +64,13 @@ var CELL_SIZE = 32,
     DISABLED_CODE_THEME = "eclipse-dim"
 
 // if true, then loads the solution program when loading new levels
-var AUTO_SOLVE_DEBUG = true
+var AUTO_SOLVE_DEBUG = false
 
 // simply a list of all worlds
 // This data structure is intended to be 100% immutable
 // TODO: write a campaign sanity checker that verified that every level
 // is accessible, the campaign is beatable, each puzzle has a unique id, etc.
 var PUZZLE_CAMPAIGN = [
-  world_goto(),
   world_moveTurn(),
   world_goto()]
 
@@ -178,7 +180,6 @@ var TUTORIAL = undefined
 // at least once
 var PLAYER_HAS_USED_LEVEL_MENU = false
 
-var WIKI_URL = "https://github.com/mikegagnon/puzzlecode/wiki/"
 
 window.onload = windowOnLoad
 
