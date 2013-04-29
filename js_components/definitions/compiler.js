@@ -50,10 +50,11 @@ function PuzzleCodeProgram(
   this.constraintViolation = constraintViolation
 }
 
-function newErrorComment(text, uri) {
+function newErrorComment(text, url) {
   var newlink = document.createElement('a')
-  newlink.setAttribute('href', uri)
-  newlink.setAttribute('class', "errorLink")
+  newlink.setAttribute('href', url)
+  newlink.setAttribute('target', '_blank')
+  newlink.setAttribute('class', 'errorLink')
   newlink.appendChild(newComment(text))
   return newlink
 }
@@ -117,7 +118,8 @@ function compileMove(tokens) {
     comment = newComment("") //Move forward one square")
   } else {
     instruction = null
-    comment = newErrorComment("Malformed 'move' instruction", "#")
+    comment = newErrorComment("Malformed 'move' instruction",
+      WIKI_URL + "Move-instruction#malformed-move-instruction")
     error = true
   }
 
@@ -132,7 +134,8 @@ function compileTurn(tokens) {
   // assert tokens[0] == "move"
   if (tokens.length != 2) {
     instruction = null
-    comment = newErrorComment("The 'turn' instruction is missing a direction", "#")
+    comment = newErrorComment("The 'turn' instruction is missing a direction",
+      WIKI_URL + "Turn-instruction#the-turn-instruction-is-missing-a-direction")
     error = true
   } else {
     var direction = tokens[1]
@@ -144,7 +147,8 @@ function compileTurn(tokens) {
       comment = newComment("")//Rotate to the right ↱")
     } else {
       instruction = null
-      comment = newErrorComment("'" + direction + "' is not a valid direction", "#")
+      comment = newErrorComment("'" + direction + "' is not a valid direction",
+        WIKI_URL + "Turn-instruction#_____-is-not-a-valid-direction")
       error = true
     }
   }
@@ -164,13 +168,15 @@ function compileGoto(tokens) {
   // TODO: this error message doesn't make sense if length > 2
   if (tokens.length != 2) {
     instruction = null
-    comment = newErrorComment("The 'goto' instruction is missing a label", "#")
+    comment = newErrorComment("The 'goto' instruction is missing a label",
+      WIKI_URL + "Goto-instruction#error-message-the-goto-instruction-is-missing-a-label")
     error = true
   } else {
     var label = tokens[1]
     if (!isValidLabel(label)) {
       instruction = null
-      comment = newErrorComment("'" + label + "' is not a valid label", "#")
+      comment = newErrorComment("'" + label + "' is not a valid label",
+        WIKI_URL + "Goto-instruction#error-message-_____-is-not-a-valid-label")
       error = true
     } else {
       instruction = new PuzzleCodeInstruction(Opcode.GOTO, label)
@@ -216,11 +222,13 @@ function compileLine(line, lineIndex, labels) {
   if (label != null) {
     if (!isValidLabel(label)) {
       var abbrevLabel = label.substr(0, 20)
-      comment = newErrorComment("'" + label + "' is not a valid label", "#")
+      comment = newErrorComment("'" + label + "' is not a valid label",
+        WIKI_URL + "Goto-instruction#error-message-_____-is-not-a-valid-label")
       return [null, comment, true, null]
     } else if (label in labels) {
       // TODO: get labels
-      comment = newErrorComment("label '" + label + "' is already defined", "#")
+      comment = newErrorComment("label '" + label + "' is already defined",
+        WIKI_URL + "Goto-instruction#error-message-label-_____-is-already-defined")
       return [null, comment, true, null]
     }
   }
@@ -239,7 +247,8 @@ function compileLine(line, lineIndex, labels) {
   } else if (opcode == "goto") {
     result = compileGoto(tokens).concat([label])
   } else {
-    comment = newErrorComment("'" + opcode + "' is not an instruction", "#")
+    comment = newErrorComment("'" + opcode + "' is not an instruction",
+      WIKI_URL + "Error-messages#error-message-_____-is-not-an-instruction")
     result = [null, comment, true, null]
   }
   var instruction = result[0]
@@ -304,7 +313,8 @@ function compilePuzzleCode(programText, board) {
       for (var i = max_instructions; i < instructions.length; i++) {
         var instruction = instructions[i]
         lineComments[instruction.lineIndex] =
-          newErrorComment("Too many instructions", "#")
+          newErrorComment("Too many instructions",
+            WIKI_URL + "Error-messages#error-message-too-many-instructions")
       }
     }
   }
@@ -323,7 +333,8 @@ function compilePuzzleCode(programText, board) {
       } else {
         error = true
         lineComments[instruction.lineIndex] =
-          newErrorComment("the label '" + label + "' does not exist", "#")
+          newErrorComment("the label '" + label + "' does not exist",
+            WIKI_URL + "Goto-instruction#error-message-the-label-_____-does-not-exist")
       }
     }
   }
