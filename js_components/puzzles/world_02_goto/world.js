@@ -23,7 +23,7 @@ function world_goto() {
         level: puzzle_goto(),
         badges: {},
         unlock: function(campaign, state, world_index, level_index) {
-          return isLevelCompleted(state, world_index - 1, 2) 
+          return isLevelCompleted(state, world_index - 1, 1) 
         }
       },
       {
