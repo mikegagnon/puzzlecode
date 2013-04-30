@@ -36,11 +36,6 @@ function registerEventHandlers() {
 
   $('#hintModal').on('shown', hintClick)
 
-  $("#choose-level-button").click(function() {
-    PLAYER_HAS_USED_LEVEL_MENU = true
-    $("#accordionLevelSelect").removeClass("glow-focus")
-  });
-
 }
 
 // These event handlers are registered in main.js and in index.html
@@ -63,6 +58,13 @@ function windowOnLoad() {
   loadLevel(campaign, state)
   restartSimulation()
 
+}
+
+function chooseLevelClick() {
+  PLAYER_HAS_USED_LEVEL_MENU = true
+  $("#choose-level-div").removeClass("glow-focus")
+  setupVictoryModal(PUZZLE_CAMPAIGN, PUZZLE_CAMPAIGN_STATE, [])
+  $("#victoryModal").modal('show')
 }
 
 /**

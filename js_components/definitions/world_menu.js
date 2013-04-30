@@ -43,12 +43,12 @@ function showOrHideLevelMenu(state) {
   }
 
   if (hide) {
-    $("#accordionLevelSelect").attr("style", "display: none;")
+    $("#choose-level-div").attr("style", "display: none;")
   } else {
-    $("#accordionLevelSelect").removeAttr("style")
+    $("#choose-level-div").removeAttr("style")
     
     if (!PLAYER_HAS_USED_LEVEL_MENU) {
-      $("#accordionLevelSelect").addClass("glow-focus")
+      $("#choose-level-div").addClass("glow-focus")
     }
   }
 

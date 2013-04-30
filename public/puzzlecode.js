@@ -1022,11 +1022,6 @@ function registerEventHandlers() {
 
   $('#hintModal').on('shown', hintClick)
 
-  $("#choose-level-button").click(function() {
-    PLAYER_HAS_USED_LEVEL_MENU = true
-    $("#accordionLevelSelect").removeClass("glow-focus")
-  });
-
 }
 
 // These event handlers are registered in main.js and in index.html
@@ -1049,6 +1044,13 @@ function windowOnLoad() {
   loadLevel(campaign, state)
   restartSimulation()
 
+}
+
+function chooseLevelClick() {
+  PLAYER_HAS_USED_LEVEL_MENU = true
+  $("#choose-level-div").removeClass("glow-focus")
+  setupVictoryModal(PUZZLE_CAMPAIGN, PUZZLE_CAMPAIGN_STATE, [])
+  $("#victoryModal").modal('show')
 }
 
 /**
@@ -2235,6 +2237,10 @@ function newArray(length, defaultValue) {
 function getBadgesHtml(campaign, state, campaign_deltas) {
   var html = ""
 
+  if (campaign_deltas.length == 0) {
+    html += "<br><br>"
+  }
+
   // First add the badges to the modal
   _(campaign_deltas)
     .forEach(function(delta) {
@@ -2250,7 +2256,7 @@ function getBadgesHtml(campaign, state, campaign_deltas) {
             name)
 
         html += '<h5>'
-          + '<span class="label label-info victory-label">New level</span> '
+          + '<span class="label label-success victory-label">New level</span> '
           + 'You unlocked <a href="'
           + levelLink(delta.world_index, delta.level_unlock)
           + '">'
@@ -2262,7 +2268,7 @@ function getBadgesHtml(campaign, state, campaign_deltas) {
       }
       // if a world has been unlocked
       else if ("world_unlock" in delta) {
-        var next_world_name = campaign[delta.world_unlock].name
+        /*var next_world_name = campaign[delta.world_unlock].name
 
         html += '<h5>'
           + '<span class="label label-success victory-label">New world</span> '
@@ -2272,7 +2278,7 @@ function getBadgesHtml(campaign, state, campaign_deltas) {
           + next_world_name
           + '</h5>'
 
-        addWorldToMenu(campaign, state, delta.world_unlock)
+        addWorldToMenu(campaign, state, delta.world_unlock)*/
       } else if ("level_complete" in delta) {
         /*worldMenuCheckLevel(campaign, delta.world_index, delta.level_complete)
 
@@ -3366,12 +3372,12 @@ function showOrHideLevelMenu(state) {
   }
 
   if (hide) {
-    $("#accordionLevelSelect").attr("style", "display: none;")
+    $("#choose-level-div").attr("style", "display: none;")
   } else {
-    $("#accordionLevelSelect").removeAttr("style")
+    $("#choose-level-div").removeAttr("style")
     
     if (!PLAYER_HAS_USED_LEVEL_MENU) {
-      $("#accordionLevelSelect").addClass("glow-focus")
+      $("#choose-level-div").addClass("glow-focus")
     }
   }
 
@@ -4016,9 +4022,7 @@ function world_moveTurn() {
       {
         level: puzzle_traps(),
         badges: {},
-        unlock: function(campaign, state, world_index, level_index) {
-          return isLevelCompleted(state, world_index, level_index - 2)
-        }
+        unlock: prevLevelCompleted
       },
     ]
   }
@@ -4612,7 +4616,7 @@ function world_goto() {
         level: puzzle_goto(),
         badges: {},
         unlock: function(campaign, state, world_index, level_index) {
-          return isLevelCompleted(state, world_index - 1, 1) 
+          return isLevelCompleted(state, world_index - 1, 2) 
         }
       },
       {

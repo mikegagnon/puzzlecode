@@ -24,6 +24,10 @@
 function getBadgesHtml(campaign, state, campaign_deltas) {
   var html = ""
 
+  if (campaign_deltas.length == 0) {
+    html += "<br><br>"
+  }
+
   // First add the badges to the modal
   _(campaign_deltas)
     .forEach(function(delta) {
@@ -39,7 +43,7 @@ function getBadgesHtml(campaign, state, campaign_deltas) {
             name)
 
         html += '<h5>'
-          + '<span class="label label-info victory-label">New level</span> '
+          + '<span class="label label-success victory-label">New level</span> '
           + 'You unlocked <a href="'
           + levelLink(delta.world_index, delta.level_unlock)
           + '">'
@@ -51,7 +55,7 @@ function getBadgesHtml(campaign, state, campaign_deltas) {
       }
       // if a world has been unlocked
       else if ("world_unlock" in delta) {
-        var next_world_name = campaign[delta.world_unlock].name
+        /*var next_world_name = campaign[delta.world_unlock].name
 
         html += '<h5>'
           + '<span class="label label-success victory-label">New world</span> '
@@ -61,7 +65,7 @@ function getBadgesHtml(campaign, state, campaign_deltas) {
           + next_world_name
           + '</h5>'
 
-        addWorldToMenu(campaign, state, delta.world_unlock)
+        addWorldToMenu(campaign, state, delta.world_unlock)*/
       } else if ("level_complete" in delta) {
         /*worldMenuCheckLevel(campaign, delta.world_index, delta.level_complete)
 

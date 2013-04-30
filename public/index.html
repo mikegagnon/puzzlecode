@@ -51,6 +51,7 @@
       .btn-level-menu {
         width: 4em;
         margin-bottom: 5px;
+        margin-right: 5px;
       }
       .world-menu-label {
         width: 9em;
@@ -170,36 +171,14 @@
         <!-- this div will only be visible if the player has at least two
          levels to choose from -->
         <!-- BEGIN: level menu -->
-        <div
-          class="accordion"
-          id="accordionLevelSelect">
-          <div class="accordion-group">
-            <div class="accordion-heading">
-              <h4>
-                <a id="choose-level-button" class="accordion-toggle" data-toggle="collapse"
-                data-parent="#accordionLevelSelect" href="#collapseOne">
-                Choose level
-                </a>
-              </h4>
-            </div>
-            <!-- BEGIN: collapseOne-->
-            <div id="collapseOne" class="accordion-body collapse">
-              <div class="accordion-inner">
+        <div class="rounded-div" id="choose-level-div">
 
-                <ul class="nav" id="levelmenu">
-                  <li id="menuworldtemplate" style="display: none;">
-                    <div class="btn-group">
-                      <a class="btn dropdown-toggle level-select"
-                         data-toggle="dropdown" href="#">
-                      </a>
-                      <ul class="dropdown-menu">
-                      </ul>
-                    </div>   
-                  </li>
-                </ul>
-              </div>
-            </div><!-- END: collapseOne-->
-          </div>
+          <h3>
+            <a id="choose-level-button" href="javascript: chooseLevelClick()">
+            Choose level
+            </a>
+          </h3>
+
         </div> <!-- END: level menu -->
 
         <!-- BEGIN: level-box -->
