@@ -51,7 +51,6 @@ function getBadgesHtml(campaign, state, campaign_deltas) {
           + '</a>'
           + '</h5>'
 
-        addLevelToMenu(campaign, state, delta.world_index, delta.level_unlock)
       }
       // if a world has been unlocked
       else if ("world_unlock" in delta) {
@@ -64,8 +63,7 @@ function getBadgesHtml(campaign, state, campaign_deltas) {
           + ': '
           + next_world_name
           + '</h5>'
-
-        addWorldToMenu(campaign, state, delta.world_unlock)*/
+        */
       } else if ("level_complete" in delta) {
         /*worldMenuCheckLevel(campaign, delta.world_index, delta.level_complete)
 

@@ -1038,7 +1038,6 @@ function windowOnLoad() {
   var campaign = PUZZLE_CAMPAIGN
   var state = PUZZLE_CAMPAIGN_STATE
 
-  loadWorldMenu(campaign, state)
   showOrHideLevelMenu(state) 
 
   loadLevel(campaign, state)
@@ -2264,7 +2263,6 @@ function getBadgesHtml(campaign, state, campaign_deltas) {
           + '</a>'
           + '</h5>'
 
-        addLevelToMenu(campaign, state, delta.world_index, delta.level_unlock)
       }
       // if a world has been unlocked
       else if ("world_unlock" in delta) {
@@ -2277,8 +2275,7 @@ function getBadgesHtml(campaign, state, campaign_deltas) {
           + ': '
           + next_world_name
           + '</h5>'
-
-        addWorldToMenu(campaign, state, delta.world_unlock)*/
+        */
       } else if ("level_complete" in delta) {
         /*worldMenuCheckLevel(campaign, delta.world_index, delta.level_complete)
 
@@ -3383,64 +3380,6 @@ function showOrHideLevelMenu(state) {
 
 }
 
-function getCompletedClass(completed) {
-  if (completed) {
-    return "icon-ok"
-  } else {
-    return "icon-minus"
-  }
-}
-
-function getWorldNameHtml(world_index, name, completed) {
-  var completedClass = getCompletedClass(completed)
-
-  var worldName = "World "
-    + (parseInt(world_index) + 1)
-    + ": "
-    + name
-
-  return '<i class="' + completedClass + '"></i> '
-      + worldName
-      +  '<span class="caret world-menu-caret"></span>'
-}
-
-/**
- * worldId: the id for the newly created world menu object (do not include '#')
- * text: the name of the world, e.g. "World 1: Move &amp; Turn"
- * completed: true iff world is completed, false otherwise
- */
-function addWorldToMenu(campaign, state, world_index) {
-
-  var worldCompleted = state.visibility[world_index].complete
-  var world = campaign[world_index]
-
-  $("#levelmenu")
-    .append(
-      '<li id="' + world.id + '">'
-      +  '<div class="btn-group">'
-      +    '<a class="btn dropdown-toggle level-select"'
-      +       'data-toggle="dropdown" href="#">'
-      +       getWorldNameHtml(world_index, world.name, worldCompleted)
-      +    '</a>'
-      +    '<ul class="dropdown-menu">'
-      +    '</ul>'
-      +  '</div>'
-      + '</li>')
-
-}
-
-/**
- * Add a check mark to a level
- */
-function worldMenuCheckWorld(campaign, world_index) {
-  var world = campaign[world_index]
-
-  $("#" + world.id)
-    .find(".btn")
-    .html(getWorldNameHtml(world_index, world.name, true))
-
-}
-
 function getLevelName(world_index, level_index, name) {
   return "Level "
     + (parseInt(world_index) + 1)
@@ -3449,69 +3388,9 @@ function getLevelName(world_index, level_index, name) {
     + " " + name  
 }
 
-function getLevelNameHtml(world_index, level_index, name, completed) {
-  var completedClass = getCompletedClass(completed)
-  var levelName = getLevelName(world_index, level_index, name)
-  return '<i class="' + completedClass + '"></i> ' + levelName
-}
-
-// Returns an href target for a particular level
 function levelLink(world_index, level_index) {
-  return "javascript: clickLevel(" + world_index + "," + level_index + ")"
+  return "javascript: transitionLevel(" + world_index + "," + level_index + ")"
 }
-
-function addLevelToMenu(campaign, state, world_index, level_index) {
-
-  var completed = state.visibility[world_index][level_index].complete
-
-  var world = campaign[world_index]
-  var level = world.levels[level_index].level
-
-  $("#" + world.id)
-    .find(".dropdown-menu")
-    .append('<li id="' + level.id + '">'
-      + '<a tabindex="-1" class="level-link" href="'
-      + levelLink(world_index, level_index)
-      + '">'
-      + getLevelNameHtml(world_index, level_index, level.name, completed)
-      + '</a>'
-      + '</li>')
-}
-
-/**
- * Add a check mark to a level
- */
-function worldMenuCheckLevel(campaign, world_index, level_index) {
-  var level = campaign[world_index].levels[level_index].level
-
-  $("#" + level.id)
-    .find(".level-link")
-    .html(getLevelNameHtml(world_index, level_index, level.name, true))
-
-}
-
-function loadWorldMenu(campaign, state) {
-
-  var worldIndices = getVisibilityIndices(state.visibility)
-
-  for (world_index in worldIndices) {
-    addWorldToMenu(
-      campaign,
-      state,
-      world_index)
-
-    var levelIndices = getVisibilityIndices(state.visibility[world_index])
-
-    for (level_index in levelIndices) {
-        addLevelToMenu(
-          campaign,
-          state,
-          world_index,
-          level_index)
-    }
-  }
-}
-
 /**
  * Copyright 2013 Michael N. Gagnon
  *

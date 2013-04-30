@@ -52,7 +52,6 @@ function windowOnLoad() {
   var campaign = PUZZLE_CAMPAIGN
   var state = PUZZLE_CAMPAIGN_STATE
 
-  loadWorldMenu(campaign, state)
   showOrHideLevelMenu(state) 
 
   loadLevel(campaign, state)
