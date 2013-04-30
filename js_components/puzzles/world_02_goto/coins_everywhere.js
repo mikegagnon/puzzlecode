@@ -25,13 +25,7 @@ function puzzle_coins_everywhere() {
       + "Collect one column of coins, move into another column, and do it "
       + "again. Repeat."
       + "</p>"
-      + "<p>"
-      +       "<a target='_blank' href='"
-      +         WIKI_URL + "Goto-instruction"
-      +         "'>"
-      +   "Learn more about the " + keyword_link("goto") + " instruction."
-      +   "</a>"
-      + "</p>"
+      + "<p>" + learnMoreGoto() + "</p>"
 
     ,
     win_conditions: [

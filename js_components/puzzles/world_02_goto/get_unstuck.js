@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-function puzzle_goto() {
+function puzzle_get_unstuck() {
   return {
-    id: "intro_goto",
-    name: "The goto instruction",
+    id: "get_unstuck",
+    name: "Introducing the goto instruction",
 
     // TODO: add read-only code mirror boxes to the hint
     hint: 
@@ -59,12 +59,7 @@ function puzzle_goto() {
       +   "<li>The label you give for an instruction doesn't really matter. "
       +     "It can be almost anything."
       +   "</li>"
-      +     "<li>"
-      +       "<a target='_blank' href='"
-      +         WIKI_URL + "Goto-instruction"
-      +         "'>"
-      +       "Learn more about the " + keyword_link("goto") + " instruction."
-      +     "</a></li>"
+      +     "<li>" + learnMoreGoto() + "</li>"
       + "</ul>"
 
     ,
@@ -74,11 +69,11 @@ function puzzle_goto() {
 
     // TODO: add a constraint that you can only use 4 move instructions
     constraints: {
-      "max_instructions": 8,
+      "max_instructions": 2,
     },
 
     solutions: [
-      "start: move\nmove\nmove\nmove\nturn right\ngoto start"
+      "start: move\ngoto start\n",
     ],
     num_cols: 9,
     num_rows: 7,
@@ -87,33 +82,23 @@ function puzzle_goto() {
     bots : [
       {
         botColor: BotColor.BLUE,
-        cellX: 2,
-        cellY: 1,
-        facing: Direction.RIGHT,
-        program: "start: move\nmove\nturn right\ngoto start",
+        cellX: 4,
+        cellY: 4,
+        facing: Direction.UP,
+        program: "start: turn right\ngoto start\n",
       },
     ],
     coins: [
-      {x:3, y:1},
-      {x:4, y:1},
-      {x:5, y:1},
-      {x:6, y:1},
-      {x:6, y:2},
-      {x:6, y:3},
-      {x:6, y:4},
-      {x:6, y:5},
-      {x:3, y:5},
-      {x:4, y:5},
-      {x:5, y:5},
-      {x:2, y:2},
-      {x:2, y:3},
-      {x:2, y:4},
-      {x:2, y:5},
+      {x: 4, y: 1},
+      {x: 4, y: 0},
+      {x: 4, y: 2},
+      {x: 4, y: 3},
+      {x: 4, y: 5},
+      {x: 4, y: 6},
     ],
-    // TODO: make it so that you can omit empty properties from a puzzle
-    blocks: [],
+    blocks: [
+    ],
     traps: [
-      //{x:3, y:0}
     ]
   }
 }

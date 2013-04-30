@@ -24,11 +24,7 @@ function puzzle_spiral() {
       + "It's OK if your robot bumps into a wall."
       + "</p>"
       + "<p>"
-      +       "<a target='_blank' href='"
-      +         WIKI_URL + "Goto-instruction"
-      +         "'>"
-      +   "Learn more about the " + keyword_link("goto") + " instruction."
-      +   "</a>"
+      + learnMoreGoto()
       + "</p>"
     ,
     win_conditions: [

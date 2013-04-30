@@ -2309,7 +2309,6 @@ function getBadgesHtml(campaign, state, campaign_deltas) {
         }
         */
       } else if ("world_complete" in delta) {
-        worldMenuCheckWorld(campaign, delta.world_complete)
 
         var world_name = campaign[delta.world_complete].name
 
@@ -4000,13 +3999,7 @@ function puzzle_coins_everywhere() {
       + "Collect one column of coins, move into another column, and do it "
       + "again. Repeat."
       + "</p>"
-      + "<p>"
-      +       "<a target='_blank' href='"
-      +         WIKI_URL + "Goto-instruction"
-      +         "'>"
-      +   "Learn more about the " + keyword_link("goto") + " instruction."
-      +   "</a>"
-      + "</p>"
+      + "<p>" + learnMoreGoto() + "</p>"
 
     ,
     win_conditions: [
@@ -4130,10 +4123,10 @@ function puzzle_coins_everywhere() {
  * limitations under the License.
  */
 
-function puzzle_goto() {
+function puzzle_get_unstuck() {
   return {
-    id: "intro_goto",
-    name: "The goto instruction",
+    id: "get_unstuck",
+    name: "Introducing the goto instruction",
 
     // TODO: add read-only code mirror boxes to the hint
     hint: 
@@ -4175,12 +4168,7 @@ function puzzle_goto() {
       +   "<li>The label you give for an instruction doesn't really matter. "
       +     "It can be almost anything."
       +   "</li>"
-      +     "<li>"
-      +       "<a target='_blank' href='"
-      +         WIKI_URL + "Goto-instruction"
-      +         "'>"
-      +       "Learn more about the " + keyword_link("goto") + " instruction."
-      +     "</a></li>"
+      +     "<li>" + learnMoreGoto() + "</li>"
       + "</ul>"
 
     ,
@@ -4190,11 +4178,11 @@ function puzzle_goto() {
 
     // TODO: add a constraint that you can only use 4 move instructions
     constraints: {
-      "max_instructions": 8,
+      "max_instructions": 2,
     },
 
     solutions: [
-      "start: move\nmove\nmove\nmove\nturn right\ngoto start"
+      "start: move\ngoto start\n",
     ],
     num_cols: 9,
     num_rows: 7,
@@ -4203,33 +4191,23 @@ function puzzle_goto() {
     bots : [
       {
         botColor: BotColor.BLUE,
-        cellX: 2,
-        cellY: 1,
-        facing: Direction.RIGHT,
-        program: "start: move\nmove\nturn right\ngoto start",
+        cellX: 4,
+        cellY: 4,
+        facing: Direction.UP,
+        program: "start: turn right\ngoto start\n",
       },
     ],
     coins: [
-      {x:3, y:1},
-      {x:4, y:1},
-      {x:5, y:1},
-      {x:6, y:1},
-      {x:6, y:2},
-      {x:6, y:3},
-      {x:6, y:4},
-      {x:6, y:5},
-      {x:3, y:5},
-      {x:4, y:5},
-      {x:5, y:5},
-      {x:2, y:2},
-      {x:2, y:3},
-      {x:2, y:4},
-      {x:2, y:5},
+      {x: 4, y: 1},
+      {x: 4, y: 0},
+      {x: 4, y: 2},
+      {x: 4, y: 3},
+      {x: 4, y: 5},
+      {x: 4, y: 6},
     ],
-    // TODO: make it so that you can omit empty properties from a puzzle
-    blocks: [],
+    blocks: [
+    ],
     traps: [
-      //{x:3, y:0}
     ]
   }
 }/**
@@ -4328,11 +4306,7 @@ function puzzle_spiral() {
       + "It's OK if your robot bumps into a wall."
       + "</p>"
       + "<p>"
-      +       "<a target='_blank' href='"
-      +         WIKI_URL + "Goto-instruction"
-      +         "'>"
-      +   "Learn more about the " + keyword_link("goto") + " instruction."
-      +   "</a>"
+      + learnMoreGoto()
       + "</p>"
     ,
     win_conditions: [
@@ -4486,20 +4460,259 @@ function puzzle_spiral() {
  * limitations under the License.
  */
 
+function puzzle_the_square() {
+  return {
+    id: "the_square",
+    name: "The Square",
+
+    // TODO: add link to goto help page
+    hint: 
+      "<ul>"
+      + "<li>You want to create a loop using the " + keyword("goto") + " "
+      + "instruction.</li>"
+      + "<li><strong>Each time the loop executes</strong>, you "
+      + "want your robot "
+      + "to pick up <strong>four coins</strong>, and then position itself "
+      + "so that it can pickup the next four coins.</li>"
+      + "<li>" + learnMoreGoto() + "</li>"
+      + "</ul>"
+
+    ,
+    win_conditions: [
+      {type: WinCondition.COLLECT_COINS}
+    ],
+
+    // TODO: add a constraint that you can only use 4 move instructions
+    constraints: {
+      "max_instructions": 8,
+    },
+
+    solutions: [
+      "start: move\nmove\nmove\nmove\nturn right\ngoto start"
+    ],
+    num_cols: 9,
+    num_rows: 7,
+    // BUG: this should be programming_bot_id, not index
+    programming_bot_index: 0,
+    bots : [
+      {
+        botColor: BotColor.BLUE,
+        cellX: 2,
+        cellY: 1,
+        facing: Direction.RIGHT,
+        program: "",
+      },
+    ],
+    coins: [
+      {x:3, y:1},
+      {x:4, y:1},
+      {x:5, y:1},
+      {x:6, y:1},
+      {x:6, y:2},
+      {x:6, y:3},
+      {x:6, y:4},
+      {x:6, y:5},
+      {x:3, y:5},
+      {x:4, y:5},
+      {x:5, y:5},
+      {x:2, y:2},
+      {x:2, y:3},
+      {x:2, y:4},
+      {x:2, y:5},
+    ],
+    // TODO: make it so that you can omit empty properties from a puzzle
+    blocks: [],
+    traps: [
+      //{x:3, y:0}
+    ]
+  }
+}/**
+ * Copyright 2013 Michael N. Gagnon
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+function puzzle_the_t() {
+  return {
+    id: "the_t",
+    name: "The T",
+
+    // TODO: add link to goto help page
+    hint: 
+      "<p>"
+      + "Instead of turning left at the T, turn right. Then use the "
+      + keyword("goto") + " instruction to keep moving."
+      + "<p>"
+      + "<p>" + learnMoreGoto() + "</p>"
+
+    ,
+    win_conditions: [
+      {type: WinCondition.COLLECT_COINS}
+    ],
+
+    // TODO: add a constraint that you can only use 4 move instructions
+    constraints: {
+      "max_instructions": 8,
+    },
+
+    solutions: [
+       "move\nmove\nmove\nturn right\nstart: move\ngoto start\n",
+    ],
+    num_cols: 9,
+    num_rows: 7,
+    // BUG: this should be programming_bot_id, not index
+    programming_bot_index: 0,
+    bots : [
+      {
+        botColor: BotColor.BLUE,
+        cellX: 4,
+        cellY: 5,
+        facing: Direction.UP,
+        program: "move\nmove\nmove\nturn left\nstart: move\ngoto start\n",
+      },
+    ],
+    coins: [
+      {x: 4, y: 2},
+      {x: 5, y: 2},
+      {x: 6, y: 2},
+      {x: 7, y: 2},
+
+      {x: 4, y: 3},
+      {x: 4, y: 4},
+
+
+    ],
+    // TODO: make it so that you can omit empty properties from a puzzle
+    blocks: [
+      {x: 0, y: 0},
+      {x: 0, y: 1},
+      {x: 0, y: 2},
+      {x: 0, y: 3},
+      {x: 0, y: 4},
+      {x: 0, y: 5},
+      {x: 0, y: 6},
+
+      {x: 1, y: 0},
+      {x: 1, y: 1},
+      //{x: 1, y: 2},
+      {x: 1, y: 3},
+      {x: 1, y: 4},
+      {x: 1, y: 5},
+      {x: 1, y: 6},
+
+      {x: 2, y: 0},
+      {x: 2, y: 1},
+      //{x: 2, y: 2},
+      {x: 2, y: 3},
+      {x: 2, y: 4},
+      {x: 2, y: 5},
+      {x: 2, y: 6},
+
+      {x: 3, y: 0},
+      {x: 3, y: 1},
+      //{x: 3, y: 2},
+      {x: 3, y: 3},
+      {x: 3, y: 4},
+      {x: 3, y: 5},
+      {x: 3, y: 6},
+
+      {x: 4, y: 0},
+      {x: 4, y: 1},
+      //{x: 4, y: 2},
+      //{x: 4, y: 3},
+      //{x: 4, y: 4},
+      //{x: 4, y: 5},
+      {x: 4, y: 6},
+
+      {x: 5, y: 0},
+      {x: 5, y: 1},
+      //{x: 5, y: 2},
+      {x: 5, y: 3},
+      {x: 5, y: 4},
+      {x: 5, y: 5},
+      {x: 5, y: 6},
+
+      {x: 6, y: 0},
+      {x: 6, y: 1},
+      //{x: 6, y: 2},
+      {x: 6, y: 3},
+      {x: 6, y: 4},
+      {x: 6, y: 5},
+      {x: 6, y: 6},
+
+      {x: 7, y: 0},
+      {x: 7, y: 1},
+      //{x: 7, y: 2},
+      {x: 7, y: 3},
+      {x: 7, y: 4},
+      {x: 7, y: 5},
+      {x: 7, y: 6},
+
+      {x: 8, y: 0},
+      {x: 8, y: 1},
+      {x: 8, y: 2},
+      {x: 8, y: 3},
+      {x: 8, y: 4},
+      {x: 8, y: 5},
+      {x: 8, y: 6},
+
+    ],
+    traps: [
+    ]
+  }
+}/**
+ * Copyright 2013 Michael N. Gagnon
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+function learnMoreGoto() {
+  return "<a target='_blank' href='"
+      + WIKI_URL + "Goto-instruction"
+      + "'>"
+      + "Learn more about the " + keyword_link("goto") + " instruction."
+      + "</a>"
+}
+
 function world_goto() {
   return {
     id: "world2",
     name: "Goto",
     levels: [
       {
-        level: puzzle_goto(),
+        level: puzzle_get_unstuck(),
         badges: {},
         unlock: function(campaign, state, world_index, level_index) {
           return isLevelCompleted(state, world_index - 1, 1) 
         }
       },
       {
-        level: puzzle_small_steps(),
+        level: puzzle_the_t(),
+        badges: {},
+        unlock: prevLevelCompleted
+      },
+      {
+        level: puzzle_the_square(),
         badges: {},
         unlock: prevLevelCompleted
       },

@@ -97,7 +97,6 @@ function getBadgesHtml(campaign, state, campaign_deltas) {
         }
         */
       } else if ("world_complete" in delta) {
-        worldMenuCheckWorld(campaign, delta.world_complete)
 
         var world_name = campaign[delta.world_complete].name
 
