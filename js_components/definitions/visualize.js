@@ -916,7 +916,7 @@ function animateVictoryModalAndMenu(board, campaign, state) {
 
       })
 
-    $("#victoryModalBody").html(html)
+    //$("#victoryModalBody").html(html)
     $("#victoryModal").modal('show')
 
     showOrHideLevelMenu(state)
