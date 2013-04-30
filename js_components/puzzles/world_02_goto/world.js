@@ -54,6 +54,11 @@ function world_goto() {
         badges: {},
         unlock: prevLevelCompleted
       },
+      {
+        level: puzzle_zigs_and_zags(),
+        badges: {},
+        unlock: prevLevelCompleted
+      },
     ]
   }
 }

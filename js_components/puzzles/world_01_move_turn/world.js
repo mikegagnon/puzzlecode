@@ -55,9 +55,16 @@ function world_moveTurn() {
         unlock: prevLevelCompleted
       },
       {
-        level: puzzle_traps(),
+        level: puzzle_zig_zag(),
         badges: {},
         unlock: prevLevelCompleted
+      },
+      {
+        level: puzzle_traps(),
+        badges: {},
+        unlock: function(campaign, state, world_index, level_index) {
+          return isLevelCompleted(state, world_index, level_index - 2) 
+        }
       },
     ]
   }
