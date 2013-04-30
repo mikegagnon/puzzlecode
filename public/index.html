@@ -37,13 +37,16 @@
         float: right;
       }
       /* designed to match bootstrap accordion style */
-      .level-box {
+      .rounded-div {
         padding: 8px 15px;
         margin-bottom: 20px;
         border: 1px solid #e5e5e5;
         -webkit-border-radius: 4px;
            -moz-border-radius: 4px;
                 border-radius: 4px;
+      }
+      .level-box {
+        background: #eee;
       }
       .btn-level-menu {
         width: 4em;
@@ -200,7 +203,7 @@
         </div> <!-- END: level menu -->
 
         <!-- BEGIN: level-box -->
-        <div class="level-box"  style="background: #eee">
+        <div class="rounded-div level-box">
 
           <h2 id="leveltitle" styl="text-color: white"></h2>
 
@@ -365,54 +368,6 @@
               <h3 id="victoryModalLabel">Choose level</h3>
             </div>
             <div id="victoryModalBody" class="modal-body">
-              <table border=0>
-                <tr>
-                  <td>
-                    <!-- TODO: how to get this to fill 100% height? -->
-                    <!-- IDEA: show tooltip of level name when you hover
-                         over a level -->
-                    <div class="alert alert-info world-menu-label">
-                      World 1: Move &amp; Turn
-                    </div>
-                  </td>
-                  <td>
-                    <a href="#"class="btn btn-level-menu">1.1 <i class='icon-ok'></i></a>
-                    <a href="#"class="btn btn-level-menu">1.2 <i class='icon-ok'></i></a>
-                    <a href="#"class="btn btn-level-menu">1.3 <i class='icon-ok'></i></a>
-                    <a href="#"class="btn btn-level-menu btn-primary">1.4</a>
-                    <a href="#"class="btn btn-level-menu btn-primary">1.5</i></a>
-                    <a href="#"class="btn btn-level-menu disabled"><i class='icon-lock'></i></a>
-                    <a href="#"class="btn btn-level-menu disabled"><i class='icon-lock'></i></a>
-                    <a href="#"class="btn btn-level-menu disabled"><i class='icon-lock'></i></a>
-                    <a href="#"class="btn btn-level-menu disabled"><i class='icon-lock'></i></a>
-                    <a href="#"class="btn btn-level-menu disabled"><i class='icon-lock'></i></a>
-                    <a href="#"class="btn btn-level-menu disabled"><i class='icon-lock'></i></a>
-                    <a href="#"class="btn btn-level-menu disabled"><i class='icon-lock'></i></a>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <!-- TODO: how to get this to fill 100% height? -->
-                    <div class="alert alert-info world-menu-label">
-                      World 2: Goto
-                    </div>
-                  </td>
-                  <td>
-                    <a href="#"class="btn btn-level-menu">2.1 <i class='icon-ok'></i></a>
-                    <a href="#"class="btn btn-level-menu btn-primary">2.2 </a>
-                    <a href="#"class="btn btn-level-menu disabled"><i class='icon-lock'></i></a>
-                    <a href="#"class="btn btn-level-menu disabled"><i class='icon-lock'></i></a>
-                    <a href="#"class="btn btn-level-menu disabled"><i class='icon-lock'></i></a>
-                    <a href="#"class="btn btn-level-menu disabled"><i class='icon-lock'></i></a>
-                    <a href="#"class="btn btn-level-menu disabled"><i class='icon-lock'></i></a>
-                    <a href="#"class="btn btn-level-menu disabled"><i class='icon-lock'></i></a>
-                    <a href="#"class="btn btn-level-menu disabled"><i class='icon-lock'></i></a>
-                    <a href="#"class="btn btn-level-menu disabled"><i class='icon-lock'></i></a>
-                    <a href="#"class="btn btn-level-menu disabled"><i class='icon-lock'></i></a>
-                    <a href="#"class="btn btn-level-menu disabled"><i class='icon-lock'></i></a>
-                  </td>
-                </tr>
-              </table>
             </div>
             <div class="modal-footer">
               <div class="btn-group">
@@ -421,14 +376,7 @@
                   data-dismiss="modal" aria-hidden="true">
                   Back to current level
                 </a>
-                <!--<a
-                  id="victoryModal_playNextButton"
-                  class="btn btn-primary"
-                  href="">
-                  Play next level
-                </a>-->
               </div>
-
 
               <!--<button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>-->
             </div>
