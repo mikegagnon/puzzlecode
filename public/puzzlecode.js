@@ -150,9 +150,22 @@ function isLevelAccessible(state, world_index, level_index) {
 }
 
 // returns true iff the specificed level has been completed
-function levelCompleted(state, world_index, level_index) {
+function isLevelCompleted(state, world_index, level_index) {
   return isLevelAccessible(state, world_index, level_index) &&
     state.visibility[world_index][level_index].complete
+}
+
+function isWorldAccessible(state, world_index) {
+  return world_index in state.visibility
+}
+
+function isWorldCompleted(state, world_index) {
+  return isWorldAccessible(state, world_index) &&
+    state.visibility[world_index].complete
+}
+
+function isCampaignCompleted(state) {
+  return state.visibility.complete = true
 }
 
 /**
@@ -209,7 +222,7 @@ function getNextLevel(campaign, world_index, level_index) {
 // returns true iff the previous level has been completed
 function prevLevelCompleted(campaign, state, world_index, level_index) {
   var prevLevel = getPrevLevel(campaign, world_index, level_index)
-  return levelCompleted(state, prevLevel.world_index,
+  return isLevelCompleted(state, prevLevel.world_index,
       prevLevel.level_index)
 }
 
@@ -2212,6 +2225,231 @@ function newArray(length, defaultValue) {
  * limitations under the License.
  */
 
+/**
+ * campaign and state have the usual meaning
+ * campaign_deltas is an array of "campaign delta" objects, as returned
+ * by the updateLevelVisibility() function
+ *
+ * returns html that enumerates the badges specified in campaign_deltas
+ */
+function getBadgesHtml(campaign, state, campaign_deltas) {
+  var html = ""
+
+  // First add the badges to the modal
+  _(campaign_deltas)
+    .forEach(function(delta) {
+
+      // if a level has been unlocked
+      if ("level_unlock" in delta) {
+
+        var name = campaign[delta.world_index]
+          .levels[delta.level_unlock].level.name
+        var level_name = getLevelName(
+            delta.world_index,
+            delta.level_unlock,
+            name)
+
+        html += '<h5>'
+          + '<span class="label label-info victory-label">New level</span> '
+          + 'You unlocked <a href="'
+          + levelLink(delta.world_index, delta.level_unlock)
+          + '">'
+          + level_name
+          + '</a>'
+          + '</h5>'
+
+        addLevelToMenu(campaign, state, delta.world_index, delta.level_unlock)
+      }
+      // if a world has been unlocked
+      else if ("world_unlock" in delta) {
+        var next_world_name = campaign[delta.world_unlock].name
+
+        html += '<h5>'
+          + '<span class="label label-success victory-label">New world</span> '
+          + 'You unlocked World '
+          + (delta.world_unlock + 1)
+          + ': '
+          + next_world_name
+          + '</h5>'
+
+        addWorldToMenu(campaign, state, delta.world_unlock)
+      } else if ("level_complete" in delta) {
+        /*worldMenuCheckLevel(campaign, delta.world_index, delta.level_complete)
+
+        var name = campaign[delta.world_index]
+          .levels[delta.level_complete].level.name
+        var level_name = getLevelName(
+          delta.world_index,
+          delta.level_complete,
+          name)
+
+        html += '<h5>'
+          + '<span class="label label-warning victory-label">Level complete</span> '
+          + 'You completed '
+          + level_name
+          + '</h5>'
+
+        var nextLevel = getNextLevel(campaign, delta.world_index,
+          delta.level_complete)
+
+        // if there is a next level, then update the play-next-level button
+        if (!_(nextLevel).isEmpty()) {
+          $("#victoryModal_playNextButton")
+            .attr("href", "javascript: transitionLevel("
+              + nextLevel.world_index
+              + ","
+              + nextLevel.level_index
+              + ")")
+          $("#victoryModal_playNextButton").removeAttr("style")
+        } else {
+          $("#victoryModal_playNextButton").attr("style", "display: none;")
+        }
+        */
+      } else if ("world_complete" in delta) {
+        worldMenuCheckWorld(campaign, delta.world_complete)
+
+        var world_name = campaign[delta.world_complete].name
+
+        html += '<h5>'
+          + '<span class="label label-important victory-label">World Complete</span> '
+          + 'You completed World '
+          + (delta.world_complete + 1)
+          + ': '
+          + world_name
+          + '</h5>'
+
+      } else if ("game_complete" in delta) {
+
+        html += '<h5>'
+          + '<span class="label label-inverse victory-label">Game Complete</span> '
+          + "You have completed the game!"
+          + '</h5>'
+
+      } else {
+        console.error("Unexpected delta: ")
+        console.dir(delta)
+      }
+
+    })
+
+  return html
+}
+
+function getLevelButtonHtml(campaign, state, world_index, level_index) {
+
+  if (isLevelCompleted(state, world_index, level_index)) {
+    var completed = true
+    var visible = true
+  } else if (isLevelAccessible(state, world_index, level_index)) {
+    var completed = false
+    var visible = true
+  } else {
+    var completed = false
+    var visible = false
+  }
+
+  var html = '<a '
+
+  if (completed || visible) {
+    var name = campaign[world_index].levels[level_index].level.name
+    var levelName = getLevelName(world_index, level_index, name)
+
+    html += 'data-toggle="tooltip" title="' + levelName + '" '
+    html +='href="javascript: transitionLevel('
+      + world_index + ',' + level_index + ')" '
+
+    if (completed) {
+      html += 'class="btn btn-level-menu">'
+    } else {
+      html += 'class="btn btn-level-menu btn-primary">'      
+    }
+
+    html += (world_index + 1) + "." + (level_index + 1) + " "
+
+  } else {
+    html += 'href="#" class="btn btn-level-menu disabled">'
+  }
+
+  if (completed) {
+    html += '<i class="icon-ok"></i>'
+  } else if (!visible) {
+    html += '<i class="icon-lock"></i>'
+  }
+  html += '</a>'
+
+  return html
+}
+
+function getWorldMenuHtml(campaign, state, world_index) {
+
+  var world = campaign[world_index]
+
+  var html = "<tr>"
+
+  html +=
+    //'<td><div class="alert alert-info world-menu-label">'
+    '<td><h4>'
+    + "World " + (world_index + 1) + ": "
+    + world.name
+    + '</h4></td>'
+    //+ '</div></td>'
+
+  html += "<td>"
+
+  var levels = world.levels
+
+  for (level_index in levels) {
+    html += getLevelButtonHtml(campaign, state, world_index, parseInt(level_index))
+  }
+
+  html += "</td>"
+  html += "</tr>"
+  return html
+}
+
+function getCampaignMenuHtml(campaign, state) {
+  var html = "<table class='table table-striped'>"
+
+  for (world_index in campaign) {
+    if (isWorldAccessible(state, world_index)) {
+      html += getWorldMenuHtml(campaign, state, parseInt(world_index))
+    }
+  }
+
+  html += "</table>"
+
+  return html
+
+}
+
+/**
+ * campaign and state have the usual meaning
+ * campaign_deltas is an array of "campaign delta" objects, as returned
+ * by the updateLevelVisibility() function
+ */
+function setupVictoryModal(campaign, state, campaign_deltas) {
+
+  var html = getBadgesHtml(campaign, state, campaign_deltas)
+    + getCampaignMenuHtml(campaign, state) 
+
+  $("#victoryModalBody").html(html)
+}
+/**
+ * Copyright 2013 Michael N. Gagnon
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 // TODO: split this up into several files. Right now this file includes
 // simulation animations as well as other visualizations (e.g. buttons)
 
@@ -2990,135 +3228,22 @@ function displayConstrains(constraints) {
 
 function animateVictoryModalAndMenu(board, campaign, state) {
 
-  if (!("campaign_deltas" in board.visualize.step.general)) {
+  if (!("victory" in board.visualize.step.general)) {
     return
   }
 
-  /**
-   * NOTE: I assign this campaign_deltas var here because board is a mutable
-   * object. The Victory Modal and Level menu are changed after some time has
-   * passed. There is a race condition, whereby
-   * board.visualize.step.general.campaign_deltas might dissapear by the time
-   * the setTimeout function is called. So we save the campaign_deltas value
-   * here.
-   *
-   * TODO: determine if assigning campaign_deltas like this is a good way
-   * to avoid the race condition. It seems to work in practice.
-   */
-  var campaign_deltas = board.visualize.step.general.campaign_deltas
+  if ("campaign_deltas" in board.visualize.step.general) {
+    var campaign_deltas = board.visualize.step.general.campaign_deltas
+  } else {
+    var campaign_deltas = []
+  }
+  
+  setupVictoryModal(campaign, state, campaign_deltas)
 
   // wait until after the victoryBalls animation is done
   setTimeout(function(){
-
-    // the html contents of the modal
-    var html = ""
-
-    // TODO: sort announcements some way?
-    /**
-     * NOTE: this approach assumes that world_unlock deltas always occurs before
-     * level_unlock. This assumption is necessary because a level can only 
-     * be added to a menu after the world has been added to the menu.
-     */
-    _(campaign_deltas)
-      .forEach(function(delta) {
-        // if a level has been unlocked
-        if ("level_unlock" in delta) {
-
-          var name = campaign[delta.world_index]
-            .levels[delta.level_unlock].level.name
-          var level_name = getLevelName(
-              delta.world_index,
-              delta.level_unlock,
-              name)
-
-          html += '<h5>'
-            + '<span class="label label-info victory-label">New level</span> '
-            + 'You unlocked <a href="'
-            + levelLink(delta.world_index, delta.level_unlock)
-            + '">'
-            + level_name
-            + '</a>'
-            + '</h5>'
-
-          addLevelToMenu(campaign, state, delta.world_index, delta.level_unlock)
-        }
-        // if a world has been unlocked
-        else if ("world_unlock" in delta) {
-          var next_world_name = campaign[delta.world_unlock].name
-
-          html += '<h5>'
-            + '<span class="label label-success victory-label">New world</span> '
-            + 'You unlocked World '
-            + (delta.world_unlock + 1)
-            + ': '
-            + next_world_name
-            + '</h5>'
-
-          addWorldToMenu(campaign, state, delta.world_unlock)
-        } else if ("level_complete" in delta) {
-          worldMenuCheckLevel(campaign, delta.world_index, delta.level_complete)
-
-          var name = campaign[delta.world_index]
-            .levels[delta.level_complete].level.name
-          var level_name = getLevelName(
-            delta.world_index,
-            delta.level_complete,
-            name)
-
-          html += '<h5>'
-            + '<span class="label label-warning victory-label">Level complete</span> '
-            + 'You completed '
-            + level_name
-            + '</h5>'
-
-          var nextLevel = getNextLevel(campaign, delta.world_index,
-            delta.level_complete)
-
-          // if there is a next level, then update the play-next-level button
-          if (!_(nextLevel).isEmpty()) {
-            $("#victoryModal_playNextButton")
-              .attr("href", "javascript: transitionLevel("
-                + nextLevel.world_index
-                + ","
-                + nextLevel.level_index
-                + ")")
-            $("#victoryModal_playNextButton").removeAttr("style")
-          } else {
-            $("#victoryModal_playNextButton").attr("style", "display: none;")
-          }
-
-        } else if ("world_complete" in delta) {
-          worldMenuCheckWorld(campaign, delta.world_complete)
-
-          var world_name = campaign[delta.world_complete].name
-
-          html += '<h5>'
-            + '<span class="label label-important victory-label">World Complete</span> '
-            + 'You completed World '
-            + (delta.world_complete + 1)
-            + ': '
-            + world_name
-            + '</h5>'
-
-        } else if ("game_complete" in delta) {
-
-          html += '<h5>'
-            + '<span class="label label-inverse victory-label">Game Complete</span> '
-            + "You have completed the game!"
-            + '</h5>'
-
-        } else {
-          console.error("Unexpected delta: ")
-          console.dir(delta)
-        }
-
-      })
-
-    //$("#victoryModalBody").html(html)
     $("#victoryModal").modal('show')
-
     showOrHideLevelMenu(state)
-
   }, VICTORY_DUR * 2)
 
 }
@@ -3419,7 +3544,7 @@ function puzzle_blocks() {
     // what conditions need to be met to unlock this level?
     // the unlock returns true if this level should be unlocked
     // TODO: come up with better unlock functions. e.g.
-    //    return USED_MOVE && USED_TURN && levelCompleted(LevelEnum.Previous)
+    //    return USED_MOVE && USED_TURN && isLevelCompleted(LevelEnum.Previous)
     unlock: function(campaign, state, world_index, level_index) {
       return prevLevelCompleted(campaign, state, world_index, level_index)
     },
@@ -3892,7 +4017,7 @@ function world_moveTurn() {
         level: puzzle_traps(),
         badges: {},
         unlock: function(campaign, state, world_index, level_index) {
-          return levelCompleted(state, world_index, level_index - 2)
+          return isLevelCompleted(state, world_index, level_index - 2)
         }
       },
     ]
@@ -4487,7 +4612,7 @@ function world_goto() {
         level: puzzle_goto(),
         badges: {},
         unlock: function(campaign, state, world_index, level_index) {
-          return levelCompleted(state, world_index - 1, 1) 
+          return isLevelCompleted(state, world_index - 1, 1) 
         }
       },
       {

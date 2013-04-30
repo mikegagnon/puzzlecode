@@ -23,9 +23,22 @@ function isLevelAccessible(state, world_index, level_index) {
 }
 
 // returns true iff the specificed level has been completed
-function levelCompleted(state, world_index, level_index) {
+function isLevelCompleted(state, world_index, level_index) {
   return isLevelAccessible(state, world_index, level_index) &&
     state.visibility[world_index][level_index].complete
+}
+
+function isWorldAccessible(state, world_index) {
+  return world_index in state.visibility
+}
+
+function isWorldCompleted(state, world_index) {
+  return isWorldAccessible(state, world_index) &&
+    state.visibility[world_index].complete
+}
+
+function isCampaignCompleted(state) {
+  return state.visibility.complete = true
 }
 
 /**
@@ -82,7 +95,7 @@ function getNextLevel(campaign, world_index, level_index) {
 // returns true iff the previous level has been completed
 function prevLevelCompleted(campaign, state, world_index, level_index) {
   var prevLevel = getPrevLevel(campaign, world_index, level_index)
-  return levelCompleted(state, prevLevel.world_index,
+  return isLevelCompleted(state, prevLevel.world_index,
       prevLevel.level_index)
 }
 

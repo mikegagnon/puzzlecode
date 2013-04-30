@@ -36,7 +36,7 @@ function puzzle_blocks() {
     // what conditions need to be met to unlock this level?
     // the unlock returns true if this level should be unlocked
     // TODO: come up with better unlock functions. e.g.
-    //    return USED_MOVE && USED_TURN && levelCompleted(LevelEnum.Previous)
+    //    return USED_MOVE && USED_TURN && isLevelCompleted(LevelEnum.Previous)
     unlock: function(campaign, state, world_index, level_index) {
       return prevLevelCompleted(campaign, state, world_index, level_index)
     },
