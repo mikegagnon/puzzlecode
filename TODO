@@ -1,84 +1,29 @@
+Todo, ideas, and feedback from MVP testing
+
+- Remove these items from the repo and put them on the wiki
 - Have resume button be highlighted in blue (for accidental clicks on pause)
 - Now that bots can block each other's movements, it could be helpful to
   add a dubstep button, so that each bot is animated one step at a time.
   Also it could be good to have the option to overlay each bot with its bot.id,
   to help users understand what's going on.
-
-- MVP testing
--- People generally don't know what to do when first presented with the page
--- No one clicks the help button
--- No one realizes that the green blip means the goto is being executed
--- One player thought that pressing 4 would active the instruction for line-4
--- Players tended not to read the hints about the reset button etc.
--- Players tended not to know that that they could only edit when the game
-   was reset. IDEA: when player clicks CM when game is still active, then show
-   a pop over that says you need to reset the level to edit the program.
--- When players beat a level, they didn't click the next level button. Perhaps
-   give them two buttons: (1) play next level, and (2) continue with current
-   level. If player closes modal (by clicking outside it), then goto next
-   level.
--- Some players, don't realize the text box is a text box. Perhaps make it
-   white to make it look like normal text boxes.
--- Show check marks next to good lines?
--- I think it would be much better if i did recompiles on every keystroke
-   (but only show error messages once you complete a line, show a check mark
-    as soon as a line is good, and show nothing when the line being edited
-    doesn't compile)
--- Every time the player does something wrong, popup a suggestion box with
-   a tutorial / hint on how to do it right
--- One player suggested starting the game off teaching "step" instead of "run"
--- Make the block graphic better. Perhaps add an isometric perspective/shadows.
--- Players would often guess at new instructions. It will be good to concretely
-   to introduce each instruction.
--- Put a label above the code editor.
--- Show a video of someone typing in a program
--- Instead of tip: click run to run your program, say "type in your program
-   then click run"
--- Teach step button before run button.
--- On the plus side, once players realized what was going on they seemed to get
-   the hang of it right away.
-
-
--- IDEA: make a puzzle-code freestyle universe, where there's not objective,
-   but you just drop in anywhere and do what you want. Maybe you'll stake out
-   a territory, and defend it, or maybe you'll mess up with someone else's
-   territory.
-
-- Need major work on usability / instructions / walkthroughs.
--- Idea for button semantics:
---- Reset: resets the state to initial state and compiles program
---- Run / pause /resume button
----- If the board has been reset, the button will say "run."
------- If there is a compile error, then run will be grayed out and not
-       clicable
------- If no compile errors, it's blue and can be clicked
----- once play begins, it turns into a normal colored pause button.
-     Pressing pause will pause the game and change the button to a "resume"
-     button.
----- resume unpauses the game.
--- Idea: recompile after every character, but only update line comments if
-   there is no error. This way as soon as you type the fourth letter in "move"
-   you will get the help text (but you won't get errors as you type it)
--- Perhaps present a popup alert the first time you get a compile error
--- Add a "step" button
--- Highlight instructions as they are being executed.
--- Allow user to click on lines to insert break points, which display the
-   "pause" button next to the line.
-- Implement instructions
-- Unit tests
-- Puzzle system. Each puzzle contains
--- board map (e.g. coins, blocks)
--- constraints (e.g. available instructions, max program size, max cycles
-    before timeout)
--- win conditions (e.g. collect N coins, stop on an exit square, )
--- description: describe the puzzle to the user
--- tips (e.g., explain the "move" instruction, how to compile program, etc.)
-- Idea: Campaign format
--- Campaign is composed of a series of "worlds.""
--- Each world contains a series of puzzles. Beating certain puzzles
-   opens up access to other worlds. E.g. there might be 10 puzzles in the
-   "move / turn" world, but you only need to beat the 3rd to get access to the
-   next world. The other 7 are optional.
-- Use consistent object-creation idoms
-- Multi-cycle instructions
-- Use cloneDeep instead of clone, where appropriate
+- No one realizes that the green blip means the goto is being executed
+- Players tended not to know that that they could only edit when the game
+  was reset. IDEA: when player clicks CM when game is still active, then show
+  a pop over that says you need to reset the level to edit the program.
+- Show check marks next to good lines?
+- I think it would be much better if i did recompiles on every keystroke
+  (but only show error messages once you complete a line, show a check mark
+  as soon as a line is good, and show nothing when the line being edited
+  doesn't compile)
+- Idea: recompile after every character, but only update line comments if
+  there is no error. This way as soon as you type the fourth letter in "move"
+  you will get the help text (but you won't get errors as you type it)
+- Every time the player does something wrong, popup a suggestion box with
+  a tutorial / hint on how to do it right
+- IDEA: make a puzzle-code freestyle universe, where there's no objective,
+  but you just drop in anywhere and do what you want. Maybe you'll stake out
+  a territory, and defend it, or maybe you'll mess up with someone else's
+  territory. Maybe you'll build puzzles.
+- Perhaps present a popup alert the first time you get a compile error
+- Allow user to click on lines to insert break points, which display the
+  "pause" button next to the line.
