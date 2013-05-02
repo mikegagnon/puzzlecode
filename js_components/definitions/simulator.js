@@ -293,8 +293,21 @@ function checkTrap(board, bot) {
   }
 }
 
+function botDone(result, board, bot) {
+  bot.program.done = true
+  result.visualize.programDone = true
+
+  // TODO only set encourage_reset if it's sensible.
+  // Right now, if any bot's program finishes encourage_reset will be
+  // activated.
+  // Perhaos the best thing is have each puzzle define a function that
+  // analyzes the board and determines whether or not a reset should be
+  // encouraged
+  board.visualize.step.general.encourage_reset = true
+}
+
 // a sub-step in the simulation
-function dupstep(board, bot) {
+function dubstep(board, bot) {
 
   if (checkTrap(board, bot)) {
     return
@@ -305,11 +318,6 @@ function dupstep(board, bot) {
     return
   } 
 
-  var instruction = bot.program.instructions[bot.ip]
-
-  // NOTE: executing the instruction may modify the ip
-  bot.ip = bot.ip + 1
-
   // the bot-instruction functions will populate the fields of result
   var result = {
     // containins all visualizations for this bot
@@ -318,34 +326,46 @@ function dupstep(board, bot) {
     depositMarker: []
   }
 
-  if (instruction.opcode == Opcode.MOVE) {
-    executeMove(result, board, bot)
-  } else if (instruction.opcode == Opcode.TURN) {
-    executeTurn(result, bot, instruction.data)
-  } else if (instruction.opcode == Opcode.GOTO) {
-    executeGoto(result, bot, instruction.data)
+  var instruction = undefined
+
+  // if the bot has an empty program
+  if (bot.program.instructions.length == 0) {
+    botDone(result, board, bot)
+  }
+  // if the bot's program is non-empty
+  else {
+    assert(bot.ip >= 0 && bot.ip < bot.program.instructions.length,
+      "dubstep: bot.ip >= 0 && bot.ip < bot.program.instructions.length")
+    instruction = bot.program.instructions[bot.ip]
+
+    // NOTE: executing the instruction may modify the ip
+    bot.ip = bot.ip + 1
+
+    if (instruction.opcode == Opcode.MOVE) {
+      executeMove(result, board, bot)
+    } else if (instruction.opcode == Opcode.TURN) {
+      executeTurn(result, bot, instruction.data)
+    } else if (instruction.opcode == Opcode.GOTO) {
+      executeGoto(result, bot, instruction.data)
+    }
+
+    // if the bot has reached the end of its program
+    if (bot.ip >= bot.program.instructions.length) {
+      botDone(result, board, bot)
+    }
+
+    _(result.depositMarker).forEach( function (marker) {
+      addMarker(board, marker)
+    })
   }
 
   board.visualize.step.bot[bot.id] = result.visualize
-  board.visualize.step.bot[bot.id].lineIndex = instruction.lineIndex
-
-  // if the bot has reached the end of its program
-  if (bot.ip >= bot.program.instructions.length) {
-    bot.program.done = true
-    board.visualize.step.bot[bot.id].programDone = true
-
-    // TODO only set encourage_reset if it's sensible.
-    // Right now, if any bot's program finishes encourage_reset will be
-    // activated.
-    // Perhaos the best thing is have each puzzle define a function that
-    // analyzes the board and determines whether or not a reset should be
-    // encouraged
-    board.visualize.step.general.encourage_reset = true
+  if (typeof instruction == "undefined") {
+    board.visualize.step.bot[bot.id].lineIndex = 0
+  } else {
+    board.visualize.step.bot[bot.id].lineIndex = instruction.lineIndex
   }
 
-  _(result.depositMarker).forEach( function (marker) {
-    addMarker(board, marker)
-  })
 }
 
 // TODO: do a better job separating model from view.
@@ -380,7 +400,7 @@ function step(board, campaign, state) {
     })
 
   _(board.bots).forOwn(function(bot) {
-    dupstep(board, bot)
+    dubstep(board, bot)
   })
 
   checkVictory(board, campaign, state)
