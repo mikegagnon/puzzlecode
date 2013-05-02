@@ -2905,25 +2905,48 @@ function animateMoveTorus(board) {
 
 }
 
-/*function highlightLine(board, lineIndex, css) {
-  var 
-}*/
+/**
+ * turn off line highlighting for a particular line style
+ * css is the name of the css class that styles the highlighted line
+ * the line that is highlighted with css will be unhighlighted
+ */
+function undoHighlightLine(code_mirror_box, css) {
+  var identifier = "_" + css
+  if (identifier in code_mirror_box) {
+    var lineHandle = code_mirror_box[identifier]
+    code_mirror_box.removeLineClass(lineHandle, "background", css);
+  }
+}
+
+/**
+ * update the line highlighting for a particular css style
+ * lineIndex is the line to be highlighted (the old line will be unhighlighted)
+ * css is the name of the css class that will style the highlighted line
+ * inspired by http ://codemirror.net/demo/activeline.html
+ */
+function highlightLine(code_mirror_box, lineIndex, css) {
+
+  // first remove any previous highlighting for css
+  undoHighlightLine(code_mirror_box, css)
+
+  console.log("highlightLine = " + lineIndex)
+  var lineHandle = code_mirror_box.getLineHandle(lineIndex)
+  var identifier = "_" + css
+  if (code_mirror_box[identifier] != lineHandle) {
+    cm.addLineClass(lineHandle, "background", css)
+    code_mirror_box[identifier] = lineHandle
+  }
+}
 
 // animate the program's text
 function animateProgram(board) {
 
   var cm = CODE_MIRROR_BOX
 
-  // if animation is too fast, don't highlight lines
+  // If the animation is too fast, turn off line highlighting
   if (CYCLE_DUR < MAX_HIGHLIGHT_SPEED) {
-    // TODO: refactor _activeLine field from cm
-    if ("_activeLine" in cm) {
-      cm.removeLineClass(cm._activeLine, "background", BACK_CLASS);
-    }
-    if ("_nextActiveLine" in cm) {
-      cm.removeLineClass(cm._nextActiveLine, "background", NEXT_BACK_CLASS);
-    }
-    return
+    undoHighlightLine(cm, BACK_CLASS)
+    undoHighlightLine(cm, NEXT_BACK_CLASS)
   }
 
   // TODO: find the bot currently being traced and only animate that bot's prog
@@ -2937,34 +2960,18 @@ function animateProgram(board) {
   }
 
   var bot_viz = board.visualize.step.bot[bot.id]
-  if ("lineIndex" in bot_viz) {
-    var lineNum = bot_viz.lineIndex
-    console.log("lineIndex = " + lineNum)
-    // inspired by http ://codemirror.net/demo/activeline.html
-    var lineHandle = cm.getLineHandle(lineNum);
-    if (cm._activeLine != lineHandle) {
-      if ("_activeLine" in cm) {
-        cm.removeLineClass(cm._activeLine, "background", BACK_CLASS);
-      }
-      cm.addLineClass(lineHandle, "background", BACK_CLASS);
-      cm._activeLine = lineHandle;
+
+  // if animation is slow enough
+  if (CYCLE_DUR >= MAX_HIGHLIGHT_SPEED) {
+    if ("lineIndex" in bot_viz) {
+      highlightLine(cm, bot_viz.lineIndex, BACK_CLASS)
+    }
+
+    if ("nextLineIndex" in bot_viz) {
+      highlightLine(cm, bot_viz.nextLineIndex, NEXT_BACK_CLASS)
     }
   }
 
-  if ("nextLineIndex" in bot_viz) {
-    var lineNum = bot_viz.nextLineIndex
-    console.log("nextLineIndex = " + lineNum)
-
-    // inspired by http://codemirror.net/demo/activeline.html
-    var lineHandle = cm.getLineHandle(lineNum);
-    if (cm._nextActiveLine != lineHandle) {
-      if ("_nextActiveLine" in cm) {
-        cm.removeLineClass(cm._nextActiveLine, "background", NEXT_BACK_CLASS);
-      }
-      cm.addLineClass(lineHandle, "background", NEXT_BACK_CLASS);
-      cm._nextActiveLine = lineHandle;
-    }
-  }
 }
 
 function animateEncourageReset(board) {
@@ -3254,15 +3261,8 @@ function cleanUpVisualization() {
   d3.selectAll(".xTemplate").remove()
 
   // TODO: turn off line highlighting
-  if ("_activeLine" in CODE_MIRROR_BOX) {
-    CODE_MIRROR_BOX.removeLineClass(
-      CODE_MIRROR_BOX._activeLine, "background", BACK_CLASS);
-  }
-
-  if ("_nextActiveLine" in CODE_MIRROR_BOX) {
-    CODE_MIRROR_BOX.removeLineClass(
-      CODE_MIRROR_BOX._nextActiveLine, "background", NEXT_BACK_CLASS);
-  }
+  undoHighlightLine(CODE_MIRROR_BOX, BACK_CLASS)
+  undoHighlightLine(CODE_MIRROR_BOX, NEXT_BACK_CLASS)
 }
 
 function displayConstrains(constraints) {
