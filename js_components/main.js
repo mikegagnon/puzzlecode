@@ -66,6 +66,9 @@ var CELL_SIZE = 32,
 // if true, then loads the solution program when loading new levels
 var AUTO_SOLVE_DEBUG = false
 
+// if true, then every level is automatically visible
+var CAMPAIGN_ALL_VISIBLE = false
+
 // simply a list of all worlds
 // This data structure is intended to be 100% immutable
 // TODO: write a campaign sanity checker that verified that every level
@@ -122,6 +125,10 @@ var PUZZLE_CAMPAIGN_STATE = {
     },
     complete: false
   }
+}
+
+if (CAMPAIGN_ALL_VISIBLE) {
+  campaignAllVisible(PUZZLE_CAMPAIGN, PUZZLE_CAMPAIGN_STATE)
 }
 
 // set to true once the help button has been clicked

@@ -263,6 +263,7 @@ function allLevelIndices(campaign) {
 
 // make the specified level visible
 function unlockLevel(state, world_index, level_index) {
+  console.log(state, world_index, level_index)
   if (!(world_index in state.visibility)) {
     state.visibility[world_index] = {
       complete: false
@@ -277,6 +278,18 @@ function unlockLevel(state, world_index, level_index) {
     complete: false
   }
 
+}
+
+// mark every world and level visible
+function campaignAllVisible(campaign, state) {
+  var next = getNextLevel(campaign, 0, 0)
+  while (!_(next).isEmpty()) {
+    if (!isLevelAccessible(state, next.world_index, next.level_index)) {
+      unlockLevel(state, next.world_index, next.level_index)
+    }
+    next = getNextLevel(campaign, next.world_index, next.level_index)
+  }
+  showOrHideLevelMenu(state)
 }
 
 /**
@@ -5098,7 +5111,10 @@ var CELL_SIZE = 32,
     DISABLED_CODE_THEME = "eclipse-dim"
 
 // if true, then loads the solution program when loading new levels
-var AUTO_SOLVE_DEBUG = true
+var AUTO_SOLVE_DEBUG = false
+
+// if true, then every level is automatically visible
+var CAMPAIGN_ALL_VISIBLE = false
 
 // simply a list of all worlds
 // This data structure is intended to be 100% immutable
@@ -5156,6 +5172,10 @@ var PUZZLE_CAMPAIGN_STATE = {
     },
     complete: false
   }
+}
+
+if (CAMPAIGN_ALL_VISIBLE) {
+  campaignAllVisible(PUZZLE_CAMPAIGN, PUZZLE_CAMPAIGN_STATE)
 }
 
 // set to true once the help button has been clicked
