@@ -1727,9 +1727,7 @@ function dubstep(board, bot) {
   }
 
   board.visualize.step.bot[bot.id] = result.visualize
-  if (typeof instruction == "undefined") {
-    board.visualize.step.bot[bot.id].lineIndex = 0
-  } else {
+  if (typeof instruction != "undefined") {
     board.visualize.step.bot[bot.id].lineIndex = instruction.lineIndex
   }
 
@@ -2926,16 +2924,19 @@ function animateProgram(board) {
     return
   }
 
-  var lineNum = board.visualize.step.bot[bot.id].lineIndex
+  var bot_viz = board.visualize.step.bot[bot.id]
+  if ("lineIndex" in bot_viz) {
+    var lineNum = bot_viz.lineIndex
 
-  // inspired by http://codemirror.net/demo/activeline.html
-  var lineHandle = cm.getLineHandle(lineNum);
-  if (cm._activeLine != lineHandle) {
-    if ("_activeLine" in cm) {
-      cm.removeLineClass(cm._activeLine, "background", BACK_CLASS);
+    // inspired by http://codemirror.net/demo/activeline.html
+    var lineHandle = cm.getLineHandle(lineNum);
+    if (cm._activeLine != lineHandle) {
+      if ("_activeLine" in cm) {
+        cm.removeLineClass(cm._activeLine, "background", BACK_CLASS);
+      }
+      cm.addLineClass(lineHandle, "background", BACK_CLASS);
+      cm._activeLine = lineHandle;
     }
-    cm.addLineClass(lineHandle, "background", BACK_CLASS);
-    cm._activeLine = lineHandle;
   }
 }
 
@@ -5066,7 +5067,6 @@ function puzzle_zigs_and_zags() {
  */
 
 var WIKI_URL = "https://github.com/mikegagnon/puzzlecode/wiki/"
-
 
 // if CYCLE_DUR < MAX_HIGHLIGHT_SPEED, lines will not be highlighted
 // to show program execution

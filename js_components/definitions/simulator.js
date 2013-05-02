@@ -360,9 +360,7 @@ function dubstep(board, bot) {
   }
 
   board.visualize.step.bot[bot.id] = result.visualize
-  if (typeof instruction == "undefined") {
-    board.visualize.step.bot[bot.id].lineIndex = 0
-  } else {
+  if (typeof instruction != "undefined") {
     board.visualize.step.bot[bot.id].lineIndex = instruction.lineIndex
   }
 

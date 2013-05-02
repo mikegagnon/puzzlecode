@@ -20,7 +20,6 @@
 
 var WIKI_URL = "https://github.com/mikegagnon/puzzlecode/wiki/"
 
-
 // if CYCLE_DUR < MAX_HIGHLIGHT_SPEED, lines will not be highlighted
 // to show program execution
 var MAX_HIGHLIGHT_SPEED = 150

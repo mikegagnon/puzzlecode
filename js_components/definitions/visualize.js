@@ -455,16 +455,19 @@ function animateProgram(board) {
     return
   }
 
-  var lineNum = board.visualize.step.bot[bot.id].lineIndex
+  var bot_viz = board.visualize.step.bot[bot.id]
+  if ("lineIndex" in bot_viz) {
+    var lineNum = bot_viz.lineIndex
 
-  // inspired by http://codemirror.net/demo/activeline.html
-  var lineHandle = cm.getLineHandle(lineNum);
-  if (cm._activeLine != lineHandle) {
-    if ("_activeLine" in cm) {
-      cm.removeLineClass(cm._activeLine, "background", BACK_CLASS);
+    // inspired by http://codemirror.net/demo/activeline.html
+    var lineHandle = cm.getLineHandle(lineNum);
+    if (cm._activeLine != lineHandle) {
+      if ("_activeLine" in cm) {
+        cm.removeLineClass(cm._activeLine, "background", BACK_CLASS);
+      }
+      cm.addLineClass(lineHandle, "background", BACK_CLASS);
+      cm._activeLine = lineHandle;
     }
-    cm.addLineClass(lineHandle, "background", BACK_CLASS);
-    cm._activeLine = lineHandle;
   }
 }
 
