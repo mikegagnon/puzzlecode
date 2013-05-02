@@ -42,6 +42,7 @@ PlayStatus = {
 // TODO better name and document
 var WRAP_CLASS = "activeline";
 var BACK_CLASS = "activeline-background";
+var NEXT_BACK_CLASS = "nextActiveline-background";
 
 // TODO: better var names and all caps
 var CELL_SIZE = 32,

@@ -431,6 +431,10 @@ function animateMoveTorus(board) {
 
 }
 
+/*function highlightLine(board, lineIndex, css) {
+  var 
+}*/
+
 // animate the program's text
 function animateProgram(board) {
 
@@ -438,9 +442,12 @@ function animateProgram(board) {
 
   // if animation is too fast, don't highlight lines
   if (CYCLE_DUR < MAX_HIGHLIGHT_SPEED) {
-    // TODO: remove _activeLine field from cm
+    // TODO: refactor _activeLine field from cm
     if ("_activeLine" in cm) {
       cm.removeLineClass(cm._activeLine, "background", BACK_CLASS);
+    }
+    if ("_nextActiveLine" in cm) {
+      cm.removeLineClass(cm._nextActiveLine, "background", NEXT_BACK_CLASS);
     }
     return
   }
@@ -458,8 +465,8 @@ function animateProgram(board) {
   var bot_viz = board.visualize.step.bot[bot.id]
   if ("lineIndex" in bot_viz) {
     var lineNum = bot_viz.lineIndex
-
-    // inspired by http://codemirror.net/demo/activeline.html
+    console.log("lineIndex = " + lineNum)
+    // inspired by http ://codemirror.net/demo/activeline.html
     var lineHandle = cm.getLineHandle(lineNum);
     if (cm._activeLine != lineHandle) {
       if ("_activeLine" in cm) {
@@ -467,6 +474,21 @@ function animateProgram(board) {
       }
       cm.addLineClass(lineHandle, "background", BACK_CLASS);
       cm._activeLine = lineHandle;
+    }
+  }
+
+  if ("nextLineIndex" in bot_viz) {
+    var lineNum = bot_viz.nextLineIndex
+    console.log("nextLineIndex = " + lineNum)
+
+    // inspired by http://codemirror.net/demo/activeline.html
+    var lineHandle = cm.getLineHandle(lineNum);
+    if (cm._nextActiveLine != lineHandle) {
+      if ("_nextActiveLine" in cm) {
+        cm.removeLineClass(cm._nextActiveLine, "background", NEXT_BACK_CLASS);
+      }
+      cm.addLineClass(lineHandle, "background", NEXT_BACK_CLASS);
+      cm._nextActiveLine = lineHandle;
     }
   }
 }
@@ -761,6 +783,11 @@ function cleanUpVisualization() {
   if ("_activeLine" in CODE_MIRROR_BOX) {
     CODE_MIRROR_BOX.removeLineClass(
       CODE_MIRROR_BOX._activeLine, "background", BACK_CLASS);
+  }
+
+  if ("_nextActiveLine" in CODE_MIRROR_BOX) {
+    CODE_MIRROR_BOX.removeLineClass(
+      CODE_MIRROR_BOX._nextActiveLine, "background", NEXT_BACK_CLASS);
   }
 }
 

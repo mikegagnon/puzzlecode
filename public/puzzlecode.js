@@ -1705,7 +1705,9 @@ function dubstep(board, bot) {
       "dubstep: bot.ip >= 0 && bot.ip < bot.program.instructions.length")
     instruction = bot.program.instructions[bot.ip]
 
-    // NOTE: executing the instruction may modify the ip
+    result.visualize.lineIndex = instruction.lineIndex
+
+    // NOTE: executing the goto instruction (and others) may modify the ip
     bot.ip = bot.ip + 1
 
     if (instruction.opcode == Opcode.MOVE) {
@@ -1716,6 +1718,11 @@ function dubstep(board, bot) {
       executeGoto(result, bot, instruction.data)
     }
 
+    if (bot.ip < bot.program.instructions.length) {
+      var nextInstruction = bot.program.instructions[bot.ip]
+      result.visualize.nextLineIndex = nextInstruction.lineIndex
+    }
+
     // if the bot has reached the end of its program
     if (bot.ip >= bot.program.instructions.length) {
       botDone(result, board, bot)
@@ -1724,12 +1731,10 @@ function dubstep(board, bot) {
     _(result.depositMarker).forEach( function (marker) {
       addMarker(board, marker)
     })
+
   }
 
   board.visualize.step.bot[bot.id] = result.visualize
-  if (typeof instruction != "undefined") {
-    board.visualize.step.bot[bot.id].lineIndex = instruction.lineIndex
-  }
 
 }
 
@@ -2900,6 +2905,10 @@ function animateMoveTorus(board) {
 
 }
 
+/*function highlightLine(board, lineIndex, css) {
+  var 
+}*/
+
 // animate the program's text
 function animateProgram(board) {
 
@@ -2907,9 +2916,12 @@ function animateProgram(board) {
 
   // if animation is too fast, don't highlight lines
   if (CYCLE_DUR < MAX_HIGHLIGHT_SPEED) {
-    // TODO: remove _activeLine field from cm
+    // TODO: refactor _activeLine field from cm
     if ("_activeLine" in cm) {
       cm.removeLineClass(cm._activeLine, "background", BACK_CLASS);
+    }
+    if ("_nextActiveLine" in cm) {
+      cm.removeLineClass(cm._nextActiveLine, "background", NEXT_BACK_CLASS);
     }
     return
   }
@@ -2927,8 +2939,8 @@ function animateProgram(board) {
   var bot_viz = board.visualize.step.bot[bot.id]
   if ("lineIndex" in bot_viz) {
     var lineNum = bot_viz.lineIndex
-
-    // inspired by http://codemirror.net/demo/activeline.html
+    console.log("lineIndex = " + lineNum)
+    // inspired by http ://codemirror.net/demo/activeline.html
     var lineHandle = cm.getLineHandle(lineNum);
     if (cm._activeLine != lineHandle) {
       if ("_activeLine" in cm) {
@@ -2936,6 +2948,21 @@ function animateProgram(board) {
       }
       cm.addLineClass(lineHandle, "background", BACK_CLASS);
       cm._activeLine = lineHandle;
+    }
+  }
+
+  if ("nextLineIndex" in bot_viz) {
+    var lineNum = bot_viz.nextLineIndex
+    console.log("nextLineIndex = " + lineNum)
+
+    // inspired by http://codemirror.net/demo/activeline.html
+    var lineHandle = cm.getLineHandle(lineNum);
+    if (cm._nextActiveLine != lineHandle) {
+      if ("_nextActiveLine" in cm) {
+        cm.removeLineClass(cm._nextActiveLine, "background", NEXT_BACK_CLASS);
+      }
+      cm.addLineClass(lineHandle, "background", NEXT_BACK_CLASS);
+      cm._nextActiveLine = lineHandle;
     }
   }
 }
@@ -3230,6 +3257,11 @@ function cleanUpVisualization() {
   if ("_activeLine" in CODE_MIRROR_BOX) {
     CODE_MIRROR_BOX.removeLineClass(
       CODE_MIRROR_BOX._activeLine, "background", BACK_CLASS);
+  }
+
+  if ("_nextActiveLine" in CODE_MIRROR_BOX) {
+    CODE_MIRROR_BOX.removeLineClass(
+      CODE_MIRROR_BOX._nextActiveLine, "background", NEXT_BACK_CLASS);
   }
 }
 
@@ -5090,6 +5122,7 @@ PlayStatus = {
 // TODO better name and document
 var WRAP_CLASS = "activeline";
 var BACK_CLASS = "activeline-background";
+var NEXT_BACK_CLASS = "nextActiveline-background";
 
 // TODO: better var names and all caps
 var CELL_SIZE = 32,

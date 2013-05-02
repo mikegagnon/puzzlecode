@@ -338,7 +338,9 @@ function dubstep(board, bot) {
       "dubstep: bot.ip >= 0 && bot.ip < bot.program.instructions.length")
     instruction = bot.program.instructions[bot.ip]
 
-    // NOTE: executing the instruction may modify the ip
+    result.visualize.lineIndex = instruction.lineIndex
+
+    // NOTE: executing the goto instruction (and others) may modify the ip
     bot.ip = bot.ip + 1
 
     if (instruction.opcode == Opcode.MOVE) {
@@ -349,6 +351,11 @@ function dubstep(board, bot) {
       executeGoto(result, bot, instruction.data)
     }
 
+    if (bot.ip < bot.program.instructions.length) {
+      var nextInstruction = bot.program.instructions[bot.ip]
+      result.visualize.nextLineIndex = nextInstruction.lineIndex
+    }
+
     // if the bot has reached the end of its program
     if (bot.ip >= bot.program.instructions.length) {
       botDone(result, board, bot)
@@ -357,12 +364,10 @@ function dubstep(board, bot) {
     _(result.depositMarker).forEach( function (marker) {
       addMarker(board, marker)
     })
+
   }
 
   board.visualize.step.bot[bot.id] = result.visualize
-  if (typeof instruction != "undefined") {
-    board.visualize.step.bot[bot.id].lineIndex = instruction.lineIndex
-  }
 
 }
 
