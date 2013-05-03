@@ -263,7 +263,6 @@ function allLevelIndices(campaign) {
 
 // make the specified level visible
 function unlockLevel(state, world_index, level_index) {
-  console.log(state, world_index, level_index)
   if (!(world_index in state.visibility)) {
     state.visibility[world_index] = {
       complete: false
@@ -457,13 +456,11 @@ function addLineComments(codeMirrorBox, lineComments) {
   codeMirrorBox.clearGutter("note-gutter")
   for (i in lineComments) {
     var comment = lineComments[i]
-    console.log( i + " " + comment)
     codeMirrorBox
       .setGutterMarker(
         parseInt(i),
         "note-gutter",
         comment)
-    console.log( i + " " + comment)
   }
 }
 
@@ -1046,9 +1043,7 @@ function windowOnLoad() {
   registerEventHandlers()
   setupTutorial()
 
-  // TODO: where should i put this?
-  ANIMATE_INTERVAL = setInterval("animate()", CYCLE_DUR)
-  nonBotAnimateInterval = setInterval("nonBotAnimate()", NON_BOT_CYCLE_DUR)
+  setSpeed(INIT_PLAY_SPEED)
 
   var campaign = PUZZLE_CAMPAIGN
   var state = PUZZLE_CAMPAIGN_STATE
@@ -1072,12 +1067,10 @@ function chooseLevelClick() {
  *****************************************************************************/
 
 function setSpeed(speed) {
-  var speedText = document.getElementById("speedText")
-
   ANIMATION_DUR = speed[0]
   CYCLE_DUR = speed[1]
+  $("#speedText").text(speed[2])
   EASING = speed[3]
-  speedText.innerHTML = speed[2]
   clearInterval(ANIMATE_INTERVAL)
   ANIMATE_INTERVAL = setInterval("animate()", CYCLE_DUR)
 }
@@ -2938,7 +2931,6 @@ function highlightLine(code_mirror_box, lineIndex, css) {
   // first remove any previous highlighting for css
   undoHighlightLine(code_mirror_box, css)
 
-  console.log("highlightLine = " + lineIndex)
   var lineHandle = code_mirror_box.getLineHandle(lineIndex)
   var identifier = "_" + css
   if (code_mirror_box[identifier] != lineHandle) {
@@ -2996,7 +2988,6 @@ function animateProgram(board) {
       }
     }
 
-    console.dir(lineComments)
     if (!_(lineComments).isEmpty()) {
       addLineComments(cm, lineComments)
     }
@@ -5138,7 +5129,7 @@ var MAX_HIGHLIGHT_SPEED = 150
 PlaySpeed = {
   SUPER_SLOW: [2000, 4000, "Super slow", "cubic-in-out"],
   SLOW: [750, 1500, "Slow", "cubic-in-out"],
-  NORMAL: [400, 600, "Normal", "cubic-in-out"],
+  NORMAL: [400, 600, "Normal speed", "cubic-in-out"],
   FAST: [150, 150, "Fast", "linear"],
   SUPER_FAST: [0, 0, "Super fast", "linear"]
 }
@@ -5159,7 +5150,7 @@ var CELL_SIZE = 32,
     VIS = null,
     ANIMATE_INTERVAL = null,
     PLAY_STATUS = PlayStatus.INITAL_STATE_PAUSED,
-    INIT_PLAY_SPEED = PlaySpeed.NORMAL,
+    INIT_PLAY_SPEED = PlaySpeed.NORMAL
     ANIMATION_DUR = INIT_PLAY_SPEED[0]
     CYCLE_DUR = INIT_PLAY_SPEED[1],
     VICTORY_DUR = 400

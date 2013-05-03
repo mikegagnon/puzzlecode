@@ -28,7 +28,7 @@ var MAX_HIGHLIGHT_SPEED = 150
 PlaySpeed = {
   SUPER_SLOW: [2000, 4000, "Super slow", "cubic-in-out"],
   SLOW: [750, 1500, "Slow", "cubic-in-out"],
-  NORMAL: [400, 600, "Normal", "cubic-in-out"],
+  NORMAL: [400, 600, "Normal speed", "cubic-in-out"],
   FAST: [150, 150, "Fast", "linear"],
   SUPER_FAST: [0, 0, "Super fast", "linear"]
 }
@@ -49,7 +49,7 @@ var CELL_SIZE = 32,
     VIS = null,
     ANIMATE_INTERVAL = null,
     PLAY_STATUS = PlayStatus.INITAL_STATE_PAUSED,
-    INIT_PLAY_SPEED = PlaySpeed.NORMAL,
+    INIT_PLAY_SPEED = PlaySpeed.NORMAL
     ANIMATION_DUR = INIT_PLAY_SPEED[0]
     CYCLE_DUR = INIT_PLAY_SPEED[1],
     VICTORY_DUR = 400

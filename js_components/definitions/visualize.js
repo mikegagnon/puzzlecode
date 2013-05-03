@@ -455,7 +455,6 @@ function highlightLine(code_mirror_box, lineIndex, css) {
   // first remove any previous highlighting for css
   undoHighlightLine(code_mirror_box, css)
 
-  console.log("highlightLine = " + lineIndex)
   var lineHandle = code_mirror_box.getLineHandle(lineIndex)
   var identifier = "_" + css
   if (code_mirror_box[identifier] != lineHandle) {
@@ -513,7 +512,6 @@ function animateProgram(board) {
       }
     }
 
-    console.dir(lineComments)
     if (!_(lineComments).isEmpty()) {
       addLineComments(cm, lineComments)
     }

@@ -136,7 +136,6 @@ function allLevelIndices(campaign) {
 
 // make the specified level visible
 function unlockLevel(state, world_index, level_index) {
-  console.log(state, world_index, level_index)
   if (!(world_index in state.visibility)) {
     state.visibility[world_index] = {
       complete: false

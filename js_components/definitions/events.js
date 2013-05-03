@@ -45,9 +45,7 @@ function windowOnLoad() {
   registerEventHandlers()
   setupTutorial()
 
-  // TODO: where should i put this?
-  ANIMATE_INTERVAL = setInterval("animate()", CYCLE_DUR)
-  nonBotAnimateInterval = setInterval("nonBotAnimate()", NON_BOT_CYCLE_DUR)
+  setSpeed(INIT_PLAY_SPEED)
 
   var campaign = PUZZLE_CAMPAIGN
   var state = PUZZLE_CAMPAIGN_STATE
@@ -71,12 +69,10 @@ function chooseLevelClick() {
  *****************************************************************************/
 
 function setSpeed(speed) {
-  var speedText = document.getElementById("speedText")
-
   ANIMATION_DUR = speed[0]
   CYCLE_DUR = speed[1]
+  $("#speedText").text(speed[2])
   EASING = speed[3]
-  speedText.innerHTML = speed[2]
   clearInterval(ANIMATE_INTERVAL)
   ANIMATE_INTERVAL = setInterval("animate()", CYCLE_DUR)
 }
