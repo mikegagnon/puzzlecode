@@ -501,13 +501,16 @@ function animateProgram(board) {
 
     if ("lineIndex" in bot_viz) {
       highlightLine(cm, bot_viz.lineIndex, BACK_CLASS)
-      lineComments[bot_viz.lineIndex] = rightComment("previous")
+      if (TUTORIAL_STEP_BUTTON_ACTIVE) {
+        lineComments[bot_viz.lineIndex] = rightComment("previous instruction")
+      }
     }
 
     if ("nextLineIndex" in bot_viz) {
       highlightLine(cm, bot_viz.nextLineIndex, NEXT_BACK_CLASS)
-      lineComments[bot_viz.nextLineIndex] = rightComment("next")
-
+      if (TUTORIAL_STEP_BUTTON_ACTIVE) {
+        lineComments[bot_viz.nextLineIndex] = rightComment("next instruction")
+      }
     }
 
     console.dir(lineComments)
