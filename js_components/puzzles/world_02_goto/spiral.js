@@ -32,7 +32,7 @@ function puzzle_spiral() {
     ],
 
     constraints: {
-      "max_instructions": 8
+      "max_instructions": 12
     },
 
     solutions: [
