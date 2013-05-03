@@ -28,11 +28,13 @@ function addLineComments(codeMirrorBox, lineComments) {
   codeMirrorBox.clearGutter("note-gutter")
   for (i in lineComments) {
     var comment = lineComments[i]
+    console.log( i + " " + comment)
     codeMirrorBox
       .setGutterMarker(
         parseInt(i),
         "note-gutter",
         comment)
+    console.log( i + " " + comment)
   }
 }
 

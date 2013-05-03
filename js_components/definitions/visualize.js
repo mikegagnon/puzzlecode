@@ -462,6 +462,14 @@ function highlightLine(code_mirror_box, lineIndex, css) {
     cm.addLineClass(lineHandle, "background", css)
     code_mirror_box[identifier] = lineHandle
   }
+
+}
+
+function rightComment(text) {
+  var newlink = document.createElement('div')
+  newlink.setAttribute('style', "text-align: right;")
+  newlink.appendChild(newComment(text))
+  return newlink
 }
 
 // animate the program's text
@@ -489,12 +497,22 @@ function animateProgram(board) {
 
   // if animation is slow enough
   if (CYCLE_DUR >= MAX_HIGHLIGHT_SPEED) {
+    var lineComments = {}
+
     if ("lineIndex" in bot_viz) {
       highlightLine(cm, bot_viz.lineIndex, BACK_CLASS)
+      lineComments[bot_viz.lineIndex] = rightComment("previous")
     }
 
     if ("nextLineIndex" in bot_viz) {
       highlightLine(cm, bot_viz.nextLineIndex, NEXT_BACK_CLASS)
+      lineComments[bot_viz.nextLineIndex] = rightComment("next")
+
+    }
+
+    console.dir(lineComments)
+    if (!_(lineComments).isEmpty()) {
+      addLineComments(cm, lineComments)
     }
   }
 

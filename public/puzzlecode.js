@@ -457,11 +457,13 @@ function addLineComments(codeMirrorBox, lineComments) {
   codeMirrorBox.clearGutter("note-gutter")
   for (i in lineComments) {
     var comment = lineComments[i]
+    console.log( i + " " + comment)
     codeMirrorBox
       .setGutterMarker(
         parseInt(i),
         "note-gutter",
         comment)
+    console.log( i + " " + comment)
   }
 }
 
@@ -2109,10 +2111,14 @@ function setupTutorialObject() {
       popover: cloneDeep(DEFAULT_POPOVER, {
         title: getTitle("programEditor4", "Watch your robot run"),
         content: 
-          "<p>Your robot just <strong>executed one of your instructions</strong>.</p>"
-          + "<p>(1) Notice how the <strong>game board</strong> has changed.</p>"
-          + "<p>(2) Also notice, the program editor has <strong>highlighted</strong> the instruction "
-          + "your robot just executed.</p>"
+          "<p>Your robot just <strong>executed a an instruction."
+          + "</strong>. Note the following:</p>"
+          + "<p>(1) Your robot <strong>has moved</strong>.</p>"
+          + "<p>(2) The instruction that your <strong>robot just executed"
+          + "</strong> is highlighted.</p>"
+          + "<p><img src='img/code_highlights.png'></p>"
+          + "<p>(2) The instruction that your robot <strong>will execute next"
+          + "</strong> is highlighted.</p>"
           + "<p><strong> Keep clicking the Step button</strong></p>"
       }),
       activate: function() {
@@ -2936,6 +2942,14 @@ function highlightLine(code_mirror_box, lineIndex, css) {
     cm.addLineClass(lineHandle, "background", css)
     code_mirror_box[identifier] = lineHandle
   }
+
+}
+
+function rightComment(text) {
+  var newlink = document.createElement('div')
+  newlink.setAttribute('style', "text-align: right;")
+  newlink.appendChild(newComment(text))
+  return newlink
 }
 
 // animate the program's text
@@ -2963,12 +2977,22 @@ function animateProgram(board) {
 
   // if animation is slow enough
   if (CYCLE_DUR >= MAX_HIGHLIGHT_SPEED) {
+    var lineComments = {}
+
     if ("lineIndex" in bot_viz) {
       highlightLine(cm, bot_viz.lineIndex, BACK_CLASS)
+      lineComments[bot_viz.lineIndex] = rightComment("previous")
     }
 
     if ("nextLineIndex" in bot_viz) {
       highlightLine(cm, bot_viz.nextLineIndex, NEXT_BACK_CLASS)
+      lineComments[bot_viz.nextLineIndex] = rightComment("next")
+
+    }
+
+    console.dir(lineComments)
+    if (!_(lineComments).isEmpty()) {
+      addLineComments(cm, lineComments)
     }
   }
 
