@@ -67,7 +67,7 @@ var CELL_SIZE = 32,
 var AUTO_SOLVE_DEBUG = false
 
 // if true, then every level is automatically visible
-var CAMPAIGN_ALL_VISIBLE = true
+var CAMPAIGN_ALL_VISIBLE = false
 
 // simply a list of all worlds
 // This data structure is intended to be 100% immutable
