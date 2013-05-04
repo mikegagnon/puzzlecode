@@ -326,7 +326,7 @@ function setupTutorialObject() {
       popover: cloneDeep(DEFAULT_POPOVER, {
         title: getTitle("programEditor4", "Watch your robot run"),
         content: 
-          "<p>Your robot just <strong>executed a an instruction"
+          "<p>Your robot just <strong>executed an instruction"
           + "</strong>. Note the following:</p>"
           + "<ul>"
           + "<li>The robot has moved on the Game Board.</li>"
