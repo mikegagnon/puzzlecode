@@ -1,6 +1,6 @@
 Puzzle Code
 ===========
-By Mike Gagnon, 2013 Apache License 2.0
+By Mike Gagnon, public domain (see UNLICENSE)
 
 A programming game for non-programmers.
 
