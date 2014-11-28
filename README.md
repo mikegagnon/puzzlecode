@@ -6,6 +6,10 @@ A programming game for non-programmers.
 
 Currently in development. Live demo at http://puzzleco.de
 
+All collaborators must join the [Anti Grey Goo Peace Treaty](https://github.com/mikegagnon/anti-grey-goo-peace-treaty).
+
+When MVP-2 is released. Players are only allowed to play if they are currently members of the [Anti Grey Goo Peace Treaty](https://github.com/mikegagnon/anti-grey-goo-peace-treaty).
+
 This project is under construction.
 It's my first Javascript project, so please send me feedback!
 Just send me an email at mikegagnon@gmail.com, or, better yet,
