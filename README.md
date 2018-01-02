@@ -4,12 +4,7 @@ By Mike Gagnon, public domain (see UNLICENSE)
 
 A programming game for non-programmers.
 
-Currently in development. Live demo at http://puzzleco.de
-
-This project is under construction.
-It's my first Javascript project, so please send me feedback!
-Just send me an email at mikegagnon@gmail.com, or, better yet,
-file an issue or pull request on Github.
+Currently in development. Live demo at http://puzzlecode.org
 
 The game
 --------
